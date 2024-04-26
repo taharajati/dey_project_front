@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face{
+    font-family: 'Vazir-Medium';
+    src: local('Vazir-Medium') , url(./fonts/Vazir-Medium.ttf) , format('truetype');
+}
+
+:root {
+    --color-bg: #F1F1F1;
+    --color-primary: #0099A8;
+    --color-primary-variant: #CB1950;
+    --color-primary-variant-02: #F6EBEB;
+    --color-light: #F1F9FA;
+    --color-bg-variant: #057C88;
+
+    --color-white: #223a43  ;
+
+    --transition: all 400ms ease ;
+
+    --container-width-lg: 75%;
+    --container-width-md: 86%;
+    --container-width-sm: 90%;
+} 
+
+
+*{
+
+    font-family:'Vazir-Medium';
+    font-size: medium;
+
+}
+
+
+body{
+    font-family: 'Vazir-Medium';
+    font-size: medium;
+}
+

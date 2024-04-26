@@ -1,0 +1,69 @@
+{
+  "name": "stock-market",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^41.3.1",
+    "@ckeditor/ckeditor5-react": "^6.3.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@uppy/core": "^3.10.1",
+    "@uppy/dashboard": "^3.8.1",
+    "@uppy/drag-drop": "^3.1.0",
+    "@uppy/file-input": "^3.1.1",
+    "@uppy/progress-bar": "^3.1.1",
+    "@uppy/react": "^3.3.0",
+    "@uppy/xhr-upload": "^3.6.4",
+    "axios": "^1.6.5",
+    "bootstrap": "^5.3.2",
+    "date-fns": "^3.3.1",
+    "draft-js": "^0.11.7",
+    "file-saver": "^2.0.5",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.10.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-datepicker": "^4.25.0",
+    "react-dom": "^18.2.0",
+    "react-draft-wysiwyg": "^1.15.0",
+    "react-icons": "^5.0.1",
+    "react-multi-date-picker": "^4.4.1",
+    "react-router-dom": "^6.22.3",
+    "react-scripts": "5.0.1",
+    "react-select": "^5.8.0",
+    "react-table": "^7.8.0",
+    "react-windowed-select": "^5.1.1",
+    "recharts": "^2.12.1",
+    "tailwindcss-filters": "^3.0.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "eslint-plugin-react": "^7.33.2",
+    "tailwindcss": "^3.4.1"
+  }
+}
