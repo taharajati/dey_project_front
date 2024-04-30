@@ -126,7 +126,7 @@ const FileDetailsPage = () => {
           <select id="documentType" onChange={(e) => setSelectedDocumentType(e.target.value)} className="block w-full bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-500">
             <option value=""></option>
             {documents.map((doc) => (
-              <option key={doc._id.$oid} value={doc.document_fa}>
+              <option key={doc._id.$oid} value={doc.document}>
                 {doc.document_fa}
               </option>
             ))}

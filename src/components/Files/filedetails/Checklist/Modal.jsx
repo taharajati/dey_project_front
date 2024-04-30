@@ -8,6 +8,14 @@ const Modal = ({ isOpen, onClose, detailName, formData, handleChange , reportId}
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Check if any checklist item is not selected
+    const uncheckedItems = Object.entries(formData).filter(([key, value]) => value !== 'true' && value !== 'false' && key !== 'insurance_number' && key !== 'total_cost');
+    if (uncheckedItems.length > 0 || !formData.insurance_number || !formData.total_cost) {
+      alert('لطفاً یکی از موارد را انتخاب کنید و یا شماره بیمه نامه و مبلغ را وارد کنید.');
+      return;
+    }
+  
     try {
       const token = localStorage.getItem('accessToken');
       const url = `http://188.121.99.245/api/report/checklist/${detailName}`;

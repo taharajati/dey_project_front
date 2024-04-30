@@ -25,7 +25,7 @@ function UserList() {
   console.log("selectedTitle",selectedTitle)
   const fetchUsers = async (token) => {
     try {
-      let url = "http://188.121.99.245/api/user/";
+      let url = " ";
       if (selectedTitle) {
         url += `?title=${selectedTitle}`;
       }
@@ -78,17 +78,21 @@ function UserList() {
     return foundTitle ? foundTitle.label : titleValue;
   }
   return (
-    <div className="flex flex-col items-center w-full mt-24 mx-auto px-5 max-md:mt-10 max-md:max-w-full">
-      <div className="flex justify-between items-center w-full px-16 py-3 rounded-2xl max-md:px-5">
+    <div className="flex flex-col items-center w-full mt-10  mx-auto px-5 max-md:mt-10 max-md:max-w-full">
+      <div className="flex justify-between items-center w-full px-16 py-3 rounded-2xl max-md:px-5  mb-[-25px]">
         <button onClick={toggleModal} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
           اضافه کردن کاربر
-        </button>
+        </button>      
+        <div className="">افراد</div>
+
         {showModal && <AddUserForm onClose={toggleModal} token={token} fetchUsers={fetchUsers} selectedTitle={selectedTitle} />}
         <div>
+    
+
           <select
             value={selectedTitle}
             onChange={handleTitleChange}
-            className="border border-gray-300 rounded-md px-4 py-2"
+            className="border border-gray-300 rounded-md px-4 py-2" 
           >
             <option value="">عنوان را انتخاب کنید</option>
             {LIST_OF_TITLES.map((option) => (
@@ -97,18 +101,17 @@ function UserList() {
               </option>
             ))}
           </select>
-        
+
         </div>
       </div>
-      <div className="flex justify-end w-full px-16 py-3 max-md:px-5">
-        <div className="">افراد</div>
+      <div className="flex justify-end w-full px-16 py-3 max-md:px-5 ">
       </div>
-      <div className="mt-2 max-w-full h-0.5 bg-black border border-black border-solid w-full" />
+      <div className="mt-2 max-w-full h-0.5 bg-black border border-black border-solid w-full " />
       <div className="bg-[color:var(--color-bg)] mt-3 w-[1100px] rounded-xl p-4 " dir="rtl">
-        <table className="w-full border-collapse">
-          <thead className="bg-gray-200 text-center">
-            <tr>
-              <th className="px-4 py-2">نام</th>
+        <table className="w-full border-collapse  ">
+          <thead className="bg-gray-200 text-center"> 
+            <tr >
+              <th className="px-4 py-2 ">نام</th>
               <th className="px-4 py-2">نام خانوادگی</th>
               <th className="px-4 py-2">سمت</th>
               <th className="px-4 py-2">عملیات</th>
@@ -189,10 +192,10 @@ function AddUserForm({ onClose, token, fetchUsers, selectedTitle }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center ">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center " dir="rtl">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full ">
-        <IoCloseSharp onClick={onClose} className="float-right cursor-pointer" />
-        <h2 className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">اضافه کردن کاربر</h2>
+        <IoCloseSharp onClick={onClose} className="float-left cursor-pointer" />
+        <h2 className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)] ">اضافه کردن کاربر</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"

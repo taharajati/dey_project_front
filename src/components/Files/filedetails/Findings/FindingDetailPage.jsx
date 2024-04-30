@@ -180,11 +180,11 @@ console.log()
   return (
     <div className="container mx-auto px-4 my-2 " dir="rtl">
       <button onClick={handleGoBack} className="bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg">
-        Back
+        بازگشت
       </button>
 
       {/* Display Titles */}
-      <h2 className="text-xl font-semibold text-gray-800 my-5">عناوین یافته ها</h2>
+      <h2 className="text-2xl font-semibold  my-5 text-[color:var(--color-primary-variant)]">عناوین یافته ها</h2>
       <table className="min-w-full leading-normal">
         <thead>
           <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
@@ -204,17 +204,17 @@ console.log()
       </button>
 
       {/* Display Risks */}
-      <h2 className="text-xl font-semibold text-gray-800 my-5">ریسک ها</h2>
+      <h2 className="text-2xl font-semibold  my-5 text-[color:var(--color-primary-variant)]">ریسک ها</h2>
       <table className="min-w-full leading-normal">
         <thead>
           <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-right">ریسک ها</th>
+            <th className="py-3 px-6 text-right ">ریسک ها</th>
           </tr>
         </thead>
         <tbody>
-          {risksData.map((risk, index) => (
+          {risksData.map((title, index) => (
             <tr key={index} className="bg-white border-b border-gray-200">
-              <td className="py-3 px-6 text-right">{risk.risk}</td>
+              <td className="py-3 px-6 text-right">{title.title}</td>
             </tr>
           ))}
         </tbody>
@@ -224,7 +224,7 @@ console.log()
       </button>
 
       {/* Display Suggestions */}
-      <h2 className="text-xl font-semibold text-gray-800 my-5">پیشنهادات</h2>
+      <h2 className="text-2xl font-semibold  my-5 text-[color:var(--color-primary-variant)] ">پیشنهادات</h2>
       <table className="min-w-full leading-normal">
         <thead>
           <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
@@ -232,9 +232,9 @@ console.log()
           </tr>
         </thead>
         <tbody>
-          {suggestionsData.map((suggestion, index) => (
+          {suggestionsData.map((title, index) => (
             <tr key={index} className="bg-white border-b border-gray-200">
-              <td className="py-3 px-6 text-right">{suggestion.suggestion}</td>
+              <td className="py-3 px-6 text-right">{title.title}</td>
             </tr>
           ))}
         </tbody>
@@ -257,7 +257,7 @@ console.log()
         
       </div>
       <div className="container mx-auto px-4 my-2 h-[200px]  " dir="rtl">
-      <button onClick={handleSaveChanges} className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4  focus:outline-none m-5">Save table</button>
+          
           <DynamicTableEditor tableData={tableData} setTableData={setTableData} />
 
       </div>

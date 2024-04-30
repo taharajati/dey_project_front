@@ -96,10 +96,10 @@ const Allocation = () => {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setSuccess('Assignments updated successfully!');
+            setSuccess('با موفقیت بروزرسانی شد');
             console.log(response.data);
         } catch (err) {
-            setError('Failed to update assignments');
+            setError('بروزرسانی موفق نبود');
             console.error(err);
         } finally {
             setLoading(false);
@@ -121,21 +121,23 @@ const Allocation = () => {
                 {error && <p className="bg-red-100 text-red-800 text-center p-2 rounded">{error}</p>}
                 {success && <p className="bg-green-100 text-green-800 text-center p-2 rounded">{success}</p>}
                 <form onSubmit={handleSubmit} className="flex flex-col justify-end">
-                    {Object.keys(assignments).filter(key => key.includes('_expert')).map((key) => (
-                        <div key={key} className="mb-4 flex">
-                            <label className="block text-xl font-medium mb-1">{translations[key.replace('_expert', '')]}:</label>
-                            <select
-                                className="form-select block  flex-auto w-64 mx-5  rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-[color:var(--color-bg)]"
-                                value={assignments[key]}
-                                onChange={(e) => handleAssignmentChange(key, e.target.value)}
-                            >
-                                <option value="">انتخاب کارشناس </option>
-                                {experts.map(expert => (
-                                    <option key={expert._id} value={expert._id}>{expert.full_name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    ))}
+                {Object.keys(assignments)
+    .filter(key => !key.endsWith('_expert') && translations[key.replace('_expert', '')])
+    .map((key) => (
+        <div key={key} className="mb-4 flex">
+            <label className="block text-xl font-medium mb-1">{translations[key.replace('_expert', '')]}:</label>
+            <select
+                className="form-select block  flex-auto w-64 mx-5  rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-[color:var(--color-bg)]"
+                value={assignments[key]}
+                onChange={(e) => handleAssignmentChange(key, e.target.value)}
+            >
+                <option value="">انتخاب کارشناس </option>
+                {experts.map(expert => (
+                    <option key={expert._id} value={expert._id}>{expert.full_name}</option>
+                ))}
+            </select>
+        </div>
+))}
                        <button className="w-[160px] text-center py-2 px-4 bg-[color:var(--color-bg-variant)]  hover:bg-[color:var(--color-primary)] text-white font-bold rounded-md" type="submit">
                             بروزرسانی تخصیص
                         </button>

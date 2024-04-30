@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaTrashAlt } from "react-icons/fa";
 
 
-
+  
 
 const DEFAULT_COLUMN_COUNT = 3;
 
@@ -43,13 +43,13 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
   return (
     <div className="my-4">
       <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2 my-5"
+        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
         onClick={addRow}
       >
         Add Row
       </button>
       <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2 my-5"
+        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
         onClick={addColumn}
       >
         Add Column

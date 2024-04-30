@@ -57,7 +57,7 @@ function BranchList() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full mt-24 mx-auto px-5 max-md:mt-10 max-md:max-w-full">
+    <div className="flex flex-col items-center w-full  mt-10 mx-auto px-5 max-md:mt-10 max-md:max-w-full">
       <div className="flex justify-between items-center w-full px-16 py-3 rounded-2xl max-md:px-5">
         <button onClick={toggleModal} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
           اضافه کردن شعبه
@@ -138,9 +138,9 @@ function AddBranchForm({ onClose, token, fetchBranches }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center " >
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center " dir="rtl" >
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full ">
-        <IoCloseSharp onClick={onClose} className="float-right cursor-pointer" />
+        <IoCloseSharp onClick={onClose} className="float-left  cursor-pointer" />
         <h2 className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">اضافه کردن شعبه</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input

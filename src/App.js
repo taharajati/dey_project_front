@@ -61,7 +61,7 @@ function App() {
     <ReportProvider>
       <Router>
         <div>
-        {isAuthenticated && <Nav />}
+        {isAuthenticated && window.location.pathname !== '/login' && <Nav /> }
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/users" element={isAuthenticated ? <UserList /> : <Navigate to="/login" />} />

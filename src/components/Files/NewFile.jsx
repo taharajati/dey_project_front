@@ -182,7 +182,7 @@ const handleExpertCheckboxChange = (e, expertId) => {
 
   return (
     <div className="flex flex-col  w-full mt-8 mx-auto px-5 max-md:mt-10 max-md:max-w-full">
-    <h2 className="text-lg mb-4 font-semibold mx-20 " dir="rtl">ایجاد پرونده جدید</h2>
+    <h2 className=" mb-4 font-semibold mx-20 text-[color:var(--color-primary-variant)] text-2xl " dir="rtl">ایجاد پرونده جدید</h2>
     <div className="mt-2 max-w-full h-0.5 bg-black border border-black border-solid w-full" />
     
     <div className="flex justify-start items-start min-h-screen p-4 " dir="rtl">

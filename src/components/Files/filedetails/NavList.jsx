@@ -15,7 +15,7 @@ const NavList = ({ activeReportId }) => {
                             onClick={handleGoBack}
                             className="bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"
                         >
-                            Back
+                            بازگشت
                         </button>
             <ul className="flex justify-end space-x-4 rtl:space-x-reverse  float-right " dir='rtl'>
            
@@ -83,7 +83,7 @@ const NavList = ({ activeReportId }) => {
                     >
                         گزارش نهایی
                     </NavLink>
-                </li>
+                </li>   
              
             </ul>
         </nav>

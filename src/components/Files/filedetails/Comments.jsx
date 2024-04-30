@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import NavList from './NavList';
+import { useReport } from './ReportContext'; // Import the useReport hook
+
+
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+
 
   // Function to fetch comments
   const fetchComments = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://188.121.99.245/api/report/comment/?report_id=662a05a2c9c0718052b312ba', {
+      const response = await fetch(`http://188.121.99.245/api/report/comment/?report_id=${reportId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -61,7 +66,7 @@ console.log(newComment)
   return (
     <>
       <NavList />
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-lg mx-auto my-5">
         <h2 className="text-2xl font-bold mb-4 my-3 text-center text-[color:var(--color-primary-variant)]">کامنت ها </h2>
         {/* Display existing comments */}
         <ul className="space-y-4">
@@ -84,7 +89,7 @@ console.log(newComment)
             className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
             rows="4"
           />
-          <button onClick={submitComment} className="mt-2 px-4 py-2 bg-[color:var(--color-bg-variant)] text-white rounded-md hover:bg-[color:var(--color-primary)] focus:outline-none">
+          <button onClick={submitComment} className="mt-2 px-4 py-2 bg-[color:var(--color-bg-variant)] text-white rounded-md hover:bg-[color:var(--color-primary)] focus:outline-none float-right" >
             تایید کامنت
           </button>
         </div>

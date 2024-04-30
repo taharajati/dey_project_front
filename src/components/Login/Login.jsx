@@ -2,10 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo1 from "../../assets/logo1.png";
 import logo2 from "../../assets/logo2.png";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+
   const navigate = useNavigate();
   const logo1Ref = useRef(null);
   const [logo2Position, setLogo2Position] = useState({ top: 0, left: 0 });
@@ -53,7 +57,9 @@ function Login() {
       alert("خطای شبکه!");
     }
   };
-
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   return (
     <div className="flex items-center justify-center h-[731px] mt-[-36px] bg-[color:var(--color-bg)]">
       {/* Left side: Picture */}
@@ -74,31 +80,47 @@ function Login() {
       </div>
 
    {/* Right side: Login box */}
-   <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-1/2 mr-[5%] sm:w-full md:w-full">
-    <h1 className="items-center flex flex-col text-[color:var(--color-primary-variant)] text-2xl mb-5"> ورود به سامانه حسابرسی </h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+   <div className="flex items-center justify-center h-screen  max-w-md w-1/2 mr-[5%] sm:w-full md:w-full">
+
+   <div className="p-8 rounded-lg  max-w-md w-1/2 mr-[5%] sm:w-full md:w-full">
+    <h1 className="items-center flex flex-col text-[color:var(--color-primary-variant)] text-2xl mb-[60px]"> ورود به سامانه حسابرسی </h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 ">
+          <label className=" text-gray-500 mb-[-10px] " dir="rtl">نام کاربری</label>
           <input
             type="text"
-            placeholder="Username"
+            placeholder="نام کاربری را وارد کنید"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="border border-gray-300 rounded-md px-4 py-2"
+            className="border shadow-lg border-gray-300 rounded-md px-4 py-2" dir="rtl"
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border border-gray-300 rounded-md px-4 py-2"
-          />
+           <label className="text-gray-500 mb-[-10px]" dir="rtl">
+            رمز ورود
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="رمز ورود را وارد کنید" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border border-gray-300 rounded-md px-4 py-2 pl-[150px] " dir="rtl"    
+            />
+            <button
+              type="button"
+              className="absolute top-1/2 left-4 transform -translate-y-1/2 focus:outline-none text-gray-500 " 
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ?  <FaEye /> : <FaEyeSlash />}
+            </button>
+          </div>
           <button
             type="submit"
-            className="bg-[color:var(--color-bg-variant)] text-white py-2 px-4 rounded-md hover:bg-[color:var(--color-primary)] transition-all w-full"
+            className="bg-[color:var(--color-bg-variant)] text-white py-2 px-4 rounded-md hover:bg-[color:var(--color-primary)] transition-all w-full mt-[40px] shadow-lg" 
           >
             ورود
           </button>
         </form>
       </div>
+    </div>
     </div>
   );
 }
