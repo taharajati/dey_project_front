@@ -13,7 +13,7 @@ const Findings = () => {
     const fetchFindingsData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const url = `http://188.121.99.245/api/report/finding/?report_id=6628290587158293b9883e82`;
+        const url = `http://188.121.99.245/api/report/finding/?report_id=662f7e8efce395369e27f801`;
         const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
         setFindingsData(response.data.data || []);
         setLoading(false);
@@ -39,7 +39,7 @@ const Findings = () => {
       <div className="container mx-auto px-4 my-2" dir="rtl">
         <div>
           <h2 className="text-xl font-semibold text-gray-800 my-5">یافته‌ها</h2>
-          <table className="min-w-full leading-normal">
+          <table className="min-w-full leading-3">
             <thead>
               <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                 <th className="py-3 px-6 text-right">نوع یافته</th>

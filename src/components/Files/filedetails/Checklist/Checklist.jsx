@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavList from '../NavList';
-import ChecklistForm from './ChecklistForm';
 import Modal from './Modal';
 
 import { useReport } from '../ReportContext'; // Import the useReport hook
@@ -79,12 +78,15 @@ const Checklist = () => {
   };
 
 
-  const handleFormSubmit = (formData) => {
+  const handleFormSubmit = async (formData) => {
     if (!currentFormDefinition || !currentFormDefinition.section || !currentFormDefinition.detail) {
       console.error("Error: currentFormDefinition is not properly defined.");
       return;
     }
-  
+
+    formData.reportId = reportId;
+
+
     const newData = { ...checklistData };
     newData[currentFormDefinition.section][currentFormDefinition.detail].data.push(formData);
     setChecklistData(newData);
@@ -133,21 +135,18 @@ const Checklist = () => {
   return (
     <>
  <NavList/>
- <Modal isOpen={showQuestionModal} onClose={handleQuestionModalClose} detailName={detailName} formData={formData} handleChange={handleChange} onSubmit={handleFormSubmit} >
+ <Modal isOpen={showQuestionModal} onClose={handleQuestionModalClose} detailName={detailName}   reportId={reportId}  formData={formData} handleChange={handleChange} onSubmit={handleFormSubmit} >
 
 
 
   <h2 className="text-xl font-semibold text-gray-800">Your Question Goes Here</h2>
-  <ChecklistForm sectionName={sectionName} formData={formData} handleChange={handleChange} onSubmit={handleFormSubmit} />
+
   <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
     Submit
   </button>
 </Modal>
       <div className="container mx-auto px-4 my-2" dir='rtl'>
-        {showForm && (
-        <ChecklistForm detailName={sectionName} formData={formData} handleChange={handleChange} onSubmit={handleFormSubmit} />
-
-        )}
+      
         {Object.entries(checklistData).length > 0 ? Object.entries(checklistData).map(([sectionName, sectionDetails]) => (
           <div key={sectionName} className="mb-8">
             <h2 className="text-xl font-semibold text-gray-800">{translations[sectionName] || sectionName}</h2>
@@ -162,7 +161,7 @@ const Checklist = () => {
                     <table className="min-w-full leading-normal">
                       <thead>
                         <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                          <th className="py-3 px-6 text-left">تاریخ پر کردن</th>
+                          <th className="py-3 px-6 text-left">تاریخ </th>
                           <th className="py-3 px-6 text-left">شماره بیمه</th>
                           <th className="py-3 px-6 text-left">هزینه کل</th>
                           {Object.keys(detail.data[0]).filter(key => key.startsWith('q')).map(q => (

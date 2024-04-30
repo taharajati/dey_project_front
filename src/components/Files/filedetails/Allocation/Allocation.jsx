@@ -63,15 +63,36 @@ const Allocation = () => {
     const handleAssignmentChange = (field, value) => {
         setAssignments(prev => ({ ...prev, [field]: value }));
     };
+  
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+    
+        // Extract only the desired fields from the assignments state
+        const {
+            fire_expert_name,
+            cargo_expert_name,
+            car_expert_name,
+            liability_expert_name,
+            engineering_expert_name,
+            health_expert_name,
+            life_expert_name,
+            life_and_ga_expert_name
+        } = assignments;
+    
         try {
             setLoading(true);
             const token = localStorage.getItem('accessToken');
             const response = await axios.post('http://188.121.99.245/api/report/assign/', {
-                report_id: reportId, // Use reportId obtained from useReport hook
-                ...assignments
+                report_id: reportId,
+                fire: fire_expert_name,
+                cargo: cargo_expert_name,
+                car: car_expert_name,
+                liability: liability_expert_name,
+                engineering: engineering_expert_name,
+                health: health_expert_name,
+                life: life_expert_name,
+                life_and_ga: life_and_ga_expert_name
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -84,6 +105,9 @@ const Allocation = () => {
             setLoading(false);
         }
     };
+    
+    
+    console.log("Assignments State:", assignments);
 
     return (
        <>

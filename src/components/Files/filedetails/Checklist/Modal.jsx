@@ -1,15 +1,35 @@
 import React from 'react';
-const Modal = ({ isOpen, onClose, detailName, formData, handleChange, onSubmit }) => {
+import axios from 'axios';
+
+const Modal = ({ isOpen, onClose, detailName, formData, handleChange , reportId}) => {
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-    onClose(); // Close the modal after form submission
-  };
 
   
-  console.log("detailName : " , detailName)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('accessToken');
+      const url = `http://188.121.99.245/api/report/checklist/${detailName}`;
+      formData.report_id = reportId;
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('با موفقیت ارسال شد:', response.data);
+      // Handle success response
+      onClose(); // Close the modal after successful form submission
+    } catch (error) {
+      console.error('خطا در ارسال :', error);
+      // Handle error
+    }
+  };
+
+
+  console.log("handleSubmi", formData);
+  console.log("detailName :", detailName);
 const CHECKLIST_DATA = {
   "ExaminingTheFiringCost": {
     "detailName": "ExaminingTheFiringCost",
@@ -664,7 +684,6 @@ const CHECKLIST_DATA = {
   }
 
 
-
   // Check if detailName is valid and exists in CHECKLIST_DATA
   if (!detailName || !CHECKLIST_DATA[detailName]) {
     return <div>Section not found or undefined.</div>;
@@ -673,42 +692,41 @@ const CHECKLIST_DATA = {
   // Get the questions for the detailName
   const questions = CHECKLIST_DATA[detailName].column_names;
 
-
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50">
       <div className="fixed inset-0 bg-black bg-opacity-50"></div>
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg max-h-[600px] overflow-auto w-[1100px] h-[600px]" dir="rtl">
         <div className="relative">
-          <button onClick={onClose} className="absolute  top-0 left-0 m-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
+        <button onClick={onClose} className="absolute top-0 left-0 m-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className=' mr-8'>
-              <label htmlFor="insuranceNumber" className="block">شماره بیمه نامه</label>
+            <div className='mr-8'>
+              <label htmlFor="insurance_number" className="block">شماره بیمه نامه</label>
               <input
-                id="insuranceNumber"
-                name="insuranceNumber"
+                id="insurance_number"
+                name="insurance_number"
                 type="text"
-                value={formData.insuranceNumber || ''}
+                value={formData.insurance_number || ''}
                 onChange={handleChange}
                 className="border border-gray-300 rounded px-2 py-1"
               />
             </div>
-            <div className=' mr-8'>
-              <label htmlFor="amount" className="block">مبلغ</label>
+            <div className='mr-8'>
+              <label htmlFor="total_cost" className="block">مبلغ</label>
               <input
-                id="amount"
-                name="amount"
-                type="text"
-                value={formData.amount || ''}
+                id="total_cost"
+                name="total_cost"
+                type="number"
+                value={formData.total_cost || ''}
                 onChange={handleChange}
                 className="border border-gray-300 rounded px-2 py-1"
               />
             </div>
             {Object.entries(questions).map(([questionKey, questionText], index) => (
               (questionKey !== 'Insurance_number' && questionKey !== 'مبلغ') && (
-                <div key={questionKey} className="flex items-center space-x-4 ">
+                <div key={questionKey} className="flex items-center space-x-4">
                   <span className="mx-2 text-[color:var(--color-primary-variant)]">{index + 1}-</span>
                   <label htmlFor={questionKey} className='bg-slate-100 p-5 rounded-lg'>{questionText}</label>
-                  <div className="flex items-center ">
+                  <div className="flex items-center">
                     <input
                       id={questionKey + '_yes'}
                       name={questionKey}
@@ -738,13 +756,13 @@ const CHECKLIST_DATA = {
               )
             ))}
             <button type="submit" className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded">
-            ارسال
+              ارسال
             </button>
           </form>
         </div>
       </div>
     </div>
   );
-}  
+}
 
 export default Modal;

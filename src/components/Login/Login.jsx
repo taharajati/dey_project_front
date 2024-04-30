@@ -55,7 +55,7 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center h-[80%] mt-[-36px] bg-[color:var(--color-bg)]">
+    <div className="flex items-center justify-center h-[731px] mt-[-36px] bg-[color:var(--color-bg)]">
       {/* Left side: Picture */}
       <div className="relative w-full h-full" ref={logo1Ref}>
         {/** Conditionally render logo1 based on screen size */}
@@ -75,7 +75,7 @@ function Login() {
 
    {/* Right side: Login box */}
    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-1/2 mr-[5%] sm:w-full md:w-full">
-    
+    <h1 className="items-center flex flex-col text-[color:var(--color-primary-variant)] text-2xl mb-5"> ورود به سامانه حسابرسی </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"

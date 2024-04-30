@@ -62,6 +62,22 @@ const NavList = ({ activeReportId }) => {
                 </li>
                 <li>
                     <NavLink 
+                        to="/first-report" 
+                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg "}
+                    >
+                        گزارش اولیه
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink 
+                        to="/branchansr" 
+                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg "}
+                    >
+                    پاسخ شعبه
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink 
                         to="/final-report" 
                         className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg "}
                     >

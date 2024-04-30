@@ -16,6 +16,8 @@ import FinalReport from './components/Files/filedetails/FinalReport';
 import Findings from './components/Files/filedetails/Findings/Findings';
 import { ReportProvider } from './components/Files/filedetails/ReportContext';  // Ensure the import path is correct
 import FindingDetailPage from './components/Files/filedetails/Findings/FindingDetailPage';
+import FirstReport from './components/Files/filedetails/FirstReport';
+import BranchAnsr from './components/Files/filedetails/BranchAnsr'
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -59,7 +61,7 @@ function App() {
     <ReportProvider>
       <Router>
         <div>
-          <Nav />
+        {isAuthenticated && <Nav />}
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/users" element={isAuthenticated ? <UserList /> : <Navigate to="/login" />} />
@@ -67,13 +69,15 @@ function App() {
             <Route path="/newfile" element={isAuthenticated ?  <NewFile />  : <Navigate to="/login" />} />
             <Route path="/completedfiles" element={isAuthenticated ? <CompletedFiles /> : <Navigate to="/login" />} />
             <Route path="/ongoingfiles" element={isAuthenticated ? <OngoingFiles /> : <Navigate to="/login" />} />
-            <Route path="/report/:id" element={<FileDetailsPage />} />
-            <Route path="/takhsis" element={<Allocation />} />
-            <Route path="/checklist" element={<Checklist />} />
-            <Route path="/comment" element={<Comments />} />
+            <Route path="/report/:id"  element={isAuthenticated ? <FileDetailsPage /> : <Navigate to="/login" />} />
+            <Route path="/takhsis"  element={isAuthenticated ? <Allocation /> : <Navigate to="/login" />} />
+            <Route path="/checklist" element={isAuthenticated ? <Checklist /> : <Navigate to="/login" />} />
+            <Route path="/comment"  element={isAuthenticated ? <Comments /> : <Navigate to="/login" />}/>
             <Route path="/final-report" element={<FinalReport />} />
             <Route path="/yaft" element={<Findings />} />
             <Route path="/findingdetailpage" element={<FindingDetailPage />} />
+            <Route path="/first-report" element={<FirstReport />} />
+            <Route path="//branchansr" element={<BranchAnsr/>} />
 
 
             <Route path="/" element={<Navigate to="/login" />} />

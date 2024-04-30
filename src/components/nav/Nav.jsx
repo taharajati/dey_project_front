@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaUserCircle } from "react-icons/fa";
+
 
 const Nav = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -15,8 +17,17 @@ const Nav = () => {
 
   return (
     <div className="flex flex-col items-center pb-9 text-center text-[color:var(--color-light)] bg-white ">
+      
       <div className="flex gap-5 justify-between items-start self-stretch px-6 py-3 w-full whitespace-nowrap bg-[color:var(--color-primary)] max-md:flex-wrap max-md:pl-5 max-md:max-w-full">
-        <Link to="/exit">خروج</Link>
+       <div className=' flex gap-5 justify-between'>
+      
+        <Link to="/login">خروج</Link> 
+        <FaUserCircle className=' mt-1' />
+        <h3>  </h3>
+       
+       </div>
+       
+
       
         <div className="flex gap-5 justify-between">
           <Link to="/users">کارکنان</Link>

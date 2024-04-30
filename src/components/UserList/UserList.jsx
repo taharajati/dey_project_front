@@ -22,8 +22,8 @@ function UserList() {
       fetchUsers(storedToken);
     }
   }, []);
-
-  const fetchUsers = async (token, selectedTitle = "") => {
+  console.log("selectedTitle",selectedTitle)
+  const fetchUsers = async (token) => {
     try {
       let url = "http://188.121.99.245/api/user/";
       if (selectedTitle) {
