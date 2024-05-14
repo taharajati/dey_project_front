@@ -9,12 +9,15 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import DynamicTableEditor from './DynamicTableEditor'; // Import the DynamicTableEditor component
 import ReactDOMServer from 'react-dom/server'; // Add ReactDOMServer import
 import { convertFromHTML } from 'draft-convert'; // Add convertFromHTML import
+import { useReport } from '../ReportContext'; // Import the useReport hook
+
 
 const FindingDetailPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const findingGroup = queryParams.get('finding_group');
-  const reportId = '662f7e8efce395369e27f801'; // Hardcoded for now, replace with actual report ID if needed
+  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+
   const navigate = useNavigate(); // Use useNavigate hook
 
   const [titlesData, setTitlesData] = useState([]);
