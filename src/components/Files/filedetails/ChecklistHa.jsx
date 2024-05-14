@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import NavList from './NavList';
+import { useReport } from '../filedetails/ReportContext'; // Import the useReport hook
+
 
 const ChecklistHa = () => {
   // State to store checklist status
   const [checklistStatus, setChecklistStatus] = useState(null);
+  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+
 
   const translations = {
     "Fire": "آتش سوزی",
@@ -38,17 +42,16 @@ const ChecklistHa = () => {
     "ExaminingTheEngineeringIssuanceMachineFailure": "بررسی عملیات صدور رشته مهندسی شکست ماشین آلات"
 };
 
+
   useEffect(() => {
     // Function to fetch checklist status
-    const fetchChecklistStatus = async () => {
+    const fetchChecklistStatus =async () => {
       try {
+        const token = localStorage.getItem('accessToken');
+
         // Make GET request to the API endpoint
-        const response = await fetch('http://188.121.99.245/api/report/checklist/checklist_status?report_id=66421ae384d458b290ff6802', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluYSIsImV4cGlyeSI6MTcxNTY0Mzk5MS40MDU1NjN9.P3gqEqTl-X2LQy5QTEGTXPuVH1GuCfdmM33ygzLVCTA'
-          }
+        const response = await fetch(`http://188.121.99.245/api/report/checklist/checklist_status?report_id=${reportId}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         // Parse JSON response

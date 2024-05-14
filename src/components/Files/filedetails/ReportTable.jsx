@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavList from './NavList';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useReport } from '../filedetails/ReportContext'; // Import the useReport hook
+
 
 
 const ReportTable = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+
 
   useEffect(() => {
     fetchReports();
@@ -16,7 +20,7 @@ const ReportTable = () => {
   const fetchReports = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const reportId = '6643184e1f18c403c326f65b'; // Hardcoded report id, you can change this if needed
+    
       const response = await axios.get(`http://188.121.99.245/api/report/reports_files?report_id=${reportId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
