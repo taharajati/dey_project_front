@@ -16,8 +16,10 @@ import FinalReport from './components/Files/filedetails/FinalReport';
 import Findings from './components/Files/filedetails/Findings/Findings';
 import { ReportProvider } from './components/Files/filedetails/ReportContext';  // Ensure the import path is correct
 import FindingDetailPage from './components/Files/filedetails/Findings/FindingDetailPage';
-import FirstReport from './components/Files/filedetails/FirstReport';
+import FirstReport from './components/Files/filedetails/FirstReport/FirstReport';
 import BranchAnsr from './components/Files/filedetails/BranchAnsr'
+import ChecklistHa from './components/Files/filedetails/ChecklistHa';
+import ReportTable from './components/Files/filedetails/ReportTable';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -72,12 +74,14 @@ function App() {
             <Route path="/report/:id"  element={isAuthenticated ? <FileDetailsPage /> : <Navigate to="/login" />} />
             <Route path="/takhsis"  element={isAuthenticated ? <Allocation /> : <Navigate to="/login" />} />
             <Route path="/checklist" element={isAuthenticated ? <Checklist /> : <Navigate to="/login" />} />
+            <Route path="/checklistha" element={isAuthenticated ? <ChecklistHa /> : <Navigate to="/login" />} />
             <Route path="/comment"  element={isAuthenticated ? <Comments /> : <Navigate to="/login" />}/>
             <Route path="/final-report" element={<FinalReport />} />
-            <Route path="/yaft" element={<Findings />} />
-            <Route path="/findingdetailpage" element={<FindingDetailPage />} />
-            <Route path="/first-report" element={<FirstReport />} />
-            <Route path="//branchansr" element={<BranchAnsr/>} />
+            <Route path="/yaft" element={isAuthenticated ? <Findings /> : <Navigate to="/login" />} />
+            <Route path="/findingdetailpage"element={isAuthenticated ? <FindingDetailPage /> : <Navigate to="/login" />} />
+            <Route path="/first-report" element={ <FirstReport /> } />
+            <Route path="/reporttable" element={ <ReportTable /> } />
+            <Route path="//branchansr" element={isAuthenticated ? <BranchAnsr /> : <Navigate to="/login" />} />
 
 
             <Route path="/" element={<Navigate to="/login" />} />

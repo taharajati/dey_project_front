@@ -66,8 +66,10 @@ console.log(newComment)
   return (
     <>
       <NavList />
-      <div className="max-w-lg mx-auto my-5">
-        <h2 className="text-2xl font-bold mb-4 my-3 text-center text-[color:var(--color-primary-variant)]">کامنت ها </h2>
+      <div className=" ml-[700px] justify-center">
+      <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
+
+        <h2 className="text-2xl font-bold mb-4 my-1 text-[color:var(--color-primary-variant)]">کامنت ها </h2>
         {/* Display existing comments */}
         <ul className="space-y-4">
           {comments.map((comment) => (
@@ -93,6 +95,7 @@ console.log(newComment)
             تایید کامنت
           </button>
         </div>
+      </div>
       </div>
     </>
   );

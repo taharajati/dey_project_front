@@ -3,17 +3,21 @@ import axios from 'axios';
 import NavList from '../NavList';
 import Modal from '../Checklist/Modal';
 import { Link } from 'react-router-dom';
+import { useReport } from '../ReportContext'; // Import the useReport hook
+
 
 const Findings = () => {
   const [findingsData, setFindingsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+
 
   useEffect(() => {
     const fetchFindingsData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const url = `http://188.121.99.245/api/report/finding/?report_id=662f7e8efce395369e27f801`;
+        const url = `http://188.121.99.245/api/report/finding/?report_id=${reportId}`;
         const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
         setFindingsData(response.data.data || []);
         setLoading(false);
@@ -27,7 +31,6 @@ const Findings = () => {
     fetchFindingsData();
   }, []);
 
-  if (loading) return <p className="text-center text-lg">در حال بارگیری...</p>;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
@@ -36,9 +39,10 @@ const Findings = () => {
       <Modal>
         {/* Your modal content */}
       </Modal>
-      <div className="container mx-auto px-4 my-2" dir="rtl">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800 my-5">یافته‌ها</h2>
+      <div className="container  px-4 my-8" dir="rtl">
+      <h1 className="text-2xl   font-semibold  mb-10 mx-[60px]   text-[color:var(--color-primary-variant)]" dir='rtl'> یافته ها</h1>
+
+        <div className="container mx-auto px-4 my-2">
           <table className="min-w-full leading-3">
             <thead>
               <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">

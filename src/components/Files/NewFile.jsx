@@ -36,7 +36,7 @@ const NewFile = () => {
     try {
       const response = await fetch("http://188.121.99.245/api/branch/", {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
       if (response.ok) {
@@ -181,12 +181,13 @@ const handleExpertCheckboxChange = (e, expertId) => {
 };
 
   return (
-    <div className="flex flex-col  w-full mt-8 mx-auto px-5 max-md:mt-10 max-md:max-w-full">
+    <div className="flex flex-col  w-full items-center justify-center mt-8 mx-auto px-5 max-md:mt-10 max-md:max-w-full text-center">
     <h2 className=" mb-4 font-semibold mx-20 text-[color:var(--color-primary-variant)] text-2xl " dir="rtl">ایجاد پرونده جدید</h2>
-    <div className="mt-2 max-w-full h-0.5 bg-black border border-black border-solid w-full" />
+    <div className="mt-2 max-w-full h-0.5 bg-black border  opacity-50 border-black border-solid w-full" />
     
-    <div className="flex justify-start items-start min-h-screen p-4 " dir="rtl">
-      <div className="completed-files-container ">
+    <div className="  min-h-screen p-4 w-[700px]  " dir="rtl">
+      <div className="  rounded-lg shadow-lg p-10 ">
+        
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex">
   <label htmlFor="branchId" className="mb-1 mx-3 flex items-center">

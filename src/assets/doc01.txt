@@ -1,0 +1,306 @@
+﻿
+{
+  "first_page": {
+    "branch_name": "گزارش حسابرسی داخلی شعبه سمنان",
+    "report_period": "  سال مالی منتهی به 29/12/1401 و 8 ماهه نخست سال 1402",
+    "date_title": "آذر ماه سال 1402"
+  },
+  "introdcution": {
+    "content": "\n        مقدمه:\n  حسابرسی داخلی شعبه سمنان توسط واحد حسابرسی و کنترل داخلی شرکت مطابق با برنامه حسابرسی ارائه شده انجام شده است، این رسیدگی بصورت متمرکز برروی عملیات بیمه گری، مالی، شبکه فروش و پرسنلی در 11 فرآیند مشتمل بر 57 یافته صورت پذیرفته است.\n\n\nاهداف ارزیابی:\n هدف از رسیدگی، ارزیابی کارایی کنترلهای داخلی مربوط به فرآیند های بیمه گری اعم از صدور و خسارت کلیه رشته های بیمه ای، عملیات مالی و نظارت بر شبکه فروش و پرسنل از منظر رعایت شیوه نامه و مقررات شرکت و ارائه گزارش و مستندات و مدارک مثبته به واحدهای ذینفع شرکت می باشد. \n\nدامنه رسیدگی:\nکلیه فعالیت های که منجر به صدور بیمه نامه و صدور و پرداخت حواله خسارت بهمراه سایر فعالیت های بیمه گری و مالی می شود، از زمان دریافت تقاضا برای صدور بیمه نامه تا زمان پرداخت خسارت در دوره رسیدگی منتهی به سال 1401 و هشت ماهه نخست سال 1402 می باشد. \n\nاهداف:\n1-\tبررسی تحقق بودجه مصوب بازه زمانی مورد رسیدگی\n2-\tکنترل وضعیت عملکردی شعبه از منظر سوددهی \n3-\tرعایت مدیریت ریسک عملیات بیمه گری شبکه فروش و کنترل ریسک های عملیات بیمه گری و مالی از منظر صدور بیمه نامه و صدور حواله خسارت \n4-\tبررسی وضعیت وصول مطالبات شعبه\n5-\tکنترل شناسایی و ثبت حواله های خسارت در بازه زمانی مورد رسیدگی\n6-\tبررسی رعایت شیوه نامه و دستورالعمل های شرکت در عملیات گروه های بیمه ای\n7-\tبررسی رعایت شیوه نامه و دستورالعمل های شرکت در عملیات بیمه گری طرح جبران \n8-\tبررسی وضعیت شبکه فروش شعبه \n\n\n        ",
+    "personel": {
+      "title": "1) پرسنل شعبه",
+      "description": "\n                    شعبه سمنان از تاریخ 18/11/1385 تاسیس گردیده و هم اکنون درجه شعبه، 2 می باشد .\nمدیریت شعبه از تاریخ 23/05/1400 به عهده آقای سید حسین صالحی نژاد می باشد. \n                    ",
+      "table": {
+        "caption": "جدول شماره 1- لیست پرسنل همراه با سایر اطلاعات ",
+        "column_names": {
+          "first_name": "نام",
+          "last_name": "نام خانوادگی",
+          "degree": "مدرک تحصیلی",
+          "major": "رشته",
+          "hiring_date_jalali": "تاریخ استخدام",
+          "position": "پست",
+          "experience_relative": "سوابق مرتبط",
+          "experience_semi_relative": "سوابق نیمه مرتبط",
+          "experience_not_relative": "سوابق غیر مرتبط"
+        },
+        "data": [
+          {
+            "row": 1,
+            "first_name": "سیدحسین",
+            "last_name": "صالحی نژاد",
+            "degree": "دیپلم",
+            "major": "ریاضی",
+            "hiring_date_jalali": "1394/09/04",
+            "position": "مدیر استان سمنان",
+            "experience_relative": " 1 سال 5 ماه 10 روز ",
+            "experience_semi_relative": "1 سال 6 ماه 11 روز",
+            "experience_not_relative": ""
+          },
+          {
+            "row": 2,
+            "first_name": "مرضیه",
+            "last_name": "اصحاب صحف",
+            "degree": "فوق لیسانس",
+            "major": "مدیریت بازرگانی",
+            "hiring_date_jalali": "1398/12/01",
+            "position": "معاون شعبه",
+            "experience_relative": " 5 سال 10 ماه 25 روز ",
+            "experience_semi_relative": "11 سال 0 ماه 5 روز",
+            "experience_not_relative": " 0 سال 4 ماه 4 روز "
+          },
+          {
+            "row": 3,
+            "first_name": "نیلوفر",
+            "last_name": "امیری توران پشتی",
+            "degree": "فوق لیسانس",
+            "major": "مدیریت فناوری اطلاعات",
+            "hiring_date_jalali": "1400/01/01",
+            "position": "کارشناس امور خسارت و مشتریان",
+            "experience_relative": "2 سال 8 ماه 22 روز",
+            "experience_semi_relative": "",
+            "experience_not_relative": " 2 سال 5 ماه 4 روز "
+          }
+        ]
+      }
+    }
+  }
+}
+
+
+
+
+{
+  "first_page": {
+    "branch_name": "گزارش حسابرسی داخلی شعبه سمنان",
+    "report_period": "  سال مالی منتهی به 29/12/1401 و 8 ماهه نخست سال 1402",
+    "date_title": "آذر ماه سال 1402"
+  },
+  "introdcution": {
+    "content": "  حسابرسی داخلی شعبه سمنان توسط واحد حسابرسی و کنترل داخلی شرکت مطابق با برنامه حسابرسی ارائه شده انجام شده است، این رسیدگی بصورت متمرکز برروی عملیات بیمه گری، مالی، شبکه فروش و پرسنلی در 11 فرآیند مشتمل بر 57 یافته صورت پذیرفته است. هدف از رسیدگی، ارزیابی کارایی کنترلهای داخلی مربوط به فرآیند های بیمه گری اعم از صدور و خسارت کلیه رشته های بیمه ای، عملیات مالی و نظارت بر شبکه فروش و پرسنل از منظر رعایت شیوه نامه و مقررات شرکت و ارائه گزارش و مستندات و مدارک مثبته به واحدهای ذینفع شرکت می باشد.",
+    "personel": {
+      "title": "1) پرسنل شعبه",
+      "description": "  شعبه سمنان از تاریخ 18/11/1385 تاسیس گردیده و هم اکنون درجه شعبه، 2 می باشد . مدیریت شعبه از تاریخ 23/05/1400 به عهده آقای سید حسین صالحی نژاد می باشد. ",
+      "table": {
+        "caption": "جدول شماره 1- لیست پرسنل همراه با سایر اطلاعات ",
+        "column_names": {
+          "first_name": "نام",
+          "last_name": "نام خانوادگی",
+          "degree": "مدرک تحصیلی",
+          "major": "رشته",
+          "hiring_date_jalali": "تاریخ استخدام",
+          "position": "پست",
+          "experience_relative": "سوابق مرتبط",
+          "experience_semi_relative": "سوابق نیمه مرتبط",
+          "experience_not_relative": "سوابق غیر مرتبط"
+        },
+        "data": [
+          {
+            "row": 1,
+            "first_name": "سیدحسین",
+            "last_name": "صالحی نژاد",
+            "degree": "دیپلم",
+            "major": "ریاضی",
+            "hiring_date_jalali": "1394/09/04",
+            "position": "مدیر استان سمنان",
+            "experience_relative": " 1 سال 5 ماه 10 روز ",
+            "experience_semi_relative": "1 سال 6 ماه 11 روز",
+            "experience_not_relative": ""
+          },
+          {
+            "row": 2,
+            "first_name": "مرضیه",
+            "last_name": "اصحاب صحف",
+            "degree": "فوق لیسانس",
+            "major": "مدیریت بازرگانی",
+            "hiring_date_jalali": "1398/12/01",
+            "position": "معاون شعبه",
+            "experience_relative": " 5 سال 10 ماه 25 روز ",
+            "experience_semi_relative": "11 سال 0 ماه 5 روز",
+            "experience_not_relative": " 0 سال 4 ماه 4 روز "
+          },
+          {
+            "row": 3,
+            "first_name": "نیلوفر",
+            "last_name": "امیری توران پشتی",
+            "degree": "فوق لیسانس",
+            "major": "مدیریت فناوری اطلاعات",
+            "hiring_date_jalali": "1400/01/01",
+            "position": "کارشناس امور خسارت و مشتریان",
+            "experience_relative": "2 سال 8 ماه 22 روز",
+            "experience_semi_relative": "",
+            "experience_not_relative": " 2 سال 5 ماه 4 روز "
+          }
+        ]
+      }
+    },
+    "performance_control": {
+      "title": "2)کنترل عملکرد مالی شعبه در سال 1401",
+      "description": "با عنایت به اخذ گزارش از سیستم برهان اطلاعات عملکردی شعبه سمنان برای سال مالی منتهی به 1401 به شرح جداول ذیل می باشد.",
+      "table": {
+        "caption": "جدول شماره 1- لیست پرسنل همراه با سایر اطلاعات ",
+        "column_names": {
+          "insurance_revenue": "درآمد حق بیمه",
+          "loss": "هزینه خسارت",
+          "commission_cost": "هزینه کارمزد",
+          "administrative_costs": "هزینه اداری و عمومی",
+          "other_operational_costs": "ساير هزينه هاي عملياتي",
+          "non_operational_costs": "درآمدهای غیر عملیاتی",
+          "personnel_costs": "هزينه هاي پرسنلي",
+          "depreciation_costs": "هزینه استهلاک",
+          "cost_ratio": "نسبت هزینه%",
+          "profit_lost": "سود یا زیان"
+        },
+        "data": [
+          {
+            "insurance_revenue": 518640,
+            "first_name": -467020,
+            "commission_cost": -22792,
+            "administrative_costs": -6831,
+            "other_operational_costs": -16417,
+            "non_operational_costs": 265,
+            "personnel_costs": -14685,
+            "depreciation_costs": -1891,
+            "cost_ratio": 102,
+            "profit_lost": 10731
+          }
+        ]
+      }
+    },
+    "FinancialPerformanceIssueLossCompareBudget": {
+      "title": "3)کنترل عملکرد شعبه با بودجه مصوب : ",
+      "description": "وضعیت عملکرد شعبه در تولید حق بیمه و مبلغ خسارت در قیاس با بودجه مصوب شعبه به شرح جدول ذیل می باشد:",
+      "table": {
+        "caption": "جدول شماره 3 : عملكرد صدور و خسارت شعبه سمنان در مقایسه با بودجه پیش بینی شده (مبالغ - میلیون ريال) ",
+        "column_names": {
+          "year": "سال",
+          "insurance_issued_predicted": "حق بیمه صادره - پیشبینی",
+          "insurance_issued_performance": "حق بیمه صادره - عملکرد",
+          "insurance_issued_difference": "حق بیمه صادره - انحراف%",
+          "insurance_loss_predicted": "خسارت پرداختی - پیشبینی",
+          "insurance_loss_performance": "خسارت پرداختی - عملکرد",
+          "insurance_loss_difference": "خسارت پرداختی - انحراف%",
+          "expected_loss_percentage": "نسبت خسارت مورد انتظار%",
+          "realized_loss_percentage": "نسبت خسارت  واقعی % ",
+          "insurance_premium_growth_rate": "نرخ رشد حق بیمه%",
+          "loss_percentage_growth_rate": "نرخ رشد نسبت خسارت%"
+        },
+        "data": [
+          {
+            "year": "1399",
+            "insurance_issued_predicted": 188442,
+            "insurance_issued_performance": 210715,
+            "insurance_issued_difference": 12,
+            "insurance_loss_predicted": 117357,
+            "insurance_loss_performance": 131736,
+            "insurance_loss_difference": -12,
+            "expected_loss_percentage": 62,
+            "realized_loss_percentage": 63,
+            "insurance_premium_growth_rate": 45,
+            "loss_percentage_growth_rate": 26
+          },
+          {
+            "year": "1400",
+            "insurance_issued_predicted": 300474,
+            "insurance_issued_performance": 448271,
+            "insurance_issued_difference": 49,
+            "insurance_loss_predicted": 174037,
+            "insurance_loss_performance": 296781,
+            "insurance_loss_difference": -71,
+            "expected_loss_percentage": 58,
+            "realized_loss_percentage": 66,
+            "insurance_premium_growth_rate": 113,
+            "loss_percentage_growth_rate": 125
+          },
+          {
+            "year": "1401",
+            "insurance_issued_predicted": 428156,
+            "insurance_issued_performance": 518640,
+            "insurance_issued_difference": 21,
+            "insurance_loss_predicted": 280474,
+            "insurance_loss_performance": 467020,
+            "insurance_loss_difference": -67,
+            "expected_loss_percentage": 66,
+            "realized_loss_percentage": 90,
+            "insurance_premium_growth_rate": 16,
+            "loss_percentage_growth_rate": 57
+          },
+          {
+            "year": "8 ماهه 1402",
+            "insurance_issued_predicted": 541908,
+            "insurance_issued_performance": 373907,
+            "insurance_issued_difference": -31,
+            "insurance_loss_predicted": 345229,
+            "insurance_loss_performance": 379851,
+            "insurance_loss_difference": -10,
+            "expected_loss_percentage": 64,
+            "realized_loss_percentage": 102,
+            "insurance_premium_growth_rate": 0,
+            "loss_percentage_growth_rate": 0
+          }
+        ]
+      }
+    },
+    "Chart_1": {
+      "caption": "نمودار شماره 1 -  انحراف از تولید پرتفوی شعبه در سال 1401 :",
+      "x_axis_labels": [
+        "خودرو شخص ثالث",
+        "عمر گروهی",
+        "آتش سوزی",
+        "بدنه اتومبیل",
+        "باربری",
+        "درمان",
+        "حوادث",
+        "مسئولیت",
+        "مهندسی",
+        "سایر (کشتی)",
+        "عمر و سرمایه گذاری"
+      ],
+      "data": [
+        {
+          "performance": 150000,
+          "premium_budget": 160000
+        },
+        {
+          "performance": 130000,
+          "premium_budget": 216000
+        },
+        {
+          "performance": 120000,
+          "premium_budget": 175000
+        },
+        {
+          "performance": 110000,
+          "premium_budget": 140000
+        },
+        {
+          "performance": 140000,
+          "premium_budget": 100000
+        },
+        {
+          "performance": 190000,
+          "premium_budget": 260000
+        },
+        {
+          "performance": 250000,
+          "premium_budget": 150000
+        },
+        {
+          "performance": 50000,
+          "premium_budget": 180000
+        },
+        {
+          "performance": 350000,
+          "premium_budget": 190000
+        },
+        {
+          "performance": 210000,
+          "premium_budget": 100000
+        },
+        {
+          "performance": 250000,
+          "premium_budget": 60000
+        }
+      ]
+    }
+  }
+}

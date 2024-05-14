@@ -9,12 +9,25 @@ const Modal = ({ isOpen, onClose, detailName, formData, handleChange , reportId}
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Check if any checklist item is not selected
-    const uncheckedItems = Object.entries(formData).filter(([key, value]) => value !== 'true' && value !== 'false' && key !== 'insurance_number' && key !== 'total_cost');
-    if (uncheckedItems.length > 0 || !formData.insurance_number || !formData.total_cost) {
-      alert('لطفاً یکی از موارد را انتخاب کنید و یا شماره بیمه نامه و مبلغ را وارد کنید.');
-      return;
-    }
+   
+  // Check if any checklist item is not selected
+  const uncheckedItems = Object.entries(formData).filter(([key, value]) => {
+    console.log("key",key)
+    console.log("value",value)
+    // Exclude insurance_number and total_cost fields from the check
+    if (key === 'insurance_number' || key === 'total_cost') return false;
+    // Check if value is not 'true' or 'false'
+    return value !== 'true' && value !== 'false';
+  });
+  console.log("uncheckedItems",uncheckedItems)
+  console.log("uncheckedItems.length  ",uncheckedItems.length)
+  console.log("!formData.insurance_number",!formData.insurance_number)
+  console.log("!formData.total_cost",!formData.total_cost)
+  // Check if there are unchecked items or if insurance_number and total_cost are empty
+  if (uncheckedItems.length > 1 || !formData.insurance_number || !formData.total_cost) {
+    alert('لطفاً یکی از موارد را انتخاب کنید و یا شماره بیمه نامه و مبلغ را وارد کنید.');
+    return;
+  }
   
     try {
       const token = localStorage.getItem('accessToken');
@@ -700,6 +713,8 @@ const CHECKLIST_DATA = {
   // Get the questions for the detailName
   const questions = CHECKLIST_DATA[detailName].column_names;
 
+
+  console.log(formData )
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50">
       <div className="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -719,7 +734,7 @@ const CHECKLIST_DATA = {
               />
             </div>
             <div className='mr-8'>
-              <label htmlFor="total_cost" className="block">مبلغ</label>
+              <label htmlFor="total_cost" className="block">کل مبلغ خسارت (ریال)</label>
               <input
                 id="total_cost"
                 name="total_cost"
@@ -731,10 +746,10 @@ const CHECKLIST_DATA = {
             </div>
             {Object.entries(questions).map(([questionKey, questionText], index) => (
               (questionKey !== 'Insurance_number' && questionKey !== 'مبلغ') && (
-                <div key={questionKey} className="flex items-center space-x-4">
+                <div key={questionKey} className="flex items-center space-x-4 w-[1100px]">
                   <span className="mx-2 text-[color:var(--color-primary-variant)]">{index + 1}-</span>
-                  <label htmlFor={questionKey} className='bg-slate-100 p-5 rounded-lg'>{questionText}</label>
-                  <div className="flex items-center">
+                  <label htmlFor={questionKey} className='bg-slate-100 p-5 rounded-lg w-[800px]' >{questionText}</label>
+                  <div className="flex pr-[100px]  ">
                     <input
                       id={questionKey + '_yes'}
                       name={questionKey}
@@ -744,8 +759,8 @@ const CHECKLIST_DATA = {
                       onChange={handleChange}
                       className="hidden"
                     />
-                    <label htmlFor={questionKey + '_yes'} className={`mx-1 cursor-pointer flex items-center justify-center rounded-full w-8 h-8 border border-gray-300 ${formData[questionKey] === 'true' ? 'bg-blue-100' : ''} hover:bg-blue-100 transition-colors`}>
-                      <span className="text-sm">بله</span>
+                    <label htmlFor={questionKey + '_yes'} className={`mx-1 items-center  cursor-pointer flex justify-center  rounded-full w-8 h-8 border border-gray-300 ${formData[questionKey] === 'true' ? 'bg-blue-100' : ''} hover:bg-blue-100 transition-colors`}>
+                      <span className="text-sm ">بله</span>
                     </label>
                     <input
                       id={questionKey + '_no'}

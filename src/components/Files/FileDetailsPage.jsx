@@ -77,6 +77,8 @@ const FileDetailsPage = () => {
       formData.append('report_id', reportId);
       formData.append('file', selectedFile);
       formData.append('document', selectedDocumentType);
+      console.log("setSelectedDocumentType",setSelectedDocumentType)
+      console.log("formData",formData)
 
       const response = await axios.post('http://188.121.99.245/api/report/documents/', formData, {
         headers: {
@@ -119,7 +121,7 @@ const FileDetailsPage = () => {
     <>
       <NavList activeReportId={reportId} />
       <div className="flex flex-col w-full mt-8 px-5 max-md:mt-10 max-md:max-w-full m-[-100px]" dir="rtl">
-        <div className="text-black text-lg font-semibold mb-4">پرونده: {reportId}</div>
+      <h2 className=" mb-4 font-semibold  text-[color:var(--color-primary-variant)] text-2xl " dir="rtl"> مدارک و فایل ها</h2>
       
         <div className="mb-3 w-full max-w-md">
           <label htmlFor="documentType" className="block text-black mb-2">انتخاب نوع مدرک :</label>
@@ -158,7 +160,7 @@ const FileDetailsPage = () => {
                 <td className="py-3 px-4">{doc.document_fa}</td>
                 <td className="py-3 px-4 text-center">{doc.upload_date_jalali}</td>
                 <td className="py-3 px-4 text-center">
-  <button onClick={() => handleDownload(doc._id.$oid)} className="text-blue-500 hover:text-blue-700 focus:outline-none">
+  <button onClick={() => handleDownload(doc._id.$oid)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
     <i className="fas fa-file-excel mr-2"></i>دانلود
   </button>
 </td>

@@ -83,7 +83,7 @@ function Login() {
    <div className="flex items-center justify-center h-screen  max-w-md w-1/2 mr-[5%] sm:w-full md:w-full">
 
    <div className="p-8 rounded-lg  max-w-md w-1/2 mr-[5%] sm:w-full md:w-full">
-    <h1 className="items-center flex flex-col text-[color:var(--color-primary-variant)] text-2xl mb-[60px]"> ورود به سامانه حسابرسی </h1>
+    <h1 className="items-center flex flex-col text-[color:var(--color-primary-variant)] text-2xl mb-[60px]">ورود به سامانه </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 ">
           <label className=" text-gray-500 mb-[-10px] " dir="rtl">نام کاربری</label>
           <input

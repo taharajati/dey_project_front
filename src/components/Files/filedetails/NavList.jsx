@@ -46,44 +46,31 @@ const NavList = ({ activeReportId }) => {
                 </li>
                 <li>
                     <NavLink 
+                        to="/checklistha" 
+                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
+                    >
+                        وضعیت چک لیست ها
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink 
                         to="/yaft" 
                         className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
                     >
                         یافته
                     </NavLink>
                 </li>
+             
                 <li>
                     <NavLink 
-                        to="/comment" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
-                    >
-                        کامنت
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink 
-                        to="/first-report" 
+                        to="/reporttable" 
                         className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg "}
                     >
-                        گزارش اولیه
+                        گزارش 
                     </NavLink>
                 </li>
-                <li>
-                    <NavLink 
-                        to="/branchansr" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg "}
-                    >
-                    پاسخ شعبه
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink 
-                        to="/final-report" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg "}
-                    >
-                        گزارش نهایی
-                    </NavLink>
-                </li>   
+            
+          
              
             </ul>
         </nav>
