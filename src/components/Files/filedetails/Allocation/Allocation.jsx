@@ -9,7 +9,7 @@ const Allocation = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const { reportId } = useReport(); // Retrieve reportId using useReport hook
+    const { fileId } = useReport(); // Retrieve fileId from ReportContext
     const translations = {
         "fire_name": "آتش سوزی",
         "cargo_name": "باربری",
@@ -22,17 +22,17 @@ const Allocation = () => {
     };
 
     useEffect(() => {
-        if (reportId) {
-            fetchExperts(reportId);
-            fetchAssignments(reportId);
+        if (fileId) {
+            fetchExperts(fileId);
+            fetchAssignments(fileId);
         }
-    }, [reportId]); // Ensure useEffect runs whenever reportId changes
+    }, [fileId]); // Ensure useEffect runs whenever fileId changes
 
-    const fetchExperts = async (reportId) => {
+    const fetchExperts = async (fileId) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`http://188.121.99.245/api/report/assign/report_experts?report_id=${reportId}`, {
+            const response = await axios.get(`http://188.121.99.245:8080/api/report/assign/report_experts?report_id=${fileId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setExperts(response.data.data);
@@ -44,11 +44,11 @@ const Allocation = () => {
         }
     };
 
-    const fetchAssignments = async (reportId) => {
+    const fetchAssignments = async (fileId) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`http://188.121.99.245/api/report/assign/?report_id=${reportId}`, {
+            const response = await axios.get(`http://188.121.99.245:8080/api/report/assign/?report_id=${fileId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setAssignments(response.data.data[0] || {}); // Set assignments to fetched data or empty object if no data
@@ -81,8 +81,8 @@ const Allocation = () => {
     
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('http://188.121.99.245/api/report/assign/', {
-                report_id: reportId,
+            const response = await axios.post('http://188.121.99.245:8080/api/report/assign/', {
+                report_id: fileId,
                 fire: fire_expert_name,
                 cargo: cargo_expert_name,
                 car: car_expert_name,

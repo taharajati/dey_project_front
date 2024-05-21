@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import { MdModeEdit } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
+
+
 
 function BranchList() {
   const [branches, setBranches] = useState([]);
@@ -10,6 +14,8 @@ function BranchList() {
   const [branchManagers, setBranchManagers] = useState([]);
   const [selectedBranchManager, setSelectedBranchManager] = useState("");
   const [editBranchData, setEditBranchData] = useState(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [branchToDelete, setBranchToDelete] = useState(null);
 
 
 
@@ -25,7 +31,7 @@ function BranchList() {
 
   const fetchBranches = async (token) => {
     try {
-      const response = await fetch("http://188.121.99.245/api/branch/", {
+      const response = await fetch("http://188.121.99.245:8080/api/branch/", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -42,7 +48,7 @@ function BranchList() {
   };
   const fetchBranchManagers = async (token) => {
     try {
-      const response = await fetch("http://188.121.99.245/api/user/?title=branch_manager", {
+      const response = await fetch("http://188.121.99.245:8080/api/user/?title=branch_manager", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -62,10 +68,29 @@ function BranchList() {
     setSelectedBranchManager(e.target.value);
   }
 
+  const handleConfirmDelete = async () => {
+    if (branchToDelete) {
+      await handleDeleteBranch(branchToDelete);
+      setBranchToDelete(null); // Reset branch to delete
+      setShowDeleteConfirmation(false); // Hide delete confirmation dialog
+    }
+  };
+  const handleDeleteButtonClick = (branchId) => {
+    // Set the branch to delete and show the confirmation dialog
+    setBranchToDelete(branchId);
+    setShowDeleteConfirmation(true);
+  };
+    // Function to handle canceling delete action
+    const handleCancelDelete = () => {
+      setBranchToDelete(null); // Reset branch to delete
+      setShowDeleteConfirmation(false); // Hide delete confirmation dialog
+    };
+
 
   const handleDeleteBranch = async (branchId) => {
     try {
-      const response = await fetch(`http://188.121.99.245/api/branch/${branchId}/`, {
+      console.log(branchId)
+      const response = await fetch(`http://188.121.99.245:8080/api/branch/?branch_id=${branchId}`, {
         method: 'DELETE',
         headers: {
           'accept': 'application/json',
@@ -119,7 +144,7 @@ function BranchList() {
               <th className="px-4 py-2">تاریخ تاسیس</th>
               <th className="px-4 py-2">سطح</th>
               <th className="px-4 py-2">توضیحات</th>
-              <th className="px-4 py-2">عملیات</th>
+              <th className="px-4 py-2"></th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
@@ -133,11 +158,14 @@ function BranchList() {
                 <td className="px-4 py-2">{branch.level}</td>
                 <td className="px-4 py-2">{branch.description}</td>
                 <td className="px-4 py-2">
-                  <button className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md" onClick={() => handleEditBranch(branch)}>ویرایش</button>
+                  <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" onClick={() => handleEditBranch(branch)}><MdModeEdit/></button>
                 </td>
                 <td className="px-4 py-2">
-                  <button className="text-red-500" onClick={() => handleDeleteBranch(branch._id)}>
-                    <IoCloseSharp />
+                <button
+                    className="text-red-500"
+                    onClick={() => handleDeleteButtonClick(branch._id.$oid)}
+                  >
+                    <FaTrash />
                   </button>
                 </td>
               </tr>
@@ -147,7 +175,23 @@ function BranchList() {
       </div>
        {/* Add modal for editing */}
        { showEditModal && <EditBranchForm onClose={handleEditModalClose} branch={editBranchData} token={token} fetchBranches={fetchBranches} branchManagers={branchManagers} />}
+ {showDeleteConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center z-50" dir="rtl">
+          <div className="bg-white p-8 rounded shadow-md">
+            <h2 className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">آیا مطمئن هستید که می‌خواهید این شعبه را حذف کنید؟</h2>
+            <div className="flex justify-between">
+              <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 mr-2" onClick={handleConfirmDelete}>
+              بله، حذف کن
 
+              </button>
+              <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded" onClick={handleCancelDelete}>
+              لغو
+
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -170,7 +214,7 @@ function AddBranchForm({ onClose, token, fetchBranches, handleBranchManagerChang
       return;
     }
     try {
-      const response = await fetch("http://188.121.99.245/api/branch/", {
+      const response = await fetch("http://188.121.99.245:8080/api/branch/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -274,7 +318,7 @@ function EditBranchForm({ branch, onClose, token, fetchBranches ,branchManagers}
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://188.121.99.245/api/branch/?branch_id=${branch._id.$oid}`, {
+      const response = await fetch(`http://188.121.99.245:8080/api/branch/?branch_id=${branch._id.$oid}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

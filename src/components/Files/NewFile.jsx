@@ -34,7 +34,7 @@ const NewFile = () => {
   const fetchBranches = async (token) => {
     setIsLoading(true); // Set loading state
     try {
-      const response = await fetch("http://188.121.99.245/api/branch/", {
+      const response = await fetch("http://188.121.99.245:8080/api/branch/", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -59,7 +59,7 @@ const NewFile = () => {
   const fetchAuditChiefs = async (token) => {
     setIsLoading(true); // Set loading state
     try {
-      const response = await fetch("http://188.121.99.245/api/user/?title=audit_chief", {
+      const response = await fetch("http://188.121.99.245:8080/api/user/?title=audit_chief", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -84,7 +84,7 @@ const NewFile = () => {
   const fetchExperts = async (token) => {
     setIsLoading(true); // Set loading state
     try {
-      const response = await fetch("http://188.121.99.245/api/user/?title=expert", {
+      const response = await fetch("http://188.121.99.245:8080/api/user/?title=expert", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -126,7 +126,7 @@ const handleSubmit = async (e) => {
 
   try {
     const selectedBranch = branches.find(branch => branch._id?.$oid === formData.branch_id);
-    const response = await fetch('http://188.121.99.245/api/report/', {
+    const response = await fetch('http://188.121.99.245:8080/api/report/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

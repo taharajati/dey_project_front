@@ -10,7 +10,7 @@ const ReportTable = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+  const { fileId } = useReport(); // Retrieve reportId using useReport hook
 
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const ReportTable = () => {
     try {
       const token = localStorage.getItem('accessToken');
     
-      const response = await axios.get(`http://188.121.99.245/api/report/reports_files?report_id=${reportId}`, {
+      const response = await axios.get(`http://188.121.99.245:8080/api/report/reports_files?report_id=${fileId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json'

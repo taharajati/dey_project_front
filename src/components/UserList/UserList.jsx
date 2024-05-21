@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import { FaTrash } from "react-icons/fa";
+
 
 const LIST_OF_TITLES = [
   { value: "manager", label: "مدیر" },
@@ -28,7 +30,7 @@ function UserList() {
 
   const fetchUsers = async (token, title) => {
     try {
-      let url = "http://188.121.99.245/api/user/";
+      let url = "http://188.121.99.245:8080/api/user/";
       if (title) {
         url += `?title=${title}`;
       }
@@ -58,7 +60,7 @@ const handleDeleteUser = async (username) => {
 
 const confirmDeleteUser = async () => {
   try {
-    const response = await fetch(`http://188.121.99.245/api/user/${userToDelete}/`, {
+    const response = await fetch(`http://188.121.99.245:8080/api/user/${userToDelete}/`, {
       method: 'DELETE',
       headers: {
         'accept': 'application/json',
@@ -138,7 +140,7 @@ const confirmDeleteUser = async () => {
               <th className="px-4 py-2">نام خانوادگی</th>
               <th className="px-4 py-2">نام خانوادگی</th>
               <th className="px-4 py-2">سمت</th>
-              <th className="px-4 py-2">عملیات</th>
+              <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -150,7 +152,7 @@ const confirmDeleteUser = async () => {
                 <td className="px-4 py-2">{getTitleTranslation(user.title)}</td>
                 <td className="px-4 py-2">
                 <button className="text-red-500" onClick={() => handleDeleteUser(user.username)}>
-              <IoCloseSharp />
+              <FaTrash />
             </button>
                 </td>
               </tr>
@@ -178,7 +180,7 @@ function AddUserForm({ onClose, token, fetchUsers, selectedTitle }) {
       return;
     }
     try {
-      const response = await fetch("http://188.121.99.245/api/user/", {
+      const response = await fetch("http://188.121.99.245:8080/api/user/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

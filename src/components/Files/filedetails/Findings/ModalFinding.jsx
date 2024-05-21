@@ -16,7 +16,7 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.post(
-        `http://188.121.99.245/api/report/finding/${entryType}`,
+        `http://188.121.99.245:8080/api/report/finding/${entryType}`,
         {
           report_id: reportId,
           content: newEntryContent,

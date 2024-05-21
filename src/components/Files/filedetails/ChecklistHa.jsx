@@ -6,7 +6,7 @@ import { useReport } from '../filedetails/ReportContext'; // Import the useRepor
 const ChecklistHa = () => {
   // State to store checklist status
   const [checklistStatus, setChecklistStatus] = useState(null);
-  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+  const { fileId } = useReport(); // Retrieve fileId using useReport hook
 
 
   const translations = {
@@ -50,7 +50,7 @@ const ChecklistHa = () => {
         const token = localStorage.getItem('accessToken');
 
         // Make GET request to the API endpoint
-        const response = await fetch(`http://188.121.99.245/api/report/checklist/checklist_status?report_id=${reportId}`, {
+        const response = await fetch(`http://188.121.99.245:8080/api/report/checklist/checklist_status?report_id=${fileId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

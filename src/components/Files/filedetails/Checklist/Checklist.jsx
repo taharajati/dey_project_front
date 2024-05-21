@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavList from '../NavList';
 import Modal from './Modal';
-
-import { useReport } from '../ReportContext'; // Import the useReport hook
+import { FaTrash } from "react-icons/fa";
+import { useReport } from '../ReportContext';
 
 const Checklist = () => {
   const [checklistData, setChecklistData] = useState({});
@@ -15,8 +15,10 @@ const Checklist = () => {
   const [formData, setFormData] = useState({});
   const [detailName, setDetailName] = useState("");
   const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState({ tableId: null, detailName: null });
 
-  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+  const { fileId } = useReport();
 
   const translations = {
     "Fire": "آتش سوزی",
@@ -49,91 +51,113 @@ const Checklist = () => {
     "ExaminingTheEngineeringCost": "بررسی عملیات خسارت مهندسی",
     "ExaminingTheEngineeringIssuanceT": "بررسی عملیات صدور رشته مهندسی تمام خطر نصب و پیمانکاری",
     "ExaminingTheEngineeringIssuanceMachineFailure": "بررسی عملیات صدور رشته مهندسی شکست ماشین آلات"
-};
+  };
 
 
   useEffect(() => {
-    if (reportId) {
-      fetchChecklistData(reportId);
+    if (fileId) {
+      fetchChecklistData(fileId);
     } else {
       setError('Report ID not found');
       setLoading(false);
     }
-  }, [reportId]);
+  }, [fileId]);
 
-  const fetchChecklistData = async (reportId) => {
+  const fetchChecklistData = async (fileId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const url = `http://188.121.99.245/api/report/checklist/?report_id=${reportId}`;
-      const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-      setChecklistData(response.data.data || {});
+      const originalUrl = `http://188.121.99.245:8080/api/report/checklist/?report_id=${fileId}`;
+      const newUrl = `http://188.121.99.245:8080/api/report/checklist/user_role?report_id=${fileId}`;
+
+      // First attempt to fetch data from the original URL
+      try {
+        console.log(`Fetching checklist data from: ${originalUrl}`);
+        const response = await axios.get(originalUrl, { headers: { Authorization: `Bearer ${token}` } });
+        console.log('API response from original URL:', response);
+        if (response.data && response.data.data) {
+          setChecklistData(response.data.data);
+        } else {
+          setChecklistData({});
+        }
+      } catch (error) {
+        console.error('Failed to fetch checklist data from original URL:', error);
+
+        // If the first fetch fails, attempt to fetch data from the new URL
+        console.log(`Fetching checklist data from: ${newUrl}`);
+        const response = await axios.get(newUrl, { headers: { Authorization: `Bearer ${token}` } });
+        console.log('API response from new URL:', response);
+        if (response.data && response.data.data) {
+          setChecklistData(response.data.data);
+        } else {
+          setChecklistData({});
+        }
+      }
+
       setLoading(false);
     } catch (error) {
+      console.error('Failed to fetch checklist data:', error);
       setError('Failed to fetch checklist data');
       setLoading(false);
-      console.error(error);
     }
   };
 
   const handleFormSubmit = async (formData) => {
     try {
-
-    if (!currentFormDefinition || !currentFormDefinition.section || !currentFormDefinition.detail) {
-      console.error("Error: currentFormDefinition is not properly defined.");
-      return;
+      if (!currentFormDefinition || !currentFormDefinition.section || !currentFormDefinition.detail) {
+        console.error("Error: currentFormDefinition is not properly defined.");
+        return;
+      }
+      formData.fileId = fileId;
+      const updatedData = { ...checklistData };
+      updatedData[currentFormDefinition.section][currentFormDefinition.detail].data.push(formData);
+      setChecklistData(updatedData);
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error submitting form:', error);
     }
-
-    formData.reportId = reportId;
-
-    const updatedData = { ...checklistData };
-    updatedData[currentFormDefinition.section][currentFormDefinition.detail].data.push(formData);
-    setChecklistData(updatedData);
-
-    setShowForm(false); // Close form after submission
-  } catch (error) {
-    console.error('Error submitting form:', error);
-    // Handle error, display error message, etc.
-  }
   };
 
   const openForm = (section, detail) => {
     setCurrentFormDefinition({ section, detail });
-    setSectionName(section); // Update sectionName state when modal is opened
+    setSectionName(section);
   };
-  const handleAddRowClick = (section) => {
-    const detailName = Object.keys(checklistData[section])[0]; // Get the first detailName for the section
-    setDetailName(detailName); // Set detailName in the state
+
+  const handleAddRowClick = (section, detail) => {
+    setDetailName(detail);
     setShowQuestionModal(true);
-    openForm(section, detailName); // Ensure both section and detailName are passed to openForm
+    openForm(section, detail);
   };
-  
+
   const handleQuestionModalClose = () => {
     setShowQuestionModal(false);
   };
-  
-  const handleDeleteTableRow = async (tableId, detailName) => {
+
+  const handleDeleteClick = (tableId, detailName) => {
+    setRowToDelete({ tableId, detailName });
+    setShowConfirmation(true);
+  };
+
+  const cancelDeleteTableRow = () => {
+    setShowConfirmation(false);
+    setRowToDelete({ tableId: null, detailName: null });
+  };
+
+  const confirmDeleteTableRow = async () => {
+    const { tableId, detailName } = rowToDelete;
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.delete(`http://188.121.99.245/api/report/checklist/${detailName}?item_id=${tableId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await axios.delete(`http://188.121.99.245:8080/api/report/checklist/${detailName}?item_id=${tableId}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-        // Assuming successful deletion, update the checklist data
-    const updatedData = { ...checklistData };
-    updatedData[currentFormDefinition.section][currentFormDefinition.detail].data = updatedData[currentFormDefinition.section][currentFormDefinition.detail].data.filter(item => item._id?.$oid !== tableId);
-    setChecklistData(updatedData);
-
-
-      console.log('Table row deleted:', response.data);
-      // Refetch checklist data after successful deletion
-      fetchChecklistData(reportId);
+      const updatedData = { ...checklistData };
+      updatedData[currentFormDefinition.section][currentFormDefinition.detail].data = updatedData[currentFormDefinition.section][currentFormDefinition.detail].data.filter(item => item._id?.$oid !== tableId);
+      setChecklistData(updatedData);
+      setShowConfirmation(false);
     } catch (error) {
       console.error('Error deleting table row:', error);
-      // Handle error, display error message, etc.
     }
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevFormData => ({
@@ -141,7 +165,6 @@ const Checklist = () => {
       [name]: value
     }));
 
-    // Update insuranceNumber and amount fields if they are changed
     if (name === "insurance_number" || name === "total_cost") {
       setFormData(prevFormData => ({
         ...prevFormData,
@@ -154,7 +177,7 @@ const Checklist = () => {
     <>
       <NavList />
 
-      <Modal isOpen={showQuestionModal} onClose={handleQuestionModalClose} detailName={detailName} reportId={reportId} formData={formData} handleChange={handleChange} onSubmit={handleFormSubmit}>
+      <Modal isOpen={showQuestionModal} onClose={handleQuestionModalClose} detailName={detailName} fileId={fileId} formData={formData} handleChange={handleChange} onSubmit={handleFormSubmit}>
         <h2 className="text-xl font-semibold text-gray-800">Your Question Goes Here</h2>
         <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
           Submit
@@ -162,10 +185,11 @@ const Checklist = () => {
       </Modal>
       
       <div className="container mx-auto px-4 my-2" dir='rtl'>
-      <h1 className="text-2xl   font-semibold  mb-10    text-[color:var(--color-primary-variant)]" dir='rtl'>چک لیست</h1>
+      <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>چک لیست</h1>
 
       <button className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
-تکمیل چک لیست        </button>
+        تکمیل چک لیست
+      </button>
         {Object.entries(checklistData).length > 0 ? Object.entries(checklistData).map(([sectionName, sectionDetails]) => (
           <div key={sectionName} className="mb-8">
             <h2 className="text-xl font-semibold text-gray-800">{translations[sectionName] || sectionName}</h2>
@@ -192,12 +216,8 @@ const Checklist = () => {
                         {detail.data.map((item, index) => (
                           <tr key={index} className="bg-white border-b border-gray-200">
                             <td className="py-3 px-6 text-left whitespace-nowrap">
-                              {/* Delete button for each row */}
-                              <button
-                                onClick={() => handleDeleteTableRow(item._id?.$oid, detailName)} // Assuming _id field exists in formData
-                                className="text-red-500"
-                              >
-                                X
+                              <button onClick={() => handleDeleteClick(item._id?.$oid, detailName)} className="text-red-500">
+                                <FaTrash />
                               </button>
                             </td>
                             <td className="py-3 px-6 text-left">{item.insurance_number}</td>
@@ -217,9 +237,25 @@ const Checklist = () => {
             ))}
           </div>
         )) : <p className="text-center text-lg">اطلاعاتی موجود نیست.</p>}
+        {showConfirmation && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded shadow-md">
+              <p className="text-lg font-semibold mb-4">آیا مطمئن هستید که می‌خواهید این سطر را حذف کنید؟</p>
+              <div className="flex justify-between">
+                <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 mr-2" onClick={confirmDeleteTableRow}>
+                  بله، حذف کن
+                </button>
+                <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded" onClick={cancelDeleteTableRow}>
+                  لغو
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
 };
 
 export default Checklist;
+

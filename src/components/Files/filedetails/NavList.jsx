@@ -30,6 +30,13 @@ const NavList = ({ activeReportId }) => {
                 </li>
                 <li>
                     <NavLink 
+                        to={`/word`} 
+                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4  rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                    >
+word                    </NavLink>
+                </li>
+                <li>
+                    <NavLink 
                         to="/takhsis" 
                         className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
                     >

@@ -20,6 +20,7 @@ import FirstReport from './components/Files/filedetails/FirstReport/FirstReport'
 import BranchAnsr from './components/Files/filedetails/BranchAnsr'
 import ChecklistHa from './components/Files/filedetails/ChecklistHa';
 import ReportTable from './components/Files/filedetails/ReportTable';
+import Word from './components/Files/filedetails/Word';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,7 @@ function App() {
       const storedToken = localStorage.getItem('accessToken');
       if (storedToken) {
         try {
-          const response = await fetch('http://188.121.99.245/api/auth/get_user', {
+          const response = await fetch('http://188.121.99.245:8080/api/auth/get_user', {
             headers: {
               Authorization: `Bearer ${storedToken}`
             }
@@ -80,6 +81,7 @@ function App() {
             <Route path="/yaft" element={isAuthenticated ? <Findings /> : <Navigate to="/login" />} />
             <Route path="/findingdetailpage"element={isAuthenticated ? <FindingDetailPage /> : <Navigate to="/login" />} />
             <Route path="/first-report" element={ <FirstReport /> } />
+            <Route path="/word" element={ <Word /> } />
             <Route path="/reporttable" element={ <ReportTable /> } />
             <Route path="//branchansr" element={isAuthenticated ? <BranchAnsr /> : <Navigate to="/login" />} />
 

@@ -1,22 +1,27 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ReportContext = createContext(null);
 
 export const ReportProvider = ({ children }) => {
+  const [fileId, setFileId] = useState(() => {
+    // Initialize fileId from local storage if available
+    return localStorage.getItem('fileId') || null;
+  });
 
-const [reportId, setReportId] = useState(() => localStorage.getItem('report_id') || '');
-    
-        const updateReportId = (id) => {
-            localStorage.setItem('report_id', id);
-            setReportId(id);
-        };
-    
-    
-    return (
-        <ReportContext.Provider value={{ reportId, setReportId }}>
-            {children}
-        </ReportContext.Provider>
-    );
+  // Update local storage whenever fileId changes
+  useEffect(() => {
+    localStorage.setItem('fileId', fileId);
+  }, [fileId]);
+
+  const updateFileId = (id) => {
+    setFileId(id);
+  };
+
+  return (
+    <ReportContext.Provider value={{ fileId, updateFileId }}>
+      {children}
+    </ReportContext.Provider>
+  );
 };
 
 export const useReport = () => useContext(ReportContext);

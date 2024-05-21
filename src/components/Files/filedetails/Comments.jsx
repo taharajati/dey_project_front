@@ -7,14 +7,14 @@ import { useReport } from './ReportContext'; // Import the useReport hook
 const Comments = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+  const { fileId } = useReport(); // Retrieve fileId using useReport hook
 
 
   // Function to fetch comments
   const fetchComments = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://188.121.99.245/api/report/comment/?report_id=${reportId}`, {
+      const response = await fetch(`http://188.121.99.245:8080/api/report/comment/?report_id=${fileId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -32,7 +32,7 @@ const Comments = () => {
   const submitComment = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://188.121.99.245/api/report/comment/', {
+      const response = await fetch('http://188.121.99.245:8080/api/report/comment/', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

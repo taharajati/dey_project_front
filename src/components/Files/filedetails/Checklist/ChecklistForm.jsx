@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useReport } from '../ReportContext'; // Import the useReport hook
+
 
 const ChecklistForm = ({ detailName }) => {
   const [formData, setFormData] = useState({});
   const [questions, setQuestions] = useState([]);
+  const { fileId } = useReport(); // Retrieve fileId using useReport hook
+
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         if (!detailName) return; // Check if detailName is undefined
-        const response = await axios.get(`http://188.121.99.245/api/report/checklist/?report_id=6612bc863f53ea2718be7db5`);
+        const response = await axios.get(`http://188.121.99.245:8080/api/report/checklist/?report_id=${fileId}`);
         const data = response.data.data;
 
         // Find the detail corresponding to the desired detailName
@@ -41,7 +45,7 @@ const ChecklistForm = ({ detailName }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('accessToken');
-      const url = `http://188.121.99.245/api/report/checklist/${detailName}`;
+      const url = `http://188.121.99.245:8080/api/report/checklist/${detailName}`;
       const response = await axios.post(url, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,

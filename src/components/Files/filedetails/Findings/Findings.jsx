@@ -4,21 +4,27 @@ import NavList from '../NavList';
 import Modal from '../Checklist/Modal';
 import { Link } from 'react-router-dom';
 import { useReport } from '../ReportContext'; // Import the useReport hook
+import { MdModeEdit } from "react-icons/md";
+
 
 
 const Findings = () => {
   const [findingsData, setFindingsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { reportId } = useReport(); // Retrieve reportId using useReport hook
+  const { fileId } = useReport(); // Retrieve fileId using useReport hook
 
 
   useEffect(() => {
     const fetchFindingsData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const url = `http://188.121.99.245/api/report/finding/?report_id=${reportId}`;
+        const url = `http://188.121.99.245:8080/api/report/finding/?report_id=${fileId}`;
+        console.log(`Fetching checklist data from: ${url}`);
+
         const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+        console.log('API response:', response);
+
         setFindingsData(response.data.data || []);
         setLoading(false);
       } catch (error) {
@@ -51,7 +57,7 @@ const Findings = () => {
                 <th className="py-3 px-6 text-center">توضیحات دارد</th>
                 <th className="py-3 px-6 text-center">تعداد ریسک‌ها</th>
                 <th className="py-3 px-6 text-center">تعداد پیشنهادها</th>
-                <th className="py-3 px-6 text-center">عملیات</th>
+                <th className="py-3 px-6 text-center"></th>
               </tr>
             </thead>
             <tbody>
@@ -64,10 +70,10 @@ const Findings = () => {
                   <td className={`py-3 px-6 text-center ${finding.number_of_risks === 0 ? 'bg-red-500' : ''}`}>{finding.number_of_suggestions}</td>
                   <td className="py-3 px-6 text-center">
                     <Link
-                      to={`/findingdetailpage?report_id=6628290587158293b9883e82&finding_group=${finding.finding_group}`}
-                      className="text-[11px] mb-2 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)]  text-white font-bold py-2 px-4 rounded"
+                      to={`/findingdetailpage?report_id=${fileId}&finding_group=${finding.finding_group}`}
+                      className="text-[color:var(--color-primary)]  py-2 px-4 rounded-md"
                     >
-                      ویرایش
+                     <MdModeEdit/>
                     </Link>
                   </td>
                 </tr>

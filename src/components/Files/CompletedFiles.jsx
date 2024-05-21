@@ -13,7 +13,7 @@ const CompletedFiles = () => {
   const fetchCompletedFiles = async () => {
     try {
       const storedToken = localStorage.getItem('accessToken');
-      const response = await fetch('http://188.121.99.245/api/report/?finished=true', {
+      const response = await fetch('http://188.121.99.245:8080/api/report/?finished=true', {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -36,7 +36,7 @@ const CompletedFiles = () => {
   const handleDelete = async (fileId) => {
     try {
       const storedToken = localStorage.getItem('accessToken');
-      const response = await fetch(`http://188.121.99.245/api/report/?report_id=${fileId}`, {
+      const response = await fetch(`http://188.121.99.245:8080/api/report/?report_id=${fileId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${storedToken}`,

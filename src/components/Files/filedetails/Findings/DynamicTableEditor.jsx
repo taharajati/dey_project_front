@@ -42,18 +42,8 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
   
   return (
     <div className="my-4">
-      <button
-        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
-        onClick={addRow}
-      >
-        Add Row
-      </button>
-      <button
-        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
-        onClick={addColumn}
-      >
-        Add Column
-      </button>
+  
+      
       <table className="border-collapse ">
         <tbody>
           {tableData.map((row, rowIndex) => (
@@ -95,6 +85,18 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
           </tr>
         </tbody>
       </table>
+      <button
+        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
+        onClick={addRow}
+      >
+       اضافه کردن سطر
+      </button>
+      <button
+        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
+        onClick={addColumn}
+      >
+       اضافه کردن ستون
+      </button>
     </div>
   );
 };

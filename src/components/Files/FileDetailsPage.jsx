@@ -9,22 +9,24 @@ const FileDetailsPage = () => {
   const [selectedDocumentType, setSelectedDocumentType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { reportId } = useReport();
+  const { fileId } = useReport(); // Retrieve fileId from ReportContext
+
+console.log(fileId)
 
   useEffect(() => {
-    if (reportId) {
-      fetchAllDocuments(reportId);
+    if (fileId) {
+      fetchAllDocuments(fileId);
     } else {
       setError("Cannot retrieve report ID.");
     }
-  }, [reportId]);
+  }, [fileId]);
 
-  const fetchAllDocuments = async (reportId) => {
+  const fetchAllDocuments = async (fileId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://188.121.99.245/api/report/documents/', {
+      const response = await axios.get('http://188.121.99.245:8080/api/report/documents/', {
         params: {
-          report_id: reportId,
+          report_id: fileId,
           only_uploaded: false
         },
         headers: {
@@ -43,7 +45,7 @@ const FileDetailsPage = () => {
   const fetchUploadedDocuments = async (reportId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://188.121.99.245/api/report/documents/', {
+      const response = await axios.get('http://188.121.99.245:8080/api/report/documents/', {
         params: {
           report_id: reportId,
           only_uploaded: true
@@ -74,13 +76,13 @@ const FileDetailsPage = () => {
     try {
       setIsLoading(true);
       const formData = new FormData();
-      formData.append('report_id', reportId);
+      formData.append('report_id', fileId);
       formData.append('file', selectedFile);
       formData.append('document', selectedDocumentType);
       console.log("setSelectedDocumentType",setSelectedDocumentType)
       console.log("formData",formData)
 
-      const response = await axios.post('http://188.121.99.245/api/report/documents/', formData, {
+      const response = await axios.post('http://188.121.99.245:8080/api/report/documents/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -88,7 +90,7 @@ const FileDetailsPage = () => {
       });
       alert('File successfully uploaded.');
       // Refresh the list of documents after successful upload
-      fetchUploadedDocuments(reportId);
+      fetchUploadedDocuments(fileId);
     } catch (error) {
       setError('File upload failed. Please try again.');
       console.error('Error uploading file:', error);
@@ -99,7 +101,7 @@ const FileDetailsPage = () => {
   };
   const handleDownload = async (documentId) => {
     try {
-      const response = await axios.get(`http://188.121.99.245/api/report/documents/${documentId}/download`, {
+      const response = await axios.get(`http://188.121.99.245:8080/api/report/documents/${documentId}/download`, {
         responseType: 'blob', // Important: Set the response type to blob
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -119,7 +121,7 @@ const FileDetailsPage = () => {
   };
   return (
     <>
-      <NavList activeReportId={reportId} />
+      <NavList activeReportId={fileId} />
       <div className="flex flex-col w-full mt-8 px-5 max-md:mt-10 max-md:max-w-full m-[-100px]" dir="rtl">
       <h2 className=" mb-4 font-semibold  text-[color:var(--color-primary-variant)] text-2xl " dir="rtl"> مدارک و فایل ها</h2>
       

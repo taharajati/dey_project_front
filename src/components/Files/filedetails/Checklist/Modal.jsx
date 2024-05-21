@@ -1,9 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 
-const Modal = ({ isOpen, onClose, detailName, formData, handleChange , reportId}) => {
+const Modal = ({ isOpen, onClose, detailName, formData, handleChange , fileId}) => {
   if (!isOpen) return null;
-
 
   
   const handleSubmit = async (e) => {
@@ -12,28 +11,32 @@ const Modal = ({ isOpen, onClose, detailName, formData, handleChange , reportId}
    
   // Check if any checklist item is not selected
   const uncheckedItems = Object.entries(formData).filter(([key, value]) => {
-    console.log("key",key)
-    console.log("value",value)
     // Exclude insurance_number and total_cost fields from the check
     if (key === 'insurance_number' || key === 'total_cost') return false;
     // Check if value is not 'true' or 'false'
-    return value !== 'true' && value !== 'false';
+    return value !== true && value !== false;
   });
+
+
   console.log("uncheckedItems",uncheckedItems)
   console.log("uncheckedItems.length  ",uncheckedItems.length)
   console.log("!formData.insurance_number",!formData.insurance_number)
   console.log("!formData.total_cost",!formData.total_cost)
-  // Check if there are unchecked items or if insurance_number and total_cost are empty
-  if (uncheckedItems.length > 1 || !formData.insurance_number || !formData.total_cost) {
-    alert('لطفاً یکی از موارد را انتخاب کنید و یا شماره بیمه نامه و مبلغ را وارد کنید.');
-    return;
-  }
+    // Check if there are unchecked items or if insurance_number and total_cost are empty
+    if (uncheckedItems.length > 0 || !formData.insurance_number || !formData.total_cost) {
+      alert('لطفاً یکی از موارد را انتخاب کنید و یا شماره بیمه نامه و مبلغ را وارد کنید.');
+      return;
+    }
   
     try {
       const token = localStorage.getItem('accessToken');
-      const url = `http://188.121.99.245/api/report/checklist/${detailName}`;
-      formData.report_id = reportId;
-      const response = await axios.post(url, formData, {
+      const url = `http://188.121.99.245:8080/api/report/checklist/${detailName}`;
+      const payload = {
+        ...formData,
+        report_id: fileId,
+      };
+
+      const response = await axios.post(url, payload, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -86,7 +89,6 @@ const CHECKLIST_DATA = {
   "detailName": "ExaminingTheFiringIssuance",
   "name_fa": "بررسی عملیات صدور آتش سوزی",
                                "column_names": {
-             "total_cost": "مبلغ",
              "Insurance_number": "شماره بیمه نامه",
              'q1': 'کنترل الحاق فرم پیشنهاد به پرونده',
              'q2': 'کنترل تکمیل فرم پیشنهاد به صورت کامل ',
@@ -137,7 +139,6 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات صدور بیمه های  باربری",
                               "column_names": {
                                   "Insurance_number": "شماره بیمه نامه",
-                                  "total_value": "کل حق بیمه",
                                   'q1': 'آیا  پروفرما در واردات وصادرات  اخذ شده است؟',
                                   'q2': 'آیا فرم پیشنهاد  تکمیل گردیده است؟ ',
                                   'q3': 'آیا امضاء و مهر بیمه گزار در فرم پیشنهاد درج گردیه است؟',
@@ -166,7 +167,6 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات خسارت بیمه های  باربری صادراتی",
                                 "column_names": {
                                     "Insurance_number": "شماره بیمه نامه",
-                                    "total_value": "کل حق بیمه",
                                     'q1': 'آیا بیمه گزار در موعد مقرر اعلام خسارت نموده است؟',
                                     'q2': 'آیا فرم یا نامه اعلام خسارت در دفتر اندیکاتور ثبت گردیده است؟',
                                     'q3': 'آیا پس از اعلام خسارت بلافاصله در سیستم فناوران خسارت ثبت شده است؟',
@@ -191,7 +191,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات خسارت بیمه های  باربری وارداتی",
                                 "column_names": {
                                     "Insurance_number": "شماره بیمه نامه",
-                                    "total_value": "کل حق بیمه",
+                                    
                                     'q1': 'آیا بیمه گزار در موعد مقرر اعلام خسارت نموده است؟',
                                     'q2': 'آیا فرم یا نامه اعلام خسارت در دفتر اندیکاتور ثبت گردیده است؟',
                                     'q3': 'آیا پس از اعلام خسارت بلافاصله در سیستم فناوران خسارت ثبت شده است؟',
@@ -220,7 +220,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات بازدید اولیه رشته خودرو بدنه",
                                 "column_names": {
                                     "Insurance_number": "شماره بیمه نامه",
-                                    "total_value": "کل حق بیمه",
+                                    
                                     'q1': 'آیا تصویر بیمه نامه بدنه و بیمه نامه شخص ثالث یا رونوشت آن به همراه الحاقیه های مربوطه اخذ و بارگزاری شده است؟',
                                     'q2': 'آیا تصویر (کارت خودرو - گواهینامه - مدارک شناسائی - کارت سبز خودرو ) مربوط به زیاندیده اخذ و بارگزاری شده است ؟',
                                     'q3': 'آیا تصویر فرم اعلام خسارت تکمیل و در برنامه فناوران بارگزاری شده است؟',
@@ -255,7 +255,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات خسارت رشته خودرو - بدنه",
                             "column_names": {
                                 "Insurance_number": "شماره بیمه نامه",
-                                "total_value": "کل حق بیمه",
+                                
                                 'q1': 'آیا تصویر بیمه نامه بدنه و بیمه نامه شخص ثالث یا رونوشت آن به همراه الحاقیه های مربوطه اخذ و بارگزاری شده است؟',
                                 'q2': 'آیا تصویر (کارت خودرو - گواهینامه - مدارک شناسائی - کارت سبز خودرو ) مربوط به زیاندیده اخذ و بارگزاری شده است ؟',
                                 'q3': 'آیا تصویر فرم اعلام خسارت تکمیل و در برنامه فناوران بارگزاری شده است؟',
@@ -290,7 +290,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات صدور رشته خودرو بدنه",
                                 "column_names": {
                                     "Insurance_number": "شماره بیمه نامه",
-                                    "total_value": "کل حق بیمه",
+                                    
                                     'q1': 'آیا اصل بیمه نامه سال قبل (درصورت وجود سابقه) اخذ گردیده است؟',
                                     'q2': 'آیا فرم پیشنهاد اخذ و مندرجات موجود به درستی تکمیل و در سیستم فناوران بارگذاری شده است؟',
                                     'q3': 'آیا اخذ درخواست در خصوص بیمه گزاران حقوقی صورت پذیرفته ؟',
@@ -312,7 +312,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات خسارت رشته شخص ثالث - مالی",
                                             "column_names": {
                                                 "Insurance_number": "شماره بیمه نامه",
-                                                "total_value": "کل حق بیمه",
+                                                
                                                 'q1': 'آیا تصویر بیمه نامه شخص ثالث یا رونوشت آن و الحاقیه های مربوط به بیمه نامه مقصر حادثه( در صورت موجود) بارگزاری گردیده؟',
                                                 'q2': 'آیا تصویر بیمه نامه شخص ثالث یا رونوشت آن ،  مربوط به زیاندیده اخذ و بارگزاری شده است ؟',
                                                 'q3': 'آیا تصویر (کارت خودرو - گواهینامه - مدارک شناسائی) مربوط به زیاندیده اخذ و بارگزاری شده است ؟',
@@ -342,7 +342,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات خسارت رشته شخص ثالث - جانی",
                                        "column_names": {
                                            "Insurance_number": "شماره بیمه نامه",
-                                           "total_value": "کل حق بیمه",
+                                           
                                            'q1': 'آیا تصویر بیمه نامه شخص ثالث و استعلام از سامانه سنهاب اخذ و بارگزاری شده است؟',
                                            'q2': 'آیا تصویر گواهینامه رانندگی مقصر حادثه  اخذ و بارگزاری شده است؟',
                                            'q3': 'آیا  تصویر مدارک شناسایی (کارت ملی )مقصر حادثه و کارت مشخصات خودرو اخذ و بارگزاری شده است؟ ',
@@ -391,7 +391,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات صدور رشته شخص ثالث",
                                        "column_names": {
                                            "Insurance_number": "شماره بیمه نامه",
-                                           "total_value": "کل حق بیمه",
+                                           
                                            'q1': 'آیا فرم پیشنهاد اخذ و مندرجات موجود به درستی تکمیل و در سیستم فناوران بارگذاری شده است؟',
                                            'q2': 'آیا اخذ درخواست در خصوص بیمه گزاران حقوقی صورت پذیرفته ؟',
                                            'q3': 'آیا مدارک شناسائی بیمه گزار (از قبیل رونوشت کارت ملی و ......)ومدارک شناسائی خودرو(از قبیل کارت خودرو و یا سند مالکیت)در سیستم فناوران بارگذاری شده است؟',
@@ -406,7 +406,7 @@ const CHECKLIST_DATA = {
   "name_fa": "کاربرگ خسارت بیمه عمر و حوادث گروهی",
                            "column_names": {
                                "Insurance_number": "شماره بیمه نامه",
-                               "total_value": "کل حق بیمه",
+                               
                                'q1': 'آیا اعلام خسارت از سوی بیمه\u200cگزار از طریق نامه کتبی و ممهور نمودن به مهر دبیرخانه و درج تاریخ ورود به شعبه دریافت شده است؟(سمت چپ پرونده فیزیکی خسارت) ',
                                'q2': 'آیا مدارک موردنیاز از سوی بیمه\u200cگزار (برای افراد بازنشسته فیش یا حکم کارگزینی صرفا ممهور به مهر سازمان ) ، گواهی فوت ثبت و احوال و گواهی فوت بیمارستانی یا جواز دفن صرفا می\u200cبایست اصل و یا برابر با اصل دفتر ثبت اسناد و یا ممهور به مهر سازمان مرجع و کپی مدارک شناسایی بیمه شده در صورت اخذ استعلام از سیستم فناوران و بارگذاری در سیستم دریافت شده است؟ (سمت چپ پرونده فیزیکی خسارت)',
                                'q3': 'آیا فرم چک لیست تکمیل ، و رسید تحویل مدارک به بیمه\u200cگزار/ ذینفع توسط کارشناس شعبه ارائه شده است؟',
@@ -423,7 +423,7 @@ const CHECKLIST_DATA = {
   "name_fa": "کاربرگ صدور عمر و حوادث گروهی",
                                "column_names": {
                                    "Insurance_number": "شماره بیمه نامه",
-                                   "total_value": "کل حق بیمه",
+                                   
                                    'q1': 'آیا درخواست کتبی بیمه\u200cگزار برای مناقصه و یا استعلام نرخ وجود دارد؟',
                                    'q2': 'حق\u200cبیمه مورد محاسبه براساس اطلاعات دریافتی از بیمه\u200cگزار شامل، پوشش های مورد درخواست، سرمایه، خطرات اضافی، تاریخ شروع و پایان بیمه نامه، سقف سنی بیمه شدگان،میانگین سنی بیمه شدگان، نوع فعالیت، گروه بیمه شدگان به تفکیک (شاغل/بازنشسته) و همچنین بیمه شده تبعی (همسر/فرزند/والدین) محاسبه گردیده است؟',
                                    'q3': 'شرایط، تعهدات قابل ارائه  و موارد خارج از تعهد به بیمه\u200cگزار به صورت مکتوب اعلام گردیده است؟',
@@ -450,7 +450,7 @@ const CHECKLIST_DATA = {
   "name_fa": "کاربرگ خسارت بیمه‌های زندگی",
                          "column_names": {
                              "Insurance_number": "شماره بیمه نامه",
-                             "total_value": "کل حق بیمه",
+                             
                              'q1': '\tآیا فرم اعلام خسارت با تائید و احراز هویت توسط کارشناس صدور شعبه انجام و درج پرونده است؟',
                              'q2': '\tآیا چک لیست دریافت مدارک، توسط کارشناس شعبه با قید تاریخ و مهر شعبه تکمیل و بایگانی شده است؟',
                              'q3': '\tآیاکپی فرم پیشنهاد، بیمه\u200cنامه و جدول تعهدات امضاشده توسط بیمه\u200cگزار و بیمه\u200cگر دریافت و درج پرونده شده است؟',
@@ -469,7 +469,7 @@ const CHECKLIST_DATA = {
   "name_fa": "کاربرگ صدور بیمه‌های زندگی",
                              "column_names": {
                                  "Insurance_number": "شماره بیمه نامه",
-                                 "total_value": "کل حق بیمه",
+                                 
                                  'q1': '\tآیا اصل فرم پیشنهاد تکمیل شده ممهور به مهر و امضای واحد صدور و معرف / بیمه\u200cگزار و بیمه\u200cشده دریافت شده است؟',
                                  'q2': '\tآیا فرم پیشنهاد فاقد خط خوردگی یا لاک گرفتگی می\u200cباشد؟',
                                  'q3': '\tآیا  تمام صفحات جدول تعهدات امضای شده طرفین موجود است؟',
@@ -499,7 +499,7 @@ const CHECKLIST_DATA = {
   "name_fa": "کاربرگ صدور درمان",
                                "column_names": {
                                    "Insurance_number": "شماره بیمه نامه",
-                                   "total_value": "کل حق بیمه",
+                                   
                                    'q1': 'آیا درخواست کتبی بیمه\u200cگزار در سربرگ خود، به همراه جدول تعهدات و تاریخ شروع برای اعلام نرخ یا شرکت در مناقصات ارائه شده است؟',
                                    'q2': 'آیا کلیه شرایط و استثنائات اعلامی  در خصوص حق\u200cبیمه، تعهدات بصورت کتبی از سوی شعبه به بیمه\u200cگزار اعلام گردیده است؟',
                                    'q3': 'آیا  نرخ و حق بیمه تائید شده، جدول تعهدات و شرایط پرداخت حق بیمه جهت صدور قرارداد (نامه صدور) از بیمه گزار دریافت شده است؟',
@@ -533,7 +533,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات خسارت بیمه های مسئولیت",
                               "column_names": {
                                   "Insurance_number": "شماره بیمه نامه",
-                                  "total_value": "کل حق بیمه",
+                                  
                                   'q1': 'کنترل اعلام خسارت توسط بیمه گزار ',
                                   'q2': ' کنترل ثبت اعلام خسارت در دفتر اندیکاتور',
                                   'q3': 'کنترل الحاق گزارش کارشناسی و کیفیت طبق ابلاغیه ارسالی به پرونده',
@@ -574,7 +574,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات صدور بیمه های مسئولیت",
                                   "column_names": {
                                       "Insurance_number": "شماره بیمه نامه",
-                                      "total_value": "کل حق بیمه",
+                                      
                                       'q1': 'آیا فرم پیشنهاد ، درخواست تمدید ، یا نامه ای برنده شدن در مناقصه و یا نامه در خواست صدور   ضمیمه  گردیده است ؟',
                                       'q2': 'در صورت حقوقی بودن بیمه گزار ، آیا درخواست صدور با مهر و امضاء بیمه گزار در تمامی صفحات می باشد.',
                                       'q3': 'در صورت حقیقی بودن بیمه گزار ، آیا درخواست صدور با مهر و امضاء بیمه گزار در تمامی صفحات می باشد.',
@@ -607,7 +607,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات خسارت مهندسی",
                                 "column_names": {
                                     "Insurance_number": "شماره بیمه نامه",
-                                    "total_value": "کل حق بیمه",
+                                    
                                     'q1': 'آیا اعلام خسارت توسط بیمه گزار انجام شده است؟',
                                     'q2': 'آیا فرم یا نامه اعلام خسارت در دفتر اندیکاتور شعبه ثبت گردیده است؟',
                                     'q3': 'آیا صورتحساب تفصیلی بیمه نامه اخذ گردیده است؟',
@@ -658,7 +658,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات صدور رشته مهندسی تمام خطر نصب و پیمانکاری",
                                      "column_names": {
                                          "Insurance_number": "شماره بیمه نامه",
-                                         "total_value": "کل حق بیمه",
+                                         
                                          'q1': 'آیا کپی قرارداد یا موافقتنامه اخذ گردیده است؟',
                                          'q2': 'آیا کپی جدول زمانبندی اجرای پروژه اخذ گردیده است؟',
                                          'q3': 'آیا کپی نقشه محل یا مسیر پروژه اخذ گردیده است؟',
@@ -685,7 +685,7 @@ const CHECKLIST_DATA = {
   "name_fa": "بررسی عملیات صدور رشته مهندسی شکست ماشین آلات",
                                                   "column_names": {
                                                       "Insurance_number": "شماره بیمه نامه",
-                                                      "total_value": "کل حق بیمه",
+                                                      
                                                       'q1': 'پرسشنامه تکمیل شده با مهر و امضاء بیمه گزار اخذ شده است؟',
                                                       'q2': 'لیست ماشین آلات مورد بیمه با مشخصات (شامل نوع، مدل، سازنده، سال ساخت، ظرفیت، شماره سریال،شماره موتور و ارزش جایگزینی نو) اخذ شده است؟',
                                                       'q3': 'در صورتی که بیمه نامه جهت تمدید دارای خسارت باشد آیا از ستاد مجوز صدور اخذ شده است؟',
@@ -704,88 +704,85 @@ const CHECKLIST_DATA = {
 
   }
 
+ // Check if detailName is valid and exists in CHECKLIST_DATA
+ if (!detailName || !CHECKLIST_DATA[detailName]) {
+  return <div>Section not found or undefined.</div>;
+}
 
-  // Check if detailName is valid and exists in CHECKLIST_DATA
-  if (!detailName || !CHECKLIST_DATA[detailName]) {
-    return <div>Section not found or undefined.</div>;
-  }
+// Get the questions for the detailName
+const questions = CHECKLIST_DATA[detailName].column_names;
 
-  // Get the questions for the detailName
-  const questions = CHECKLIST_DATA[detailName].column_names;
-
-
-  console.log(formData )
-  return (
-    <div className="fixed inset-0 flex justify-center items-center z-50">
-      <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg max-h-[600px] overflow-auto w-[1100px] h-[600px]" dir="rtl">
-        <div className="relative">
+return (
+  <div className="fixed inset-0 flex justify-center items-center z-50 ">
+    <div className="fixed inset-0 bg-black bg-opacity-50 "></div>
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg max-h-[600px] overflow-y-auto w-[1100px] h-[600px]" dir="rtl">
+      <div className="relative p-5">
         <button onClick={onClose} className="absolute top-0 left-0 m-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className='mr-8'>
-              <label htmlFor="insurance_number" className="block">شماره بیمه نامه</label>
-              <input
-                id="insurance_number"
-                name="insurance_number"
-                type="text"
-                value={formData.insurance_number || ''}
-                onChange={handleChange}
-                className="border border-gray-300 rounded px-2 py-1"
-              />
-            </div>
-            <div className='mr-8'>
-              <label htmlFor="total_cost" className="block">کل مبلغ خسارت (ریال)</label>
-              <input
-                id="total_cost"
-                name="total_cost"
-                type="number"
-                value={formData.total_cost || ''}
-                onChange={handleChange}
-                className="border border-gray-300 rounded px-2 py-1"
-              />
-            </div>
-            {Object.entries(questions).map(([questionKey, questionText], index) => (
-              (questionKey !== 'Insurance_number' && questionKey !== 'مبلغ') && (
-                <div key={questionKey} className="flex items-center space-x-4 w-[1100px]">
-                  <span className="mx-2 text-[color:var(--color-primary-variant)]">{index + 1}-</span>
-                  <label htmlFor={questionKey} className='bg-slate-100 p-5 rounded-lg w-[800px]' >{questionText}</label>
-                  <div className="flex pr-[100px]  ">
-                    <input
-                      id={questionKey + '_yes'}
-                      name={questionKey}
-                      type="radio"
-                      value="true"
-                      checked={formData[questionKey] === 'true'}
-                      onChange={handleChange}
-                      className="hidden"
-                    />
-                    <label htmlFor={questionKey + '_yes'} className={`mx-1 items-center  cursor-pointer flex justify-center  rounded-full w-8 h-8 border border-gray-300 ${formData[questionKey] === 'true' ? 'bg-blue-100' : ''} hover:bg-blue-100 transition-colors`}>
-                      <span className="text-sm ">بله</span>
-                    </label>
-                    <input
-                      id={questionKey + '_no'}
-                      name={questionKey}
-                      type="radio"
-                      value="false"
-                      checked={formData[questionKey] === 'false'}
-                      onChange={handleChange}
-                      className="hidden"
-                    />
-                    <label htmlFor={questionKey + '_no'} className={`mx-1 cursor-pointer flex items-center justify-center rounded-full w-8 h-8 border border-gray-300 ${formData[questionKey] === 'false' ? 'bg-[color:var(--color-primary-variant-02)]' : ''} hover:bg-[color:var(--color-primary-variant-02)] transition-colors`}>
-                      <span className="text-sm">خیر</span>
-                    </label>
-                  </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className='mr-8'>
+            <label htmlFor="insurance_number" className="block">شماره بیمه نامه</label>
+            <input
+              id="insurance_number"
+              name="insurance_number"
+              type="text"
+              value={formData.insurance_number || ''}
+              onChange={handleChange}
+              className="border border-gray-300 rounded px-2 py-1"
+            />
+          </div>
+          <div className='mr-8'>
+            <label htmlFor="total_cost" className="block">کل مبلغ خسارت (ریال)</label>
+            <input
+              id="total_cost"
+              name="total_cost"
+              type="number"
+              value={formData.total_cost || ''}
+              onChange={handleChange}
+              className="border border-gray-300 rounded px-2 py-1"
+            />
+          </div>
+          {Object.entries(questions).map(([questionKey, questionText], index) => (
+            (questionKey !== 'Insurance_number' && questionKey !== 'مبلغ') && (
+              <div key={questionKey} className="flex items-center space-x-4 w-[1100px]">
+                <span className="mx-2 text-[color:var(--color-primary-variant)]">{index + 1}-</span>
+                <label htmlFor={questionKey} className='bg-slate-100 p-5 rounded-lg w-[800px]'>{questionText}</label>
+                <div className="flex pr-[100px]">
+                  <input
+                    id={questionKey + '_yes'}
+                    name={questionKey}
+                    type="radio"
+                    value="true"
+                    checked={formData[questionKey] === true}
+                    onChange={(e) => handleChange({ target: { name: questionKey, value: e.target.value === 'true' } })}
+                    className="hidden"
+                  />
+                  <label htmlFor={questionKey + '_yes'} className={`mx-1 items-center cursor-pointer flex justify-center rounded-full w-8 h-8 border border-gray-300 ${formData[questionKey] === true ? 'bg-blue-100' : ''} hover:bg-blue-100 transition-colors`}>
+                    <span className="text-sm">بله</span>
+                  </label>
+                  <input
+                    id={questionKey + '_no'}
+                    name={questionKey}
+                    type="radio"
+                    value="false"
+                    checked={formData[questionKey] === false}
+                    onChange={(e) => handleChange({ target: { name: questionKey, value: e.target.value === 'true' } })}
+                    className="hidden"
+                  />
+                  <label htmlFor={questionKey + '_no'} className={`mx-1 cursor-pointer flex items-center justify-center rounded-full w-8 h-8 border border-gray-300 ${formData[questionKey] === false ? 'bg-[color:var(--color-primary-variant-02)]' : ''} hover:bg-[color:var(--color-primary-variant-02)] transition-colors`}>
+                    <span className="text-sm">خیر</span>
+                  </label>
                 </div>
-              )
-            ))}
-            <button type="submit" className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded">
-              ارسال
-            </button>
-          </form>
-        </div>
+              </div>
+            )
+          ))}
+          <button type="submit" className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded">
+            ارسال
+          </button>
+        </form>
       </div>
     </div>
-  );
-}
+  </div>
+);
+};
 
 export default Modal;
