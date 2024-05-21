@@ -1,9 +1,13 @@
 import React from 'react';
+import { FaComments } from "react-icons/fa";
+
 import RenderContent from './report_element'; // Import the component
 
 const FindingComponent = ({ finding, editedData, isEditing, handleInputChange }) => {
   return (
     <div className='bg-slate-200'>
+<FaComments />
+
       <h4 className="text-2xl font-bold my-8 bg-slate-300 p-2">یافته ها</h4>
       <div className='px-5 pb-2'>
         <h4 className="text-1xl font-bold my-8  py-1">عنوان یافته</h4>
