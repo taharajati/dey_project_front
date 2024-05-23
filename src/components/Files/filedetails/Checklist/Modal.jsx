@@ -1,56 +1,95 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
 import axios from 'axios';
 
+
+
 const Modal = ({ isOpen, onClose, detailName, formData, handleChange , fileId}) => {
+  const [error, setError] = useState('');
+
+  const [success, setSuccess] = useState('');
+  const [fill, setFill] = useState('');
+  const [fillq, setFillq] = useState('');
+
+
   if (!isOpen) return null;
+
+
+
+  
 
   
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-   
-  // Check if any checklist item is not selected
-  const uncheckedItems = Object.entries(formData).filter(([key, value]) => {
-    // Exclude insurance_number and total_cost fields from the check
-    if (key === 'insurance_number' || key === 'total_cost') return false;
-    // Check if value is not 'true' or 'false'
-    return value !== true && value !== false;
+    // Check if any checklist item is not selected
+    const uncheckedItems = Object.entries(formData).filter(([key, value]) => {
+        // Exclude insurance_number and total_cost fields from the check
+        if (key === 'insurance_number' || key === 'total_cost') return false;
+        // Check if value is not 'true' or 'false'
+        return value !== true && value !== false;
+    });
+
+    // Check if insurance_number and total_cost are empty
+    if (!formData.insurance_number || !formData.total_cost) {
+      setFill('لطفاً شماره بیمه نامه و مبلغ را وارد کنید.');
+      setTimeout(() => {
+        setFill('');
+    }, 5000);
+        return;
+    }
+
+
+    // Check if there are unanswered questions
+    const unansweredQuestions = Object.entries(questions).filter(([questionKey, questionText]) => {
+      return !(formData[questionKey] === true || formData[questionKey] === false);
   });
-
-
-  console.log("uncheckedItems",uncheckedItems)
-  console.log("uncheckedItems.length  ",uncheckedItems.length)
-  console.log("!formData.insurance_number",!formData.insurance_number)
-  console.log("!formData.total_cost",!formData.total_cost)
-    // Check if there are unchecked items or if insurance_number and total_cost are empty
-    if (uncheckedItems.length > 0 || !formData.insurance_number || !formData.total_cost) {
-      alert('لطفاً یکی از موارد را انتخاب کنید و یا شماره بیمه نامه و مبلغ را وارد کنید.');
-      return;
-    }
   
-    try {
-      const token = localStorage.getItem('accessToken');
-      const url = `http://188.121.99.245:8080/api/report/checklist/${detailName}`;
-      const payload = {
-        ...formData,
-        report_id: fileId,
-      };
-
-      const response = await axios.post(url, payload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('با موفقیت ارسال شد:', response.data);
-      // Handle success response
-      onClose(); // Close the modal after successful form submission
-    } catch (error) {
-      console.error('خطا در ارسال :', error);
-      // Handle error
+console.log(uncheckedItems)
+    // Check if there are unchecked items
+    if (unansweredQuestions.length >1) {
+      setFillq('لطفاً همه‌ی موارد را علامت بزنید. ')
+      setTimeout(() => {
+        setFillq('');
+    }, 5000);
+            return;
+        
     }
-  };
 
+ 
+
+
+    try {
+        const token = localStorage.getItem('accessToken');
+        const url = `http://188.121.99.245:8080/api/report/checklist/${detailName}`;
+        const payload = {
+            ...formData,
+            report_id: fileId,
+        };
+
+        const response = await axios.post(url, payload, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+      
+        console.log('با موفقیت ارسال شد:', response.data);
+        setSuccess('با موفقیت بروزرسانی شد. صفحه را رفرش کنید');
+
+        // Handle success response
+        setTimeout(() => {
+            onClose();
+        }, 3000); // Close the modal after successful form submission
+    } catch (error) {
+        console.error('خطا در ارسال :', error);
+        setError('بروزرسانی موفق نبود');
+        setTimeout(() => {
+            setError('');
+        }, 5000);
+        // Handle error
+    }
+};
 
   console.log("handleSubmi", formData);
   console.log("detailName :", detailName);
@@ -778,6 +817,12 @@ return (
           <button type="submit" className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded">
             ارسال
           </button>
+          {success && <p className="bg-green-100 text-green-800 text-center p-2 rounded">{success}</p>}
+          {error && <p className="bg-red-100 text-red-800 text-center p-2 rounded">{error}</p>}
+          {fill && <p className="bg-red-100 text-red-800 text-center p-2 rounded">{fill}</p>}
+          {fillq && <p className="bg-red-100 text-red-800 text-center p-2 rounded">{fillq}</p>}
+
+
         </form>
       </div>
     </div>

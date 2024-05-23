@@ -10,78 +10,83 @@ const NavList = ({ activeReportId }) => {
 
     return (
         <div>
-        <nav className=" text-black p-4 mx-[75px]">
-        <button
-                            onClick={handleGoBack}
-                            className="bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"
+            <nav className="text-black p-4 md:mx-[75px] mx-4 ">
+                <button
+                    onClick={handleGoBack}
+                    className="bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"
+                >
+                    بازگشت
+                </button>
+                <ul className="flex flex-wrap justify-end space-x-4 rtl:space-x-reverse float-right  " dir='rtl'>
+                    <li>
+                        <NavLink 
+                            to={`/report/${activeReportId}`} 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
                         >
-                            بازگشت
-                        </button>
-            <ul className="flex justify-end space-x-4 rtl:space-x-reverse  float-right " dir='rtl'>
-           
-                {/* Active styling with NavLink */}
-                <li>
-                    <NavLink 
-                        to={`/report/${activeReportId}`} 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4  rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
-                    >
-                        مدارک و فایل ها
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink 
-                        to={`/word`} 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4  rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
-                    >
-word                    </NavLink>
-                </li>
-                <li>
-                    <NavLink 
-                        to="/takhsis" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
-                    >
-                        تخصیص
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink 
-                        to="/checklist" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
-                    >
-                        چک لیست
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink 
-                        to="/checklistha" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
-                    >
-                        وضعیت چک لیست ها
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink 
-                        to="/yaft" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)]  py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg"}
-                    >
-                        یافته
-                    </NavLink>
-                </li>
-             
-                <li>
-                    <NavLink 
-                        to="/reporttable" 
-                        className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3  rounded-lg "}
-                    >
-                        گزارش 
-                    </NavLink>
-                </li>
-            
-          
-             
-            </ul>
-        </nav>
-        <div className=" max-w-full h-0.5 bg-black border border-black border-solid w-[1400px] flex flex-col items-center  mx-auto " />
+                            مدارک و فایل ها
+                        </NavLink>
+                    </li>
+                  
+                    <li>
+                        <NavLink 
+                            to={`/zamime`} 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                        >
+                             دیگر فایل های ضمیمه
+                          </NavLink>
+                    </li>
+                  
+                    <li>
+                        <NavLink 
+                            to="/takhsis" 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                        >
+                            تخصیص
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink 
+                            to="/checklist" 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                        >
+                            چک لیست
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink 
+                            to="/checklistha" 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                        >
+                            وضعیت چک لیست ها
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink 
+                            to="/comment" 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                        >
+                             تاریخچه  
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink 
+                            to="/yaft" 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                        >
+                            یافته
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink 
+                            to="/reporttable" 
+                            className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
+                        >
+                            گزارش 
+                        </NavLink>
+                    </li>
+                </ul>
+            </nav>
+            <div className="max-w-full h-0.5 bg-black border border-black border-solid md:w-[1400px] w-full flex flex-col items-center mx-auto" />
         </div>
     );
 };

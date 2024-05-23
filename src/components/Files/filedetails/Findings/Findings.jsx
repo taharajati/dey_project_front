@@ -45,10 +45,11 @@ const Findings = () => {
       <Modal>
         {/* Your modal content */}
       </Modal>
-      <div className="container  px-4 my-8" dir="rtl">
-      <h1 className="text-2xl   font-semibold  mb-10 mx-[60px]   text-[color:var(--color-primary-variant)]" dir='rtl'> یافته ها</h1>
+      <div className="  justify-center">
+      <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
+      <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'> یافته ها</h1>
 
-        <div className="container mx-auto px-4 my-2">
+        <div className="container  px-4 my-2">
           <table className="min-w-full leading-3">
             <thead>
               <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
@@ -81,6 +82,7 @@ const Findings = () => {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </>
   );

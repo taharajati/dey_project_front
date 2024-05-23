@@ -7,8 +7,12 @@ import { useReport } from '../ReportContext';
 
 const Checklist = () => {
   const [checklistData, setChecklistData] = useState({});
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [errorCheck, setErrorCheck] = useState('');
+  const [successCheck, setSuccessCheck] = useState('');
+
   const [showForm, setShowForm] = useState(false);
   const [currentFormDefinition, setCurrentFormDefinition] = useState({});
   const [sectionName, setSectionName] = useState("");
@@ -173,6 +177,36 @@ const Checklist = () => {
     }
   };
 
+
+   // Function to handle click on "Complete Checklist" button
+   const handleCompleteChecklist = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const url = `http://188.121.99.245:8080/api/report/checklist/finished`;
+      const payload = {
+        report_id: fileId
+      };
+      const response = await axios.post(url, payload, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      setSuccessCheck('چک لیست تکمیل شد', response.data);
+      setTimeout(() => {
+        setSuccessCheck('');
+    }, 3000);
+      // Optionally, you can handle the response and show a success message
+    } catch (error) {
+      setErrorCheck('خطا در تکمیل چک لیست', error);
+      setTimeout(() => {
+        setErrorCheck('');
+    }, 3000);
+      // Optionally, you can handle errors and show an error message
+    }
+  };
+
+
   return (
     <>
       <NavList />
@@ -183,13 +217,16 @@ const Checklist = () => {
           Submit
         </button>
       </Modal>
-      
-      <div className="container mx-auto px-4 my-2" dir='rtl'>
+      <div className="  justify-center">
+      <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
       <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>چک لیست</h1>
 
-      <button className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
-        تکمیل چک لیست
-      </button>
+      <button onClick={handleCompleteChecklist} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md mb-4">
+          تکمیل چک لیست
+        </button>
+        {errorCheck && <p className="bg-red-100 text-red-800 text-center p-2 rounded">{errorCheck}</p>}
+        {successCheck && <p className="bg-green-100 text-green-800 text-center p-2 rounded">{successCheck}</p>}
+
         {Object.entries(checklistData).length > 0 ? Object.entries(checklistData).map(([sectionName, sectionDetails]) => (
           <div key={sectionName} className="mb-8">
             <h2 className="text-xl font-semibold text-gray-800">{translations[sectionName] || sectionName}</h2>
@@ -200,7 +237,7 @@ const Checklist = () => {
                   افزودن ردیف جدید
                 </button>
                 {detail.data && detail.data.length > 0 ? (
-                  <div className="overflow-x-auto shadow-md">
+                  <div className="overflow-x-auto shadow-md w-[80%]">
                     <table className="min-w-full leading-normal">
                       <thead>
                         <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
@@ -252,6 +289,7 @@ const Checklist = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </>
   );

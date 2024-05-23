@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { NavLink } from 'react-router-dom';
 import NavList from './NavList';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useReport } from '../filedetails/ReportContext'; // Import the useReport hook
-
-
+import { useReport } from '../filedetails/ReportContext';
 
 const ReportTable = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { fileId } = useReport(); // Retrieve reportId using useReport hook
+  const [errorq, setErrorq] = useState('');
 
+  const { fileId } = useReport();
 
   useEffect(() => {
     fetchReports();
@@ -20,7 +19,6 @@ const ReportTable = () => {
   const fetchReports = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-    
       const response = await axios.get(`http://188.121.99.245:8080/api/report/reports_files?report_id=${fileId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -30,55 +28,142 @@ const ReportTable = () => {
       setReports(response.data.data);
       setLoading(false);
     } catch (error) {
-      setError('Failed to fetch reports');
+      setError('گزارش ها دریافت نشد');
       setLoading(false);
       console.error('Error fetching reports:', error);
+    }
+  };
+
+  const handleEditClick = () => {
+    setErrorq('شما نمیتوانید از این قابلیت استفاده کنید');
+  };
+
+  const handlePdfCreationClick = async (reportId, reportType) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.post(`http://188.121.99.245:8080/api/report/export/convert_to_pdf`, {
+        report_id: reportId,
+        report_type: reportType
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json'
+        }
+      });
+      // Handle success or feedback if needed
+    } catch (error) {
+      setErrorq('گزارش PDF ایجاد نشد');
+      console.error('Error creating PDF report:', error);
+    }
+  };
+
+  const handleReportFinalizationClick = async (fileId, reportType) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.post(`http://188.121.99.245:8080/api/report/export/send_report`, {
+        report_id: fileId,
+        report_type: reportType
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json'
+        }
+      });
+      // Handle success or feedback if needed
+    } catch (error) {
+      setErrorq('گزارش ارسال نشد');
+      console.error('Error sending report:', error);
+    }
+  };
+
+  const renderEditOption = (created, finished) => {
+    if (created && !finished) {
+      return (
+        <NavLink to="/first-report">
+          <td className="py-3 px-6 text-[color:var(--color-primary)]">ویرایش و نهایی سازی</td>
+        </NavLink>
+      );
+    } else {
+      return (
+        <td className="py-3 px-6 text-gray-400" onClick={handleEditClick}>ویرایش و نهایی سازی</td>
+      );
+    }
+  };
+
+  const renderPdfCreationOption = (created, finished,fileId,reportType) => {
+    if (created && !finished) {
+      return (
+        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handlePdfCreationClick(fileId,reportType)}>ایجاد گزارش PDF</td>
+      );
+    } else {
+      return (
+        <td className="py-3 px-6 text-gray-400"  >ایجاد گزارش PDF</td>
+      );
+    }
+  };
+
+  const renderReportFinalizationOption = (pdfCreated, finished,reportType,fileId) => {
+    if (pdfCreated && !finished) {
+      return (
+        <td className="py-3 px-6 text-[color:var(--color-primary)]"  onClick={() => handleReportFinalizationClick(fileId, reportType)}>  نهایی سازی گزارش</td>
+      );
+    } else {
+      return (
+        <td className="py-3 px-6 text-gray-400" onClick={handleEditClick} > نهایی سازی گزارش </td>
+      );
     }
   };
 
   return (
     <>
       <NavList />
-      <div className="container mx-auto px-4 my-2" dir='rtl'>
-
-<h1 className="text-2xl   font-semibold  mb-10    text-[color:var(--color-primary-variant)]" dir='rtl'>گزارش </h1>
-     
-
-      <div className="container mx-auto px-4 my-2" >
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p>Error: {error}</p>
-        ) : reports.length === 0 ? (
-          <p>No reports found.</p>
-        ) : (
-          <table className="min-w-full leading-normal" >
-            <thead>
-              <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 ">نوع گزارش</th>
-                <th className="py-3 px-6">وضعیت گزارش</th>
-                <th className="py-3 px-6"> </th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map(report => (
-                <tr key={report._id.$oid} className="bg-white border-b border-gray-200">
-                  <td className="py-3 px-6">{report.report_type_fa}</td>
-                  <td className="py-3 px-6 ">{report.status}</td>
-                  <NavLink 
-                        to="/first-report" 
-                       
-                    >
-                         <td className="py-3 px-6  text-[color:var(--color-primary)]">ویرایش و نهایی سازی</td>
-                    </NavLink>
-                 
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="justify-center">
+        <div className="mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
+          <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>گزارش</h1>
+          <div className="container px-4 my-2">
+            {loading ? (
+              <p>بارگذاری...</p>
+            ) : error ? (
+              <p className="text-[color:var(--color-primary-variant)]">خطا: {error}</p>
+            ) : reports.length === 0 ? (
+              <p>No reports found.</p>
+            ) : (
+              <table className="min-w-full leading-normal">
+                <thead>
+                  <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                    <th className="py-3 px-6">نوع گزارش</th>
+                    <th className="py-3 px-6">وضعیت گزارش</th>
+                    <th className="py-3 px-6"></th>
+                    <th className="py-3 px-6"></th>
+                    <th className="py-3 px-6"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reports.map(report => (
+                    <tr key={report._id.$oid} className="bg-white border-b text-center border-gray-200">
+                      <td className="py-3 px-6">{report.report_type_fa}</td>
+                      <td className="py-3 px-6">{report.status}</td>
+                      {renderEditOption(report.created, report.finished)}
+                      {renderPdfCreationOption(report.created, report.finished)}
+                      {renderReportFinalizationOption(report.pdf_created, report.finished)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
       </div>
-      </div>
+      {/* Popup for error message */}
+      {errorq && (
+        <div className="fixed inset-0 flex items-center  justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto  shadow-lg border-e-red-50">
+          <button onClick={() => setErrorq('')} className=" text-white   mb-2 bg-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
+
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)] ">{errorq}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

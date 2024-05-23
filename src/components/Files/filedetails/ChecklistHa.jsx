@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import NavList from './NavList';
-import { useReport } from '../filedetails/ReportContext'; // Import the useReport hook
-
+import { useReport } from '../filedetails/ReportContext';
 
 const ChecklistHa = () => {
-  // State to store checklist status
   const [checklistStatus, setChecklistStatus] = useState(null);
-  const { fileId } = useReport(); // Retrieve fileId using useReport hook
-
+  const { fileId } = useReport();
 
   const translations = {
     "Fire": "آتش سوزی",
@@ -42,43 +39,55 @@ const ChecklistHa = () => {
     "ExaminingTheEngineeringIssuanceMachineFailure": "بررسی عملیات صدور رشته مهندسی شکست ماشین آلات"
 };
 
-
   useEffect(() => {
-    // Function to fetch checklist status
-    const fetchChecklistStatus =async () => {
+    const fetchChecklistStatus = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-
-        // Make GET request to the API endpoint
         const response = await fetch(`http://188.121.99.245:8080/api/report/checklist/checklist_status?report_id=${fileId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        // Parse JSON response
         const data = await response.json();
-
-        // Set checklist status in state
         setChecklistStatus(data.data);
       } catch (error) {
         console.error('Error fetching checklist status:', error);
       }
     };
 
-    // Call fetchChecklistStatus function when component mounts
     fetchChecklistStatus();
-  }, []); // Empty dependency array to run effect only once
+  }, [fileId]);
+
+  const handleCreateReport = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const url = 'http://188.121.99.245:8080/api/report/export/';
+      const payload = { report_id: fileId };
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const responseData = await response.json();
+      console.log('Report export response:', responseData);
+      // Optionally, you can handle the response accordingly
+    } catch (error) {
+      console.error('Error exporting report:', error);
+      // Optionally, you can handle errors and show an error message
+    }
+  };
 
   return (
     <>
       <NavList />
-      <div className="container mx-auto px-4 my-2" dir='rtl'>
-
-      <h1 className="text-2xl   font-semibold  mb-10    text-[color:var(--color-primary-variant)]" dir='rtl'>وضعیت چک لیست ها </h1>
-
-      <button className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
-        ساخت پیش نویس گزارش
+      <div className="  justify-center">
+      <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
+        <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>وضعیت چک لیست ها </h1>
+        <button onClick={handleCreateReport} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
+          ایجاد متن گزارش اولیه
         </button>
-      <div className="max-w-4xl mx-auto mt-8  w-[900px]" dir='rtl'>
+        <div className="max-w-4xl mx-auto mt-8  w-[900px]" dir='rtl'>
         {/* Display checklist status */}
         {checklistStatus && (
           <table className="w-full border-collapse border border-gray-300">
@@ -125,7 +134,7 @@ const ChecklistHa = () => {
           </table>
         )}
       </div>
-      
+      </div>
       </div>
     </>
   );

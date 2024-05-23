@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
+
 import { FaComments } from "react-icons/fa";
+import PopUpModal from './PopUpModal'; // Import the modal component
+
 
 import RenderContent from './report_element'; // Import the component
 
 const FindingComponent = ({ finding, editedData, isEditing, handleInputChange }) => {
-  return (
-    <div className='bg-slate-200'>
-<FaComments />
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
 
-      <h4 className="text-2xl font-bold my-8 bg-slate-300 p-2">یافته ها</h4>
+  const handleCommentIconClick = () => {
+    setIsModalOpen(true); // Open the modal when the comment icon is clicked
+  };
+  return (
+    <>
+    <div className='bg-slate-200'>
+
+
+       <div className="  my-8 p-7  bg-slate-300">
+      <span className="text-2xl font-bold p-2"  >یافته ها </span>
+      <span className="float-left text-white mb-2 bg-[color:var(--color-primary)] rounded-full w-8 h-8 flex items-center justify-center" onClick={handleCommentIconClick}>
+          <FaComments />
+        </span>      </div>
       <div className='px-5 pb-2'>
         <h4 className="text-1xl font-bold my-8  py-1">عنوان یافته</h4>
         {/* Rendering Finding titles */}
@@ -57,7 +70,16 @@ const FindingComponent = ({ finding, editedData, isEditing, handleInputChange })
           <RenderContent content={editedData[finding]?.suggestions} />
         )}
       </div>
+        {/* Render the modal */}
+        {isModalOpen && (
+        <PopUpModal
+          finding={finding}
+          onClose={() => setIsModalOpen(false)} // Close the modal when onClose is triggered
+        />
+      )}
     </div>
+   
+   </>
   );
 };
 

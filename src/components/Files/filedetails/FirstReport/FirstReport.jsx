@@ -55,7 +55,7 @@ const FirstReport = () => {
 
   const fetchReportData = async () => {
     try {
-      const response = await fetch("http://188.121.99.245/api/report/fake_data", {
+      const response = await fetch("http://188.121.99.245:8080/api/report/fake_data", {
        // headers: {
         //  Authorization: `Bearer ${localStorage.getItem('accessToken')}`
        // }
@@ -266,55 +266,185 @@ const FirstReport = () => {
     setIsEditing(false);
   };
 
-  const handleDownloadPDF = () => {
-    const input = document.getElementById('allContent');
-  
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
+    const handleDownloadPDF = () => {
+      const input = document.getElementById('reportContent');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const marginTopFirstPage = 60; // Margin from the top of the first page
-      const marginTopRemainingPages = 0; // Margin from the top of remaining pages
-  
-      const addImages = (page) => {
-          if (page === 1) {
-              pdf.addImage(Top1, 'PNG', 0, 0, imgWidth);
-              pdf.addImage(Down1, 'PNG', 0, pageHeight - marginTopFirstPage, imgWidth, marginTopFirstPage);
+      const pdfWidth = 210;
+      const pdfHeight = 200;
+
+      html2canvas(input, { scrollY: -window.scrollY }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const imageHeight = (canvas.height * pdfWidth) / canvas.width;
+    
+        const Top1ImageUrl = Top1;
+        const Top1ImageWidth = 210;
+        const Top1ImageHeight = 100;
+    
+        const Top2ImageUrl = Top2;
+        const Top2ImageWidth = 210;
+        const Top2ImageHeight = 20;
+    
+        pdf.addImage(Top1ImageUrl, 'PNG', 0, 0, Top1ImageWidth, Top1ImageHeight, undefined, 'FAST');
+    
+        const down1ImageUrl = Down1;
+        const down1Width = 210;
+        const down1Height = 100;
+    
+        const down2ImageUrl = Down2;
+        const down2Width = 210;
+        const down2Height = 20;
+    
+        pdf.addImage(down1ImageUrl, 'PNG', 0, pdfHeight, down1Width, down1Height, undefined, 'FAST');
+    
+        const remainingHeight = pdfHeight - imageHeight;
+    
+        if (remainingHeight >= 0) {
+          if (imageHeight > pdfHeight) {
+            const ratio = pdfHeight / imageHeight;
+            pdf.addImage(imgData, 'PNG', 0, 100, pdfWidth, 80, undefined, 'FAST');
           } else {
-              pdf.addImage(Top2, 'PNG', 0, 0, imgWidth, marginTopRemainingPages);
-              pdf.addImage(Down2, 'PNG', 0, pageHeight - marginTopRemainingPages, imgWidth, marginTopRemainingPages);
+            pdf.addImage(imgData, 'PNG', 0, 100, pdfWidth, 80, undefined, 'FAST');
           }
-      };
-  
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-  
-      // Check if content fits within the first page
-      if (heightLeft < pageHeight - marginTopFirstPage) {
-        position = marginTopFirstPage;
-        addImages(1);
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight , undefined, 'FAST');
-      } else {
-        // Add content to subsequent pages
-        addImages(1);
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight , undefined, 'FAST');
-        heightLeft -= pageHeight - marginTopFirstPage;
-        let currentPage = 2;
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
+        } else {
           pdf.addPage();
-          addImages(currentPage);
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight , undefined, 'FAST');
-          heightLeft -= pageHeight;
-          currentPage++;
+          pdf.addImage(imgData, 'PNG', 0,100, pdfWidth, 80, undefined, 'FAST');
         }
-      }
+    
+        pdf.addFileToVFS('Lalezar-Regular.ttf', LalezarFont);
+        pdf.addFont('Lalezar-Regular.ttf', 'Lalezar', 'normal');
+        pdf.setFont('Lalezar');
+    
+        const introHeader = document.querySelector('.new_page2 h4');
+        if (introHeader) {
+          const introHeaderPos = introHeader.getBoundingClientRect().top;
+          if (introHeaderPos > pdfHeight) {
+            pdf.addPage();
+          }
+        }
+    
+        // Render content for the second page
+        const secondPageDiv = document.getElementById('page2');
+        html2canvas(secondPageDiv, { scrollY: -window.scrollY }).then((secondCanvas) => {
+          const secondDataUrl = secondCanvas.toDataURL('image/png');
+          const secondImageHeight = (secondCanvas.height * pdfWidth) / secondCanvas.width;
+          pdf.addPage();
+          pdf.addImage(secondDataUrl, 'PNG', 0, 10, pdfWidth, 130, undefined, 'FAST');
+    
+          // Render content for the third page
+          if (reportData && reportData.personnel) {
+            const thirdPageDiv = document.getElementById('page3');
+            html2canvas(thirdPageDiv, { scrollY: -window.scrollY }).then((thirdCanvas) => {
+              const thirdDataUrl = thirdCanvas.toDataURL('image/png');
+              const thirdImageHeight = (thirdCanvas.height * pdfWidth) / thirdCanvas.width;
+              pdf.addPage();
+              pdf.addImage(thirdDataUrl, 'PNG', 0, 10, pdfWidth, 230, undefined, 'FAST');
+    
+              // Render content for the fourth page
+              const fourthPageDiv = document.getElementById('page4');
+              console.log("Fourth Page Div:", fourthPageDiv); // Debugging statement
+              html2canvas(fourthPageDiv, { scrollY: -window.scrollY }).then((fourthCanvas) => {
+                console.log("Fourth Canvas Dimensions:", fourthCanvas.width, fourthCanvas.height); // Debugging statement
+                const fourthDataUrl = fourthCanvas.toDataURL('image/png');
+                const fourthImageHeight = (fourthCanvas.height * pdfWidth) / fourthCanvas.width;
+                console.log("fourthCanvas:", fourthCanvas); // Debugging statement
+                pdf.addPage();
+                pdf.addImage(fourthDataUrl, 'PNG', 3, 20, 190,200, undefined, 'FAST');
+    
+
+                  // Add fifth page content
+                const fifthPageDiv = document.getElementById('page5');
+                html2canvas(fifthPageDiv, { scrollY: -window.scrollY }).then((fifthCanvas) => {
+                const fifthDataUrl = fifthCanvas.toDataURL('image/png');
+                const fifthImageHeight = (fifthCanvas.height * pdfWidth) / fifthCanvas.width;
+            
+                pdf.addPage();
+                
+                pdf.addImage(fifthDataUrl, 'PNG', 10, 20, 190, fifthImageHeight, undefined, 'FAST');
+
+              // Render content for the sixth page
+              const sixthPageDiv = document.getElementById('page6');
+              html2canvas(sixthPageDiv, { scrollY: -window.scrollY }).then((sixthCanvas) => {
+                const sixthDataUrl = sixthCanvas.toDataURL('image/png');
+                const sixthImageHeight = (sixthCanvas.height * pdfWidth) / sixthCanvas.width;
+                pdf.addPage();
+                pdf.addImage(sixthDataUrl, 'PNG', 10, 20, 190, sixthImageHeight, undefined, 'FAST');
+              
+              // Render content for the seventh page
+              const seventhPageDiv = document.getElementById('page7');
+              html2canvas(seventhPageDiv, { scrollY: -window.scrollY }).then((seventhCanvas) => {
+                const seventhDataUrl = seventhCanvas.toDataURL('image/png');
+                const seventhImageHeight = (seventhCanvas.height * pdfWidth) / seventhCanvas.width;
+                pdf.addPage();
+                pdf.addImage(seventhDataUrl, 'PNG', 10, 20, 190, seventhImageHeight, undefined, 'FAST');
+             
+             
+                // Render content for the eighthpage
+              const eighthPageDiv = document.getElementById('page8');
+              html2canvas(eighthPageDiv, { scrollY: -window.scrollY }).then((eighthCanvas) => {
+                const eighthDataUrl = eighthCanvas.toDataURL('image/png');
+                const eighthImageHeight = (eighthCanvas.height * pdfWidth) / eighthCanvas.width;
+                pdf.addPage();
+                pdf.addImage(eighthDataUrl, 'PNG', 10, 20, 190, eighthImageHeight, undefined, 'FAST');
+              
+                
+                const ninethPageDiv = document.getElementById('page9');
+              html2canvas(ninethPageDiv, { scrollY: -window.scrollY }).then((ninethCanvas) => {
+                const ninethDataUrl = ninethCanvas.toDataURL('image/png');
+                const ninethImageHeight = (ninethCanvas.height * pdfWidth) / ninethCanvas.width;
+                pdf.addPage();
+                pdf.addImage(ninethDataUrl, 'PNG', 10, 20, 190, ninethImageHeight, undefined, 'FAST');
+                
+
+                const tenthPageDiv = document.getElementById('page10');
+              html2canvas(tenthPageDiv, { scrollY: -window.scrollY }).then((tenthCanvas) => {
+                const tenthDataUrl = tenthCanvas.toDataURL('image/png');
+                const tenthImageHeight = (tenthCanvas.height * pdfWidth) / tenthCanvas.width;
+                pdf.addPage();
+                pdf.addImage(tenthDataUrl, 'PNG', 10, 20, 190, tenthImageHeight, undefined, 'FAST');
+                  /*
+                const eleventhPageDiv = document.getElementById('page11');
+              html2canvas(eleventhPageDiv, { scrollY: -window.scrollY }).then((eleventhCanvas) => {
+                const eleventhDataUrl = eleventhCanvas.toDataURL('image/png');
+                const eleventhImageHeight = (eleventhCanvas.height * pdfWidth) / eleventhCanvas.width;
+                pdf.addPage();
+                pdf.addImage(eleventhDataUrl, 'PNG', 10, 20, 190, eleventhImageHeight, undefined, 'FAST');
+
+                const twelvethPageDiv = document.getElementById('page12');
+              html2canvas(twelvethPageDiv, { scrollY: -window.scrollY }).then((twelvethCanvas) => {
+                const twelvethDataUrl = twelvethCanvas.toDataURL('image/png');
+                const twelvethImageHeight = (twelvethCanvas.height * pdfWidth) / twelvethCanvas.width;
+                pdf.addPage();
+                pdf.addImage(twelvethDataUrl, 'PNG', 10, 20, 190, twelvethImageHeight, undefined, 'FAST');
+
+                */
+                // Add image to the top of every page except the first one
+                const totalPages = pdf.internal.getNumberOfPages();
+                for (let i = 2; i <= totalPages; i++) {
+                  pdf.setPage(i);
+                  pdf.addImage(Top2ImageUrl, 'PNG', 0, 0, Top2ImageWidth, Top2ImageHeight, undefined, 'FAST');
+                  pdf.addImage(down2ImageUrl, 'PNG', 0, 280, down2Width, down2Height, undefined, 'FAST');
+                }
+              
+                pdf.save('report.pdf');
+              });
+            });
+          });
+              //});
+            //});
+              });
+              });
+              });
+              });
+              });
+              } else {
+              pdf.save('report.pdf');
+              }
+              });
+              });
+              };
+    
   
-      pdf.save('content.pdf');
-    });
-};
+
 const handleInputChange = (e, key) => {
   const value = e.target.value;
   setEditedData(prevState => {
@@ -387,65 +517,65 @@ const handleGoBack = () => {
                 </button>
               )}
             </div>
+    <div id="reportContent" className="text-center" style={{ fontSize: '16px', lineHeight: '1.5' }}>
+  {/* Content for the first page */}
 
-          <div id="allContent" >
- {/* Content for the first page */}
-          <div id="page1 " className="text-center" style={{ width: '210mm', height: '297', fontSize: '16px', lineHeight: '1.5' ,paddingTop: '400px'}}>
-              
-                <h1 className="text-5xl font-bold  mb-[100px]  text-center  " >
-                    {isEditing ? (
-                        <textarea
-                            className="w-full p-2 rounded-lg border border-gray-300"
-                            rows={6}
-                            value={editedData.first_page?.branch_name}
-                            onChange={(e) => handleInputChange(e, 'first_page.branch_name')}
-                        />
-                    ) : (
-                        editableData.first_page?.branch_name
-                    )}
-                </h1>
-                <h2 className="text-xl my-[100px] text-center">
-                    {isEditing ? (
-                        <textarea
-                            className="w-full p-2 rounded-lg border border-gray-300"
-                            rows={6}
-                            value={editedData.first_page?.report_period}
-                            onChange={(e) => handleInputChange(e, 'first_page.report_period')}
-                        />
-                    ) : (
-                        editableData.first_page?.report_period
-                    )}
-                </h2>
-                <h3 className="text-lg my-2 text-center">
-                    {isEditing ? (
-                        <textarea
-                            className="w-full p-2 rounded-lg border border-gray-300"
-                            rows={6}
-                            value={editedData.first_page?.date_title}
-                            onChange={(e) => handleInputChange(e, 'first_page.date_title')}
-                        />
-                    ) : (
-                        editableData.first_page?.date_title
-                    )}
-                </h3>
-                <br />
-            </div>
+  <h1 className=" text-5xl font-bold my-9 mb-[200px] text-center">
+  {isEditing ? (
+    <textarea
+      className="w-full p-2 rounded-lg border border-gray-300"
+      rows={6}
+      value={editedData.first_page?.branch_name}
+      onChange={(e) => handleInputChange(e, 'first_page.branch_name')}
+    />
+  ) : (
+    editableData.first_page?.branch_name
+  )}
+</h1>
+<h2 className="text-xl my-[200px] text-center ">
+  {isEditing ? (
+    <textarea
+      className="w-full p-2 rounded-lg border border-gray-300"
+      rows={6}
+      value={editedData.first_page?.report_period}
+      onChange={(e) => handleInputChange(e, 'first_page.report_period')}
+    />
+  ) : (
+    editableData.first_page?.report_period
+  )}
+</h2>
+<h3 className="text-lg my-4 text-center">
+  {isEditing ? (
+    <textarea
+      className="w-full p-2 rounded-lg border border-gray-300"
+      rows={6}
+      value={editedData.first_page?.date_title}
+      onChange={(e) => handleInputChange(e, 'first_page.date_title')}
+    />
+  ) : (
+    editableData.first_page?.date_title
+  )}
+</h3>
+  <br/>
+    
+</div>
 
-            {/* Content for the second page */}
-            <div id="page2" className="new_page2 p-[30px] " style={{ width: '210mm', height: '297mm' , paddingTop: ''}}>
-                <h4 className="text-2xl font-bold my-2">مقدمه:</h4>
-                {isEditing ? (
-                    <textarea
-                        className="w-full p-[30px] rounded-lg border border-gray-300"
-                        rows={12}
-                        value={editedData.introduction?.content}
-                        onChange={(e) => handleInputChange(e, 'introduction.content')}
-                    />
-                ) : (
-                    <div>
-                        <p>{editableData.introduction?.content}</p>
-                    </div>
-                )}
+{/* Content for the second page */}
+
+<div id="page2" className="new_page2 p-[60px] ">
+<h4 className="text-2xl font-bold my-10">مقدمه:</h4>
+{isEditing ? (
+  <textarea
+    className="w-full p-[60px] rounded-lg border border-gray-300"
+    rows={12}
+    value={editedData.introduction?.content}
+    onChange={(e) => handleInputChange(e, 'introduction.content')}
+  />
+) : (
+  <div>
+    <p>{editableData.introduction?.content}</p>
+  </div>
+)}
 <h4 className="text-2xl font-bold my-10">اهداف ارزیابی:</h4>
 {isEditing ? (
   <textarea
@@ -479,8 +609,8 @@ const handleGoBack = () => {
     
  {/* Content for the third page */}
  {reportData && reportData.personnel && reportData.personnel.table && (
-            <div id="page3" className="text-center" style={{ width: '210mm', height: '297mm', fontSize: '16px', lineHeight: '1.5' }}>
-            <h4 className="text-2xl font-bold my-10">{reportData.personnel.title}</h4>
+  <div id="page3" className="personnel_page p-[60px] ">
+    <h4 className="text-2xl font-bold my-10">{reportData.personnel.title}</h4>
     {isEditing ? (
       <textarea
         className="w-full p-[60px] rounded-lg border border-gray-300"
@@ -741,7 +871,8 @@ const handleGoBack = () => {
       </tbody>
     </table>
 
-   
+    {reportData.FinancialPerformanceIssueLossCompareBudget && (
+  <div id="page3" className="financial_performance_page p-[60px] mx-[-60px] " dir='rtl'>
     <h4 className="text-2xl font-bold my-10 ">{reportData.FinancialPerformanceIssueLossCompareBudget.title}</h4>
     <p className="mb-6">{reportData.FinancialPerformanceIssueLossCompareBudget.description}</p>
     <table className="table-auto w-full">
@@ -780,199 +911,254 @@ const handleGoBack = () => {
         )}
       </tbody>
     </table>
+  </div>
+)}
+
 
           </div>
         )}
- {/* Content for the fourth page */}
- <div id="page4" className="text-center" style={{ width: '210mm', height: '297mm', fontSize: '16px', lineHeight: '1.5', padding: '30px', marginTop: '50px' }}>
-    <caption className="text-lg font-semibold my-6 w-[800px]">{reportData.Chart_1.caption}</caption>
-    <div className="text-lg" style={{ width: '800px', height: '600px', margin: '0 auto' }}>
-        <canvas ref={chartCanvasRef}></canvas>
-    </div>
-    <caption className="text-lg font-semibold my-6 w-[800px]">{reportData.Chart_2.caption}</caption>
-    <div className="text-lg" style={{ width: '600px', height: '450px', margin: '0 auto' }}>
-        <canvas ref={pieChart1CanvasRef}></canvas>
+
+ {/* Content for the four page */}
+ 
+ <div id="page4" className="">
+  
+ <caption className="text-lg font-semibold my-6 w-[800px]">{reportData.Chart_1.caption}</caption>
+
+  <div className=" text-lg " style={{ width: '1350px', height: '690px' }}>
+
+    <canvas className=' text-5x' ref={chartCanvasRef}></canvas>
+  </div>
+  <caption className="text-lg font-semibold my-6 w-[800px] ">{reportData.Chart_2.caption}</caption>
+
+  <div className=" mr-[400px]" style={{ width: '600px', height: '450px' }}>
+      <canvas ref={pieChart1CanvasRef}></canvas>
     </div>
     <caption className="text-lg font-semibold my-6 w-[800px]">{reportData.Chart_3.caption}</caption>
-    <div className="text-lg" style={{ width: '600px', height: '450px', margin: '0 auto' }}>
-        <canvas ref={pieChart2CanvasRef}></canvas>
+
+    <div className="mr-[400px]" style={{ width: '600px', height: '450px' }}>
+      <canvas ref={pieChart2CanvasRef}></canvas>
     </div>
+ 
 </div>
 
+ {/* Content for the five page */}
+ <div id="page5" className="">
 
-{/* Content for the fifth page */}
-<div id="page5" className="page-content" style={{ width: '210mm', height: '297mm', fontSize: '16px', lineHeight: '1.5' , padding: '30px', marginTop: '50px'}}>
-    <FindingComponent finding="Finding_1" editedData={editedData} isEditing={isEditing} handleInputChange={handleInputChange} />
-    <div className="my-8 px-5">
-        <h4 className="text-2xl font-bold my-10">{reportData.SalesPerformance.title}</h4>
-        <p className="pb-5">{reportData.SalesPerformance.description}</p>
+ <FindingComponent
+  finding="Finding_1"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+/>
+
+<div className=''>
+        <h4 className="text-2xl font-bold my-10  p-5">{reportData.SalesPerformance.title}</h4>
+        <p className='px-5 pb-5'>{reportData.SalesPerformance.description}</p>
         <table className="table-auto w-full">
-            <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(reportData.SalesPerformance.table.caption)}</caption>
-            <thead>
-                <tr className="bg-gray-200">
-                    {Object.values(reportData.SalesPerformance.table.column_names).map((columnName, index) => (
-                        <th key={index} className="px-4 py-2">{columnName}</th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {isEditing ? (
-                    editedData.SalesPerformance.table.data.map((rowData, rowIndex) => (
-                        <tr key={rowIndex} className="bg-white">
-                            {Object.keys(rowData).map((key, cellIndex) => (
-                                <td key={cellIndex} className="px-4 py-2">
-                                    <input type="text" className="w-full p-2 rounded-lg border border-gray-300" value={rowData[key]} onChange={(e) => handleInputChange(e, `SalesPerformance.table.data[${rowIndex}].${key}`)} />
-                                </td>
-                            ))}
-                        </tr>
-                    ))
-                ) : (
-                    reportData.SalesPerformance.table.data.map((rowData, rowIndex) => (
-                        <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                            {Object.keys(rowData).map((key, cellIndex) => (
-                                <td key={cellIndex} className={`px-4 py-2 text-center ${rowData[key] < 0 ? 'text-red-500' : ''}`}>
-                                    {typeof rowData[key] === 'number' ? PersianNumber(rowData[key]) : rowData[key]}
-                                </td>
-                            ))}
-                        </tr>
-                    ))
-                )}
-            </tbody>
-        </table>
-    </div>
-</div>
-</div>
-
-{/* Content for the sixth page */}
-<div id="page6" className="page-content" style={{ width: '420mm', height: '594mm', fontSize: '16px', lineHeight: '1.5' , padding: '30px', marginTop: '50px'}}>
-    <FindingComponent finding="Finding_2" editedData={editedData} isEditing={isEditing} handleInputChange={handleInputChange} />
-    <div className="my-8 px-5">
-        <table className="table-auto w-full">
-            <caption className="text-lg font-semibold mb-6">{editedData.AgentsSales.table.caption}</caption>
-            <thead>
-                <tr className="bg-gray-200">
-                    {Object.values(editedData.AgentsSales.table.column_names).map((columnName, index) => (
-                        <th key={index} className="px-4 py-2">{columnName}</th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {editedData.AgentsSales.table.data.map((rowData, rowIndex) => (
-                    <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                        {Object.values(rowData).map((cellData, cellIndex) => (
-                            <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
-                                {typeof cellData === 'number' ? PersianNumber(cellData) : cellData}
-                            </td>
-                        ))}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    </div>
-    <div className="my-8 px-5">
-        <table className="table-auto w-full">
-            <caption className="text-lg font-semibold mb-6">{editedData.AgentsLoss.table.caption}</caption>
-            <thead>
-                <tr className="bg-gray-200">
-                    {Object.values(editedData.AgentsLoss.table.column_names).map((columnName, index) => (
-                        <th key={index} className="px-4 py-2">{columnName}</th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {editedData.AgentsLoss.table.data.map((rowData, rowIndex) => (
-                    <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                        {Object.values(rowData).map((cellData, cellIndex) => (
-                            <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
-                                {typeof cellData === 'number' ? PersianNumber(cellData) : cellData}
-                            </td>
-                        ))}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+  <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(reportData.SalesPerformance.table.caption)}</caption>
+  <thead>
+    <tr className="bg-gray-200">
+      {Object.values(reportData.SalesPerformance.table.column_names).map((columnName, index) => (
+        <th key={index} className="px-4 py-2">{columnName}</th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {isEditing ? (
+      editedData.SalesPerformance.table.data.map((rowData, rowIndex) => (
+        <tr key={rowIndex} className="bg-white">
+          {Object.keys(rowData).map((key, cellIndex) => (
+            <td key={cellIndex} className="px-4 py-2">
+              <input
+                type="text"
+                className="w-full p-2 rounded-lg border border-gray-300"
+                value={rowData[key]}
+                onChange={(e) => handleInputChange(e, `SalesPerformance.table.data[${rowIndex}].${key}`)}
+              />
+            </td>
+          ))}
+        </tr>
+      ))
+    ) : (
+      reportData.SalesPerformance.table.data.map((rowData, rowIndex) => (
+        <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+        {Object.keys(rowData).map((key, cellIndex) => (
+  <td key={cellIndex} className={`px-4 py-2 text-center ${rowData[key] < 0 ? 'text-red-500' : ''}`}>
+    {typeof rowData[key] === 'number' ? PersianNumber(rowData[key]) : rowData[key]}
+  </td>
+))}
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
     </div>
 </div>
 
-{/* Content for the seventh page */}
-<div id="page7" className="text-center" style={{ width: '210mm', height: '594mm', fontSize: '16px', lineHeight: '1.5' , padding: '30px', marginTop: '50px'}}>
-    <h4 className="text-2xl font-bold my-8 p-2">{editedData.OperationalPlan.title}</h4>
-    <div className="px-5 pb-2">
-        <p>{editedData.OperationalPlan.content}</p>
-    </div>
-    <FindingComponent finding="Finding_3" editedData={editedData} isEditing={isEditing} handleInputChange={handleInputChange} />
-    <div>
-        <h4 className="text-2xl font-bold my-6 p-2">{editedData.Claims.title}</h4>
-        <p className="px-5 pb-2">{editedData.Claims.content}</p>
-    </div>
-    <table className="table-auto w-full my-8">
-        <caption className="text-lg font-semibold mb-6">{editedData.ClaimRemain.table.caption}</caption>
-        <thead>
-            <tr className="bg-gray-200">
-                {Object.values(editedData.ClaimRemain.table.column_names).map((columnName, index) => (
-                    <th key={index} className="px-4 py-2">{columnName}</th>
-                ))}
-            </tr>
-        </thead>
-        <tbody>
-            {editedData.ClaimRemain.table.data.map((rowData, rowIndex) => (
-                <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                    {Object.values(rowData).map((cellData, cellIndex) => (
-                        <td key={cellIndex} className="px-4 py-2 text-center">
-                            {typeof cellData === 'number' ? cellData.toLocaleString() : cellData}
-                        </td>
-                    ))}
-                </tr>
+
+ {/* Content for the 6 page */}
+
+<div id="page6" className="">
+
+<FindingComponent
+  finding="Finding_2"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+/>
+
+  <div className="my-8">
+    <table className="table-auto w-full">
+      <caption className="text-lg font-semibold mb-6">{editedData.AgentsSales.table.caption}</caption>
+      <thead>
+        <tr className="bg-gray-200">
+          {Object.values(editedData.AgentsSales.table.column_names).map((columnName, index) => (
+            <th key={index} className="px-4 py-2">{columnName}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {editedData.AgentsSales.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {typeof cellData === 'number' ? PersianNumber(cellData) : cellData}
+              </td>
             ))}
-        </tbody>
+          </tr>
+        ))}
+      </tbody>
     </table>
-    <table className="table-auto w-full my-8">
-        <caption className="text-lg font-semibold mb-6">{editedData.ClaimsDecomByAge.table.caption}</caption>
-        <thead>
-            <tr className="bg-gray-200">
-                {Object.values(editedData.ClaimsDecomByAge.table.column_names).map((columnName, index) => (
-                    <th key={index} className="px-4 py-2">{columnName}</th>
-                ))}
-            </tr>
-        </thead>
-        <tbody>
-            {editedData.ClaimsDecomByAge.table.data.map((rowData, rowIndex) => (
-                <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                    {Object.values(rowData).map((cellData, cellIndex) => (
-                        <td key={cellIndex} className="px-4 py-2 text-center">
-                            {typeof cellData === 'number' ? cellData.toLocaleString() : cellData}
-                        </td>
-                    ))}
-                </tr>
+  </div>
+  <div className="my-8">
+    <table className="table-auto w-full ">
+      <caption className="text-lg font-semibold mb-6">{editedData.AgentsLoss.table.caption}</caption>
+      <thead>
+        <tr className="bg-gray-200">
+          {Object.values(editedData.AgentsLoss.table.column_names).map((columnName, index) => (
+            <th key={index} className="px-4 py-2">{columnName}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {editedData.AgentsLoss.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {typeof cellData === 'number' ? PersianNumber(cellData) : cellData}
+              </td>
             ))}
-        </tbody>
+          </tr>
+        ))}
+      </tbody>
     </table>
+  </div>
 </div>
 
-{/* Content for the eighth page */}
-<div id="page8" className="text-center" style={{ width: '210mm', height: '594mm', fontSize: '16px', lineHeight: '1.5', padding: '30px', marginTop: '50px' }}>
+
+
+{/* Content for page 7 */}
+<div id="page7" className="">
+<h4 className="text-2xl font-bold my-8 p-2">{editedData.OperationalPlan.title}</h4>
+<div className='px-5 pb-2'>
+    <p>{editedData.OperationalPlan.content}</p>
+  </div>
+  <FindingComponent
+  finding="Finding_3"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+/>
+ 
+{/* Claims */}
+<div>
+    <h4 className="text-2xl font-bold my-6 p-2">{editedData.Claims.title}</h4>
+    <p className="px-5 pb-2">{editedData.Claims.content}</p>
+  </div>
+
+  {/* ClaimRemain */}
+  <div>
     <table className="table-auto w-full my-8">
-        <caption className="text-lg font-semibold mb-6">{editedData.ClaimsDecomByInsuranceType.table.caption}</caption>
-        <thead>
-            <tr className="bg-gray-200">
-                {Object.values(editedData.ClaimsDecomByInsuranceType.table.column_names).map((columnName, index) => (
-                    <th key={index} className="px-4 py-2">{columnName}</th>
-                ))}
-            </tr>
-        </thead>
-        <tbody>
-            {editedData.ClaimsDecomByInsuranceType.table.data.map((rowData, rowIndex) => (
-                <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                    {Object.values(rowData).map((cellData, cellIndex) => (
-                        <td key={cellIndex} className="px-4 py-2 text-center">
-                            {typeof cellData === 'number' ? cellData.toLocaleString() : cellData}
-                        </td>
-                    ))}
-                </tr>
+      <caption className="text-lg font-semibold mb-6">{editedData.ClaimRemain.table.caption}</caption>
+      <thead>
+        <tr className="bg-gray-200">
+          {Object.values(editedData.ClaimRemain.table.column_names).map((columnName, index) => (
+            <th key={index} className="px-4 py-2">{columnName}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {editedData.ClaimRemain.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2 text-center">
+                {typeof cellData === 'number' ? cellData.toLocaleString() : cellData}
+              </td>
             ))}
-        </tbody>
+          </tr>
+        ))}
+      </tbody>
     </table>
-    <FindingComponent finding="Finding_4" editedData={editedData} isEditing={isEditing} handleInputChange={handleInputChange} />
+  </div>
+
+  {/* ClaimsDecomByAge */}
+  <div>
+    <table className="table-auto w-full my-8">
+      <caption className="text-lg font-semibold mb-6">{editedData.ClaimsDecomByAge.table.caption}</caption>
+      <thead>
+        <tr className="bg-gray-200">
+          {Object.values(editedData.ClaimsDecomByAge.table.column_names).map((columnName, index) => (
+            <th key={index} className="px-4 py-2">{columnName}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {editedData.ClaimsDecomByAge.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2 text-center">
+                {typeof cellData === 'number' ? cellData.toLocaleString() : cellData}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{/* Content for page 8*/}
+<div id="page8" className="">
+ {/* ClaimsDecomByInsuranceType */}
+ <div>
+    <table className="table-auto w-full my-8">
+      <caption className="text-lg font-semibold mb-6">{editedData.ClaimsDecomByInsuranceType.table.caption}</caption>
+      <thead>
+        <tr className="bg-gray-200">
+          {Object.values(editedData.ClaimsDecomByInsuranceType.table.column_names).map((columnName, index) => (
+            <th key={index} className="px-4 py-2">{columnName}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {editedData.ClaimsDecomByInsuranceType.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2 text-center">
+                {typeof cellData === 'number' ? cellData.toLocaleString() : cellData}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <FindingComponent
+  finding="Finding_4"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+/>
 </div>
 
 

@@ -4,7 +4,7 @@ import { useReport } from './ReportContext'; // Import the useReport hook
 
 
 
-const Comments = () => {
+const TarikhChe = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const { fileId } = useReport(); // Retrieve fileId using useReport hook
@@ -39,7 +39,7 @@ const Comments = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          report_id: '662a05a2c9c0718052b312ba',
+          report_id: fileId,
           content: newComment,
         }),
       });
@@ -101,4 +101,4 @@ console.log(newComment)
   );
 };
 
-export default Comments;
+export default TarikhChe;

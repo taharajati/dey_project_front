@@ -48,7 +48,7 @@ console.log(fileId)
       const response = await axios.get('http://188.121.99.245:8080/api/report/documents/', {
         params: {
           report_id: reportId,
-          only_uploaded: true
+          only_uploaded: false
         },
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`

@@ -11,7 +11,7 @@ import OngoingFiles from './components/Files/OngoingFiles';
 import FileDetailsPage from './components/Files/FileDetailsPage';
 import Allocation from './components/Files/filedetails/Allocation/Allocation';
 import Checklist from './components/Files/filedetails/Checklist/Checklist';
-import Comments from './components/Files/filedetails/Comments';
+import TarikhChe from './components/Files/filedetails/TarikhChe';
 import FinalReport from './components/Files/filedetails/FinalReport';
 import Findings from './components/Files/filedetails/Findings/Findings';
 import { ReportProvider } from './components/Files/filedetails/ReportContext';  // Ensure the import path is correct
@@ -21,6 +21,7 @@ import BranchAnsr from './components/Files/filedetails/BranchAnsr'
 import ChecklistHa from './components/Files/filedetails/ChecklistHa';
 import ReportTable from './components/Files/filedetails/ReportTable';
 import Word from './components/Files/filedetails/Word';
+import Zamime from './components/Files/filedetails/Zamime';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -73,10 +74,11 @@ function App() {
             <Route path="/completedfiles" element={isAuthenticated ? <CompletedFiles /> : <Navigate to="/login" />} />
             <Route path="/ongoingfiles" element={isAuthenticated ? <OngoingFiles /> : <Navigate to="/login" />} />
             <Route path="/report/:id"  element={isAuthenticated ? <FileDetailsPage /> : <Navigate to="/login" />} />
+            <Route path="/zamime"  element={isAuthenticated ? <Zamime /> : <Navigate to="/login" />} />
             <Route path="/takhsis"  element={isAuthenticated ? <Allocation /> : <Navigate to="/login" />} />
             <Route path="/checklist" element={isAuthenticated ? <Checklist /> : <Navigate to="/login" />} />
             <Route path="/checklistha" element={isAuthenticated ? <ChecklistHa /> : <Navigate to="/login" />} />
-            <Route path="/comment"  element={isAuthenticated ? <Comments /> : <Navigate to="/login" />}/>
+            <Route path="/comment"  element={isAuthenticated ? <TarikhChe /> : <Navigate to="/login" />}/>
             <Route path="/final-report" element={<FinalReport />} />
             <Route path="/yaft" element={isAuthenticated ? <Findings /> : <Navigate to="/login" />} />
             <Route path="/findingdetailpage"element={isAuthenticated ? <FindingDetailPage /> : <Navigate to="/login" />} />
