@@ -20,7 +20,7 @@ const NavList = ({ activeReportId }) => {
                 <ul className="flex flex-wrap justify-end space-x-4 rtl:space-x-reverse float-right  " dir='rtl'>
                     <li>
                         <NavLink 
-                            to={`/report`} 
+                            to={`/report/${activeReportId}`} 
                             className={({ isActive }) => isActive ? "text-[color:var(--color-light)] py-2 px-4 rounded-lg bg-[color:var(--color-primary-variant)]" : "bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg"}
                         >
                             مدارک و فایل ها

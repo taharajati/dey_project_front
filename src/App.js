@@ -73,7 +73,7 @@ function App() {
             <Route path="/newfile" element={isAuthenticated ?  <NewFile />  : <Navigate to="/login" />} />
             <Route path="/completedfiles" element={isAuthenticated ? <CompletedFiles /> : <Navigate to="/login" />} />
             <Route path="/ongoingfiles" element={isAuthenticated ? <OngoingFiles /> : <Navigate to="/login" />} />
-            <Route path="/report"  element={isAuthenticated ? <FileDetailsPage /> : <Navigate to="/login" />} />
+            <Route path="/report/:id"  element={isAuthenticated ? <FileDetailsPage /> : <Navigate to="/login" />} />
             <Route path="/zamime"  element={isAuthenticated ? <Zamime /> : <Navigate to="/login" />} />
             <Route path="/takhsis"  element={isAuthenticated ? <Allocation /> : <Navigate to="/login" />} />
             <Route path="/checklist" element={isAuthenticated ? <Checklist /> : <Navigate to="/login" />} />
