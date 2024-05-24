@@ -9,6 +9,8 @@ const Zamime = () => {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
   const { fileId } = useReport(); // Retrieve fileId from ReportContext
 
   useEffect(() => {
@@ -36,10 +38,16 @@ const Zamime = () => {
         setOtherDocuments(response.data);
       } else {
         setOtherDocuments([]);
-        setError('Unexpected response format');
+        setError('قالب پاسخ غیرمنتظره');
+        setTimeout(() => {
+          setError('');
+      }, 3000);
       }
     } catch (error) {
-      setError('Failed to fetch other documents. Please try again.');
+      setError('اسناد دریافت نشد. لطفا دوباره تلاش کنید');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       console.error('Error fetching other documents:', error);
     } finally {
       setIsLoading(false);
@@ -52,7 +60,10 @@ const Zamime = () => {
 
   const handleFileUpload = async () => {
     if (!selectedFile || !description) {
-      setError("Please select a file and provide a description.");
+      setError("لطفاً یک فایل را انتخاب کنید و توضیحات ارائه دهید");
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       return;
     }
 
@@ -69,11 +80,17 @@ const Zamime = () => {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
-      alert('File successfully uploaded.');
       // Refresh the list of documents after successful upload
       fetchOtherDocuments(fileId);
+      setSuccessMessage('فایل با موفقیت ارسال شد '); // Display a pop-up for successful upload
+      setTimeout(() => {
+        setSuccessMessage('');
+    }, 3000); 
     } catch (error) {
-      setError('File upload failed. Please try again.');
+      setError('آپلود فایل انجام نشد. لطفا دوباره تلاش کنید');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       console.error('Error uploading file:', error);
     } finally {
       setIsLoading(false);
@@ -98,11 +115,17 @@ const Zamime = () => {
       link.parentNode.removeChild(link);
     } catch (error) {
       console.error('Error downloading file:', error);
+      setError('خطا در دانلود فایل ');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
     }
   };
 
   const handleDelete = async (itemId) => {
     try {
+            setIsLoading(true);
+
       await axios.delete(`http://188.121.99.245:8080/api/report/other_docs/?item_id=${itemId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -111,14 +134,29 @@ const Zamime = () => {
       alert('File successfully deleted.');
       // Refresh the list of documents after successful deletion
       fetchOtherDocuments(fileId);
+      setSuccessMessage('حذف با موفقیت انجام شد'); // Display a pop-up for successful upload
+      setTimeout(() => {
+        setSuccessMessage('');
+    }, 3000);
     } catch (error) {
-      console.error('Error deleting file:', error);
+      console.error('', error);
+      setError('خطا در حذف فایل');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
+    }finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <NavList />
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
       <div className="flex flex-col w-full mt-8 px-5 max-md:mt-10 max-md:max-w-full m-[-100px]" dir="rtl">
         <h2 className="mb-4 font-semibold text-[color:var(--color-primary-variant)] text-2xl" dir="rtl">فایل های پیوست دیگر</h2>
         
@@ -141,9 +179,8 @@ const Zamime = () => {
             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 m-4"
           />
           <button onClick={handleFileUpload} disabled={isLoading} className="mt-3 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-            {isLoading ? 'Uploading...' : 'بارگزاری'}
+            {isLoading ? 'درحال بارگزاری...' : 'بارگزاری'}
           </button>
-          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
         </div>
       </div>
 
@@ -177,6 +214,22 @@ const Zamime = () => {
           </tbody>
         </table>
       </div>
+             {/* Error Pop-up */}
+             {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+      {/* Popup for success message */}
+      {successMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

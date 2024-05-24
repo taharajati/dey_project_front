@@ -10,14 +10,16 @@ import { MdModeEdit } from "react-icons/md";
 
 const Findings = () => {
   const [findingsData, setFindingsData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { fileId } = useReport(); // Retrieve fileId using useReport hook
 
 
   useEffect(() => {
     const fetchFindingsData = async () => {
       try {
+        setIsLoading(true);
+
         const token = localStorage.getItem('accessToken');
         const url = `http://188.121.99.245:8080/api/report/finding/?report_id=${fileId}`;
         console.log(`Fetching checklist data from: ${url}`);
@@ -26,10 +28,13 @@ const Findings = () => {
         console.log('API response:', response);
 
         setFindingsData(response.data.data || []);
-        setLoading(false);
+        setIsLoading(false);
       } catch (error) {
-        setError('Failed to fetch findings data');
-        setLoading(false);
+        setError('خطا در دریافت یافته ها');
+        setTimeout(() => {
+          setError('');
+      }, 3000);
+        setIsLoading(false);
         console.error(error);
       }
     };
@@ -45,6 +50,11 @@ const Findings = () => {
       <Modal>
         {/* Your modal content */}
       </Modal>
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
       <div className="  justify-center">
       <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
       <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'> یافته ها</h1>
@@ -84,6 +94,15 @@ const Findings = () => {
         </div>
       </div>
       </div>
+           {/* Error Pop-up */}
+           {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+  
     </>
   );
 };

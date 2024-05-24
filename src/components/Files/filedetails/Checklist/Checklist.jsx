@@ -7,7 +7,6 @@ import { useReport } from '../ReportContext';
 
 const Checklist = () => {
   const [checklistData, setChecklistData] = useState({});
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [errorCheck, setErrorCheck] = useState('');
@@ -69,22 +68,33 @@ const Checklist = () => {
 
   const fetchChecklistData = async (fileId) => {
     try {
+      setLoading(true);
+
       const token = localStorage.getItem('accessToken');
       const originalUrl = `http://188.121.99.245:8080/api/report/checklist/?report_id=${fileId}`;
       const newUrl = `http://188.121.99.245:8080/api/report/checklist/user_role?report_id=${fileId}`;
 
+
+        // Set loading to true when fetching data
       // First attempt to fetch data from the original URL
       try {
         console.log(`Fetching checklist data from: ${originalUrl}`);
         const response = await axios.get(originalUrl, { headers: { Authorization: `Bearer ${token}` } });
         console.log('API response from original URL:', response);
+
         if (response.data && response.data.data) {
           setChecklistData(response.data.data);
+          setLoading(false); // Set loading to false after data is fetched
+
         } else {
           setChecklistData({});
+          setLoading(false); // Set loading to false if no data is fetched
+
         }
       } catch (error) {
         console.error('Failed to fetch checklist data from original URL:', error);
+        setLoading(false); // Set loading to false if an error occurs
+
 
         // If the first fetch fails, attempt to fetch data from the new URL
         console.log(`Fetching checklist data from: ${newUrl}`);
@@ -149,16 +159,23 @@ const Checklist = () => {
   const confirmDeleteTableRow = async () => {
     const { tableId, detailName } = rowToDelete;
     try {
+      setLoading(true);
+
       const token = localStorage.getItem('accessToken');
       await axios.delete(`http://188.121.99.245:8080/api/report/checklist/${detailName}?item_id=${tableId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const updatedData = { ...checklistData };
-      updatedData[currentFormDefinition.section][currentFormDefinition.detail].data = updatedData[currentFormDefinition.section][currentFormDefinition.detail].data.filter(item => item._id?.$oid !== tableId);
-      setChecklistData(updatedData);
       setShowConfirmation(false);
+
+      setSuccessCheck('حذف با موفقیت انجام شد. رفرش کنید'); // Display success message
+      setTimeout(() => {
+      setSuccessCheck('');
+    }, 3000);
     } catch (error) {
-      console.error('Error deleting table row:', error);
+      console.error('خطا در حذف', error);
+      setErrorCheck()
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -181,6 +198,8 @@ const Checklist = () => {
    // Function to handle click on "Complete Checklist" button
    const handleCompleteChecklist = async () => {
     try {
+      setLoading(true);
+
       const token = localStorage.getItem('accessToken');
       const url = `http://188.121.99.245:8080/api/report/checklist/finished`;
       const payload = {
@@ -203,6 +222,8 @@ const Checklist = () => {
         setErrorCheck('');
     }, 3000);
       // Optionally, you can handle errors and show an error message
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -217,6 +238,12 @@ const Checklist = () => {
           Submit
         </button>
       </Modal>
+        {/* Loading Indicator */}
+        {loading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
       <div className="  justify-center">
       <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
       <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>چک لیست</h1>
@@ -224,8 +251,7 @@ const Checklist = () => {
       <button onClick={handleCompleteChecklist} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md mb-4">
           تکمیل چک لیست
         </button>
-        {errorCheck && <p className="bg-red-100 text-red-800 text-center p-2 rounded">{errorCheck}</p>}
-        {successCheck && <p className="bg-green-100 text-green-800 text-center p-2 rounded">{successCheck}</p>}
+
 
         {Object.entries(checklistData).length > 0 ? Object.entries(checklistData).map(([sectionName, sectionDetails]) => (
           <div key={sectionName} className="mb-8">
@@ -273,7 +299,7 @@ const Checklist = () => {
               </div>
             ))}
           </div>
-        )) : <p className="text-center text-lg">اطلاعاتی موجود نیست.</p>}
+        )) : <p className="text-center text-lg"> </p>}
         {showConfirmation && (
           <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded shadow-md">
@@ -291,6 +317,32 @@ const Checklist = () => {
         )}
       </div>
       </div>
+         {/* Error Pop-up */}
+         {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Success Pop-up */}
+      {successCheck && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successCheck}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error Check Pop-up */}
+      {errorCheck && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{errorCheck}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

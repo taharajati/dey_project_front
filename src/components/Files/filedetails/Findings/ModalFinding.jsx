@@ -7,6 +7,9 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
 
   const [newEntryContent, setNewEntryContent] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const translations = {
     "Risks": "ریسک",
@@ -22,6 +25,8 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
 
   const fetchSuggestions = async (query) => {
     try {
+      setIsLoading(true);
+
       const token = localStorage.getItem('accessToken');
       const singularEntryType = entryType.slice(0, -1).toLowerCase();
 
@@ -38,8 +43,12 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
         }
       );
       setSuggestions(response.data.filter(item => item.includes(query)));
+    
+
     } catch (error) {
       console.error('Error fetching suggestions:', error);
+     
+
     }
   };
 
@@ -50,6 +59,7 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('accessToken');
       const response = await axios.post(
         `http://188.121.99.245:8080/api/report/finding/${entryType.toLowerCase()}`,
@@ -79,6 +89,12 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
   };
 
   return (
+    <>
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
     <div>
       {open && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
@@ -125,6 +141,7 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
         </div>
       )}
     </div>
+    </>
   );
 };
 

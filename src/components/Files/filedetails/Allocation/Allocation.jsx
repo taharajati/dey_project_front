@@ -8,7 +8,7 @@ const Allocation = () => {
     const [assignments, setAssignments] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const { fileId } = useReport(); // Retrieve fileId from ReportContext
 
     const translations = {
@@ -38,7 +38,10 @@ const Allocation = () => {
             });
             setExperts(response.data.data);
         } catch (err) {
-            setError('Failed to fetch experts');
+            setError('دریافت کارشناسان موفق نبود');
+            setTimeout(() => {
+                setError('');
+            }, 3000);
             console.error(err);
         } finally {
             setLoading(false);
@@ -52,9 +55,12 @@ const Allocation = () => {
             const response = await axios.get(`http://188.121.99.245:8080/api/report/assign/?report_id=${fileId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setAssignments(response.data.data|| {}); // Set assignments to fetched data or empty object if no data
+            setAssignments(response.data.data || {}); // Set assignments to fetched data or empty object if no data
         } catch (err) {
-            setError('Failed to fetch assignments');
+            setError('خطا در دریافت');
+            setTimeout(() => {
+                setError('');
+            }, 3000);
             console.error(err);
         } finally {
             setLoading(false);
@@ -79,6 +85,7 @@ const Allocation = () => {
         } = assignments;
 
         try {
+            setLoading(true);
             const token = localStorage.getItem('accessToken');
             const response = await axios.post('http://188.121.99.245:8080/api/report/assign/', {
                 report_id: fileId,
@@ -93,32 +100,34 @@ const Allocation = () => {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
               });
-        setSuccess('با موفقیت بروزرسانی شد');
-        console.log(response.data);
-
-        // Remove success message after 3 seconds
-        setTimeout(() => {
-            setSuccess('');
-        }, 3000);
-    } catch (err) {
-        setError('بروزرسانی موفق نبود');
-        console.error(err);
-        setTimeout(() => {
-            setError('');
-        }, 3000);
-    }
-};
+            setSuccessMessage('با موفقیت بروزرسانی شد');
+            // Remove success message after 3 seconds
+            setTimeout(() => {
+                setSuccessMessage('');
+            }, 3000);
+        } catch (err) {
+            setError('بروزرسانی موفق نبود');
+            // Remove error message after 3 seconds
+            setTimeout(() => {
+                setError('');
+            }, 3000);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <>
             <NavList />
+            {loading && (
+                <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+                </div>
+            )}
             <div className=" ml-[700px] justify-center">
-           
-           <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
-           <h1 className="text-2xl   font-semibold  mb-10    text-[color:var(--color-primary-variant)]" dir='rtl'>تخصیص</h1>
-                    {loading && <p className="bg-yellow-100 text-yellow-800 text-center p-2 rounded">Loading...</p>}
-                    {error && <p className="bg-red-100 text-red-800 text-center p-2 rounded">{error}</p>}
-                    {success && <p className="bg-green-100 text-green-800 text-center p-2 rounded">{success}</p>}
+                <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
+                    <h1 className="text-2xl   font-semibold  mb-10    text-[color:var(--color-primary-variant)]" dir='rtl'>تخصیص</h1>
+                   
                     <form onSubmit={handleSubmit} className="flex flex-col">
                         {Object.keys(translations).map((key) => (
                             <div key={key} className="mb-4 flex flex-col">
@@ -143,6 +152,22 @@ const Allocation = () => {
                     </form>
                 </div>
             </div>
+            {/* Popup for error message */}
+            {error && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+                        <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+                    </div>
+                </div>
+            )}
+            {/* Popup for successMessage message */}
+            {successMessage && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+                        <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

@@ -24,14 +24,16 @@ const FindingDetailPage = () => {
   const [titlesData, setTitlesData] = useState([]);
   const [risksData, setRisksData] = useState([]);
   const [suggestionsData, setSuggestionsData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
   const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
   const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
   const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
   const [sections, setSections] = useState([{ editorState: EditorState.createEmpty(), tableData: [] }]);
 
-
+  const [editingItem, setEditingItem] = useState(null); // Define editingItem state
 
   useEffect(() => {
     fetchData();
@@ -39,6 +41,8 @@ const FindingDetailPage = () => {
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
+
       const token = localStorage.getItem('accessToken');
 
       const titlesUrl = `http://188.121.99.245:8080/api/report/finding/titles?report_id=${fileId}&finding_group=${findingGroup}`;
@@ -53,11 +57,15 @@ const FindingDetailPage = () => {
       const suggestionsResponse = await axios.get(suggestionsUrl, { headers: { Authorization: `Bearer ${token}` } });
       setSuggestionsData(suggestionsResponse.data.data || []);
 
-      setLoading(false);
+      setIsLoading(false);
+
     } catch (error) {
-      setError('Failed to fetch data');
+      setError(' خطا در دریافت اطلاعات');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       console.error(error);
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -100,9 +108,29 @@ const FindingDetailPage = () => {
       console.error('Error saving data:', error);
     }
   };
-  
 
-  
+  const handleEdit = (type, item) => {
+    // Navigate to the edit page or open a modal for editing
+    console.log('Editing:', type, item);
+    switch (type) {
+      case 'titles':
+        // Example: Navigate to the edit page with parameters
+        navigate(`/edit-title?id=${item._id}&finding_group=${findingGroup}`);
+        break;
+      case 'risks':
+        // Example: Open a modal for editing risks
+        setIsRiskModalOpen(true);
+        setEditingItem(item);
+        break;
+      case 'suggestions':
+        // Example: Open a modal for editing suggestions
+        setIsSuggestionModalOpen(true);
+        setEditingItem(item);
+        break;
+      default:
+        break;
+    }
+  };
 
   const handleGoBack = () => {
     navigate('/yaft'); // Navigate back to the OngoingFiles component
@@ -132,6 +160,12 @@ const FindingDetailPage = () => {
   console.log();
 
   return (
+    <>
+    {isLoading && (
+      <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+      </div>
+    )}
     <div className="container mx-auto px-4 my-2 " dir="rtl">
       <button onClick={handleGoBack} className="bg-[color:var(--color-primary-variant-02)] py-1 px-3 rounded-lg">
         بازگشت
@@ -152,7 +186,7 @@ const FindingDetailPage = () => {
             <tr key={index} className="bg-white border-b border-gray-200">
               <td className="py-3 px-6 text-right">{title.title}</td>
               <td className="px-4 py-2">
-                <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" ><MdModeEdit /></button>
+                <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" onClick={() => handleEdit('titles', title)}><MdModeEdit /></button>
               </td>
               <td className="px-4 py-2">
                 <button className="text-red-500">
@@ -234,6 +268,23 @@ const FindingDetailPage = () => {
 
       <button onClick={addSection} className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5">اضافه کردن قسمت جدید </button>
     </div>
+         {/* Error Pop-up */}
+         {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+      {/* Popup for success message */}
+      {successMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

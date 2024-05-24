@@ -59,7 +59,7 @@ function Login() {
       {/* Right side: Login box */}
       <div className="flex items-center justify-center w-full md:w-1/2 p-4 md:p-8">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-          <h1 className="text-center text-[color:var(--color-primary-variant)] text-2xl mb-8">ورود به سامانه</h1>
+          <h1 className="text-center text-[color:var(--color-primary-variant] text-2xl mb-8">ورود به سامانه</h1>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <label className="text-gray-500" dir="rtl">نام کاربری</label>
             <input

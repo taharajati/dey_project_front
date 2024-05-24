@@ -9,6 +9,7 @@ const ReportTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [errorq, setErrorq] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const { fileId } = useReport();
 
@@ -38,11 +39,13 @@ const ReportTable = () => {
     setErrorq('شما نمیتوانید از این قابلیت استفاده کنید');
   };
 
-  const handlePdfCreationClick = async (reportId, reportType) => {
+  const handlePdfCreationClick = async (fileId, reportType) => {
     try {
+      console.log('Creating PDF for fileId:', fileId, 'reportType:', reportType);
+
       const token = localStorage.getItem('accessToken');
       await axios.post(`http://188.121.99.245:8080/api/report/export/convert_to_pdf`, {
-        report_id: reportId,
+        report_id: fileId,
         report_type: reportType
       }, {
         headers: {
@@ -50,7 +53,7 @@ const ReportTable = () => {
           Accept: 'application/json'
         }
       });
-      // Handle success or feedback if needed
+      setSuccessMessage('گزارش PDF با موفقیت ایجاد شد');
     } catch (error) {
       setErrorq('گزارش PDF ایجاد نشد');
       console.error('Error creating PDF report:', error);
@@ -59,6 +62,8 @@ const ReportTable = () => {
 
   const handleReportFinalizationClick = async (fileId, reportType) => {
     try {
+      console.log('Finalizing report for fileId:', fileId, 'reportType:', reportType);
+
       const token = localStorage.getItem('accessToken');
       await axios.post(`http://188.121.99.245:8080/api/report/export/send_report`, {
         report_id: fileId,
@@ -69,10 +74,38 @@ const ReportTable = () => {
           Accept: 'application/json'
         }
       });
-      // Handle success or feedback if needed
+      setSuccessMessage('گزارش با موفقیت ارسال شد');
     } catch (error) {
       setErrorq('گزارش ارسال نشد');
       console.error('Error sending report:', error);
+    }
+  };
+
+  const handlePdfDownloadClick = async (reportId, reportType) => {
+    try {
+      console.log('Downloading PDF for reportId:', reportId, 'reportType:', reportType);
+
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.get(`http://188.121.99.245:8080/api/report/export/download?report_id=${reportId}&report_type=${reportType}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/pdf' // Set Accept header to 'application/pdf' for downloading PDF
+        },
+        responseType: 'blob' // Set responseType to 'blob' to handle binary response
+      });
+
+      // Create a temporary anchor element to initiate download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_${reportId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+
+      setSuccessMessage('گزارش PDF با موفقیت دانلود شد');
+    } catch (error) {
+      setErrorq('خطا در دانلود گزارش PDF');
+      console.error('Error downloading PDF report:', error);
     }
   };
 
@@ -90,26 +123,39 @@ const ReportTable = () => {
     }
   };
 
-  const renderPdfCreationOption = (created, finished,fileId,reportType) => {
+  const renderPdfCreationOption = (created, finished, fileId, reportType) => {
     if (created && !finished) {
       return (
-        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handlePdfCreationClick(fileId,reportType)}>ایجاد گزارش PDF</td>
+        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handlePdfCreationClick(fileId, reportType)}>ایجاد گزارش PDF</td>
       );
     } else {
       return (
-        <td className="py-3 px-6 text-gray-400"  >ایجاد گزارش PDF</td>
+        <td className="py-3 px-6 text-gray-400">ایجاد گزارش PDF</td>
       );
     }
   };
 
-  const renderReportFinalizationOption = (pdfCreated, finished,reportType,fileId) => {
-    if (pdfCreated && !finished) {
+
+  const renderPdfDownloadOption = (pdfCreated, reportId, reportType) => {
+    if (pdfCreated) {
       return (
-        <td className="py-3 px-6 text-[color:var(--color-primary)]"  onClick={() => handleReportFinalizationClick(fileId, reportType)}>  نهایی سازی گزارش</td>
+        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handlePdfDownloadClick(reportId, reportType)}>دانلود گزارش PDF</td>
       );
     } else {
       return (
-        <td className="py-3 px-6 text-gray-400" onClick={handleEditClick} > نهایی سازی گزارش </td>
+        <td className="py-3 px-6 text-gray-400">گزارش PDF در دسترس نیست</td>
+      );
+    }
+  };
+  
+  const renderReportFinalizationOption = (pdfCreated, finished, reportType, fileId) => {
+    if (pdfCreated && !finished) {
+      return (
+        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handleReportFinalizationClick(fileId, reportType)}>نهایی سازی گزارش</td>
+      );
+    } else {
+      return (
+        <td className="py-3 px-6 text-gray-400" onClick={handleEditClick}>نهایی سازی گزارش</td>
       );
     }
   };
@@ -118,8 +164,8 @@ const ReportTable = () => {
     <>
       <NavList />
       <div className="justify-center">
-        <div className="mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
-          <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>گزارش</h1>
+        <div className="mx-[-100px] my-2 p-6 bg-white w-full" dir="rtl">
+          <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir="rtl">گزارش</h1>
           <div className="container px-4 my-2">
             {loading ? (
               <p>بارگذاری...</p>
@@ -136,6 +182,7 @@ const ReportTable = () => {
                     <th className="py-3 px-6"></th>
                     <th className="py-3 px-6"></th>
                     <th className="py-3 px-6"></th>
+                    <th className="py-3 px-6"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -144,8 +191,9 @@ const ReportTable = () => {
                       <td className="py-3 px-6">{report.report_type_fa}</td>
                       <td className="py-3 px-6">{report.status}</td>
                       {renderEditOption(report.created, report.finished)}
-                      {renderPdfCreationOption(report.created, report.finished)}
-                      {renderReportFinalizationOption(report.pdf_created, report.finished)}
+                      {renderPdfCreationOption(report.created, report.finished, fileId, report.report_type)}
+                      {renderReportFinalizationOption(report.pdf_created, report.finished, report.report_type, fileId)}
+                      {renderPdfDownloadOption(report.pdf_created, fileId, report.report_type)}
                     </tr>
                   ))}
                 </tbody>
@@ -156,11 +204,19 @@ const ReportTable = () => {
       </div>
       {/* Popup for error message */}
       {errorq && (
-        <div className="fixed inset-0 flex items-center  justify-center z-50">
-          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto  shadow-lg border-e-red-50">
-          <button onClick={() => setErrorq('')} className=" text-white   mb-2 bg-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
-
-            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)] ">{errorq}</p>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <button onClick={() => setErrorq('')} className="text-white mb-2 bg-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{errorq}</p>
+          </div>
+        </div>
+      )}
+      {/* Popup for success message */}
+      {successMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <button onClick={() => setSuccessMessage('')} className="text-white mb-2 bg-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-green-700">X</button>
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
           </div>
         </div>
       )}

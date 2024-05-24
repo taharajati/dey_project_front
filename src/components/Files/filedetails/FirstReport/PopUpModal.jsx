@@ -2,49 +2,29 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useReport } from '../ReportContext'; // Import the useReport hook
 
-
-const PopUpModal = ({ finding, onClose }) => {
+const PopUpModal = ({ finding, onClose, findingGroup }) => {
   const [previousMessages, setPreviousMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [findingGroup, setFindingGroup] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { fileId } = useReport(); // Retrieve fileId using useReport hook
 
-
   useEffect(() => {
-    fetchPreviousMessages(); 
-  // Call the function to fetch previous messages when the component mounts
+    fetchPreviousMessages();
   }, [findingGroup]);
 
-  const fetchFindingsData = async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      const url = `http://188.121.99.245:8080/api/report/finding/?report_id=${fileId}`;
-      console.log(`Fetching findings data from: ${url}`);
-
-      const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-      console.log('Findings data:', response.data);
-
-      // Set the finding group
-      setFindingGroup(response.data.finding_group);
-    } catch (error) {
-      console.error('Error fetching findings data:', error);
-    }
-  };
-
-console.log("findingGroup",findingGroup)
   const fetchPreviousMessages = async () => {
     try {
-        const token = localStorage.getItem('accessToken');
-
-      const response = await axios.get(`http://188.121.99.245:8080/api/report/comment/report_comment?report_id=${fileId}&finding_group=`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'}
-      
-    });
-      setPreviousMessages(response.data);
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.get(`http://188.121.99.245:8080/api/report/comment/report_comment`, {
+        params: {
+          report_id: fileId,
+          finding_group: findingGroup
+        },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      setPreviousMessages(response.data.data || []); // Ensure previousMessages is an array
     } catch (error) {
       console.error('Error fetching previous messages:', error);
     }
@@ -52,10 +32,16 @@ console.log("findingGroup",findingGroup)
 
   const handleSendMessage = async () => {
     try {
-      await axios.post('http://188.121.99.245:8080/api/report/comment/report_comment', {
-        report_id: finding.report_id,
-        finding_group: finding.finding_group,
+      const token = localStorage.getItem('accessToken');
+      await axios.post(`http://188.121.99.245:8080/api/report/comment/report_comment`, {
+        report_id: fileId,
+        finding_group: findingGroup,
         content: newMessage
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       // Clear the message input after sending the message
       setNewMessage('');
@@ -92,16 +78,16 @@ console.log("findingGroup",findingGroup)
           {/* Button to send message */}
           <button
             onClick={handleSendMessage}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-2"
+            className="text-white bg-[color:var(--color-primary)] px-4 py-2 rounded-lg m-2"
           >
-            Send
+            ارسال
           </button>
           {/* Button to close the modal */}
           <button
             onClick={onClose}
-            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+            className="text-white bg-[color:var(--color-primary-variant)] px-4 py-2 rounded-lg m-2"
           >
-            Close
+            لغو
           </button>
         </div>
       </div>

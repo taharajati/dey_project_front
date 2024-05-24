@@ -949,6 +949,7 @@ const handleGoBack = () => {
   editedData={editedData}
   isEditing={isEditing}
   handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_1?.finding_group}
 />
 
 <div className=''>
@@ -1005,6 +1006,7 @@ const handleGoBack = () => {
   editedData={editedData}
   isEditing={isEditing}
   handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_2?.finding_group}
 />
 
   <div className="my-8">
@@ -1068,6 +1070,7 @@ const handleGoBack = () => {
   editedData={editedData}
   isEditing={isEditing}
   handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_3?.finding_group}
 />
  
 {/* Claims */}
@@ -1158,6 +1161,7 @@ const handleGoBack = () => {
   editedData={editedData}
   isEditing={isEditing}
   handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_4?.finding_group}
 />
 </div>
 
@@ -1209,6 +1213,7 @@ const handleGoBack = () => {
   editedData={editedData}
   isEditing={isEditing}
   handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_6?.finding_group}
 />
 
 <div id="page11" className="">

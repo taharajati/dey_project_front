@@ -9,15 +9,16 @@ const FileDetailsPage = () => {
   const [selectedDocumentType, setSelectedDocumentType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { fileId } = useReport(); // Retrieve fileId from ReportContext
+  const [successMessage, setSuccessMessage] = useState('');
 
-console.log(fileId)
+  const { fileId } = useReport(); // Retrieve fileId from ReportContext
 
   useEffect(() => {
     if (fileId) {
       fetchAllDocuments(fileId);
     } else {
-      setError("Cannot retrieve report ID.");
+      setError("نمی توان شناسه گزارش را بازیابی کرد");
+      
     }
   }, [fileId]);
 
@@ -35,29 +36,11 @@ console.log(fileId)
       });
       setDocuments(response.data.data);
     } catch (error) {
-      setError('Failed to fetch documents. Please try again.');
+      setError('اسناد دریافت نشد. لطفا دوباره تلاش کنید');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       console.error('Error fetching documents:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchUploadedDocuments = async (reportId) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get('http://188.121.99.245:8080/api/report/documents/', {
-        params: {
-          report_id: reportId,
-          only_uploaded: false
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        }
-      });
-      setDocuments(response.data.data);
-    } catch (error) {
-      setError('Failed to fetch uploaded documents. Please try again.');
-      console.error('Error fetching uploaded documents:', error);
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +52,10 @@ console.log(fileId)
 
   const handleFileUpload = async () => {
     if (!selectedFile || !selectedDocumentType) {
-      setError("Please select a file and a document type.");
+      setError("لطفاً یک فایل و یک نوع سند را انتخاب کنید");
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       return;
     }
 
@@ -79,8 +65,6 @@ console.log(fileId)
       formData.append('report_id', fileId);
       formData.append('file', selectedFile);
       formData.append('document', selectedDocumentType);
-      console.log("setSelectedDocumentType",setSelectedDocumentType)
-      console.log("formData",formData)
 
       const response = await axios.post('http://188.121.99.245:8080/api/report/documents/', formData, {
         headers: {
@@ -88,20 +72,26 @@ console.log(fileId)
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
-      alert('File successfully uploaded.');
+      setSuccessMessage('فایل با موفقیت ارسال شد '); // Display a pop-up for successful upload
+      setTimeout(() => {
+        setSuccessMessage('');
+    }, 3000);
       // Refresh the list of documents after successful upload
-      fetchUploadedDocuments(fileId);
+      fetchAllDocuments(fileId);
     } catch (error) {
-      setError('File upload failed. Please try again.');
+      setError('آپلود فایل انجام نشد. لطفا دوباره تلاش کنید');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       console.error('Error uploading file:', error);
     } finally {
       setIsLoading(false);
     }
-   
   };
-  const handleDownload = async (documentId) => {
+
+  const handleDownload = async (documentId, fileId) => {
     try {
-      const response = await axios.get(`http://188.121.99.245:8080/api/report/documents/${documentId}/download`, {
+      const response = await axios.get(`http://188.121.99.245:8080/api/report/documents/download?report_id=${fileId}&document=${documentId}`, {
         responseType: 'blob', // Important: Set the response type to blob
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -117,14 +107,24 @@ console.log(fileId)
       link.parentNode.removeChild(link);
     } catch (error) {
       console.error('Error downloading file:', error);
+      setError('خطا در دانلود فایل')
+      setTimeout(() => {
+        setError('');
+    }, 3000);
     }
   };
+
   return (
     <>
       <NavList activeReportId={fileId} />
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
       <div className="flex flex-col w-full mt-8 px-5 max-md:mt-10 max-md:max-w-full m-[-100px]" dir="rtl">
-      <h2 className=" mb-4 font-semibold  text-[color:var(--color-primary-variant)] text-2xl " dir="rtl"> مدارک و فایل ها</h2>
-      
+        <h2 className=" mb-4 font-semibold  text-[color:var(--color-primary-variant)] text-2xl " dir="rtl"> مدارک و فایل ها</h2>
+
         <div className="mb-3 w-full max-w-md">
           <label htmlFor="documentType" className="block text-black mb-2">انتخاب نوع مدرک :</label>
           <select id="documentType" onChange={(e) => setSelectedDocumentType(e.target.value)} className="block w-full bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-500">
@@ -142,7 +142,6 @@ console.log(fileId)
           <button onClick={handleFileUpload} disabled={isLoading} className="mt-3 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
             {isLoading ? 'Uploading...' : 'بارگزاری'}
           </button>
-          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
         </div>
       </div>
 
@@ -162,15 +161,31 @@ console.log(fileId)
                 <td className="py-3 px-4">{doc.document_fa}</td>
                 <td className="py-3 px-4 text-center">{doc.upload_date_jalali}</td>
                 <td className="py-3 px-4 text-center">
-  <button onClick={() => handleDownload(doc._id.$oid)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
-    <i className="fas fa-file-excel mr-2"></i>دانلود
-  </button>
-</td>
+                  <button onClick={() => handleDownload(doc.document, fileId)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
+                    <i className="fas fa-file-excel mr-2"></i>دانلود
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+        {/* Error Pop-up */}
+        {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+      {/* Popup for success message */}
+      {successMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
