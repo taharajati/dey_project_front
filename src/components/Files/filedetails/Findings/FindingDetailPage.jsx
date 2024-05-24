@@ -33,7 +33,7 @@ const FindingDetailPage = () => {
   const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
   const [sections, setSections] = useState([{ editorState: EditorState.createEmpty(), tableData: [] }]);
 
-  const [editingItem, setEditingItem] = useState(null); // Define editingItem state
+
 
   useEffect(() => {
     fetchData();
@@ -57,7 +57,7 @@ const FindingDetailPage = () => {
       const suggestionsResponse = await axios.get(suggestionsUrl, { headers: { Authorization: `Bearer ${token}` } });
       setSuggestionsData(suggestionsResponse.data.data || []);
 
-      setIsLoading(false);
+     
 
     } catch (error) {
       setError(' خطا در دریافت اطلاعات');
@@ -65,8 +65,9 @@ const FindingDetailPage = () => {
         setError('');
     }, 3000);
       console.error(error);
+    }finally {
       setIsLoading(false);
-    }
+  }
   };
 
   const handleTextChange = (index, value) => {
@@ -108,29 +109,33 @@ const FindingDetailPage = () => {
       console.error('Error saving data:', error);
     }
   };
-
-  const handleEdit = (type, item) => {
-    // Navigate to the edit page or open a modal for editing
-    console.log('Editing:', type, item);
-    switch (type) {
-      case 'titles':
-        // Example: Navigate to the edit page with parameters
-        navigate(`/edit-title?id=${item._id}&finding_group=${findingGroup}`);
-        break;
-      case 'risks':
-        // Example: Open a modal for editing risks
-        setIsRiskModalOpen(true);
-        setEditingItem(item);
-        break;
-      case 'suggestions':
-        // Example: Open a modal for editing suggestions
-        setIsSuggestionModalOpen(true);
-        setEditingItem(item);
-        break;
-      default:
-        break;
+  
+  const handleDeleteEntry = async (entryType, id) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const dataToSend = {
+        item_id: id,
+        report_id: fileId,
+        finding_group: findingGroup
+      };
+      await axios.delete(`http://188.121.99.245:8080/api/report/finding/${entryType.toLowerCase()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: dataToSend
+      });
+      setSuccessMessage('با موفقیت حذف شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      fetchData();
+    } catch (error) {
+      setError('خطا در حذف اطلاعات');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error deleting entry:', error);
     }
   };
+  
 
   const handleGoBack = () => {
     navigate('/yaft'); // Navigate back to the OngoingFiles component
@@ -157,6 +162,7 @@ const FindingDetailPage = () => {
     setSections([...sections, { editorState: EditorState.createEmpty(), tableData: [] }]);
   };
 
+  
   console.log();
 
   return (
@@ -186,10 +192,10 @@ const FindingDetailPage = () => {
             <tr key={index} className="bg-white border-b border-gray-200">
               <td className="py-3 px-6 text-right">{title.title}</td>
               <td className="px-4 py-2">
-                <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" onClick={() => handleEdit('titles', title)}><MdModeEdit /></button>
+                <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" ><MdModeEdit /></button>
               </td>
               <td className="px-4 py-2">
-                <button className="text-red-500">
+              <button onClick={() => handleDeleteEntry('titles',title._id.$oid)} className="text-red-500">
                   <FaTrash />
                 </button>
               </td>
@@ -207,12 +213,22 @@ const FindingDetailPage = () => {
         <thead>
           <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
             <th className="py-3 px-6 text-right ">ریسک ها</th>
+            <th className="py-3 px-6 text-right "> </th>
+            <th className="py-3 px-6 text-right "> </th>
           </tr>
         </thead>
         <tbody>
           {risksData.map((title, index) => (
             <tr key={index} className="bg-white border-b border-gray-200">
               <td className="py-3 px-6 text-right">{title.title}</td>
+              <td className="px-4 py-2">
+                <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" ><MdModeEdit /></button>
+              </td>
+              <td className="px-4 py-2">
+              <button onClick={() => handleDeleteEntry('risks',title._id.$oid)} className="text-red-500">
+                  <FaTrash />
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -227,12 +243,22 @@ const FindingDetailPage = () => {
         <thead>
           <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
             <th className="py-3 px-6 text-right">پیشنهادات</th>
+            <th className="py-3 px-6 text-right"></th>
+            <th className="py-3 px-6 text-right"></th>
           </tr>
         </thead>
         <tbody>
           {suggestionsData.map((title, index) => (
             <tr key={index} className="bg-white border-b border-gray-200">
               <td className="py-3 px-6 text-right">{title.title}</td>
+              <td className="px-4 py-2">
+                <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" ><MdModeEdit /></button>
+              </td>
+              <td className="px-4 py-2">
+              <button onClick={() => handleDeleteEntry('suggestions',title._id.$oid)} className="text-red-500">
+                  <FaTrash />
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

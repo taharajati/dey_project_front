@@ -49,7 +49,9 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
       console.error('Error fetching suggestions:', error);
      
 
-    }
+    }finally {
+      setIsLoading(false);
+  }
   };
 
   const handleSuggestionClick = (suggestion) => {
@@ -85,7 +87,9 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
     } catch (error) {
       console.error('Error adding entry:', error);
       // Handle error
-    }
+    }finally {
+      setIsLoading(false);
+  }
   };
 
   return (
