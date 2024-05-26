@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FaTrashAlt } from "react-icons/fa";
-
-
-  
 
 const DEFAULT_COLUMN_COUNT = 3;
 
@@ -18,7 +15,7 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
   };
 
   const removeRow = (rowIndex) => {
-    const updatedTableData = tableData.filter((row, index) => index !== rowIndex);
+    const updatedTableData = tableData.filter((_, index) => index !== rowIndex);
     setTableData(updatedTableData);
   };
 
@@ -39,32 +36,28 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
     setTableData(updatedTableData);
   };
 
-  
   return (
     <div className="my-4">
-  
-      
-      <table className="border-collapse ">
+      <table className="border-collapse">
         <tbody>
           {tableData.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, colIndex) => (
                 <td key={colIndex} className="border border-gray-400">
                   <input
-                    className=" p-1 w-full"
+                    className="p-1 w-full"
                     type="text"
                     value={cell}
                     onChange={(e) => updateCellValue(rowIndex, colIndex, e.target.value)}
                   />
                 </td>
               ))}
-              <td className="">
+              <td>
                 <button
-                  className="  text-red-600 font-bold py-1 px-2 rounded"
+                  className="text-red-600 font-bold py-1 px-2 rounded"
                   onClick={() => removeRow(rowIndex)}
                 >
                   <FaTrashAlt />
-
                 </button>
               </td>
             </tr>
@@ -72,13 +65,12 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
           <tr>
             {tableData.length > 0 &&
               tableData[0].map((_, colIndex) => (
-                <td key={colIndex} className="">
+                <td key={colIndex}>
                   <button
-                    className=" text-red-600 font-bold py-1 px-2 rounded"
+                    className="text-red-600 font-bold py-1 px-2 rounded"
                     onClick={() => removeColumn(colIndex)}
                   >
                     <FaTrashAlt />
-
                   </button>
                 </td>
               ))}
@@ -86,16 +78,16 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
         </tbody>
       </table>
       <button
-        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
+        className="bg-[color:var(--color-primary-variant)]  text-white font-bold py-2 px-4 rounded mr-2 my-5"
         onClick={addRow}
       >
-       اضافه کردن سطر
+        اضافه کردن سطر
       </button>
       <button
-        className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
+        className="bg-[color:var(--color-primary-variant)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
         onClick={addColumn}
       >
-       اضافه کردن ستون
+        اضافه کردن ستون
       </button>
     </div>
   );

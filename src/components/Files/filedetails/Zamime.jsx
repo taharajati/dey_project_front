@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useReport } from './ReportContext'; // Adjust the import path as necessary
 import NavList from './NavList';
+import { FaTrash } from "react-icons/fa";
+
 
 const Zamime = () => {
   const [otherDocuments, setOtherDocuments] = useState([]);
@@ -21,27 +23,30 @@ const Zamime = () => {
     }
   }, [fileId]);
 
-  const fetchOtherDocuments = async (reportId) => {
+  const fetchOtherDocuments = async (fileId) => {
     try {
       setIsLoading(true);
       const response = await axios.get('http://188.121.99.245:8080/api/report/other_docs/', {
         params: {
-          report_id: reportId,
+          report_id: fileId,
         },
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
 
-      // Ensure the response is an array
-      if (Array.isArray(response.data)) {
-        setOtherDocuments(response.data);
+
+      console.log('Response data:', response.data);
+
+      // Adjust the condition based on the actual response structure
+      if (response.data && Array.isArray(response.data.data)) {
+        setOtherDocuments(response.data.data);
       } else {
         setOtherDocuments([]);
         setError('قالب پاسخ غیرمنتظره');
         setTimeout(() => {
           setError('');
-      }, 3000);
+        }, 3000);
       }
     } catch (error) {
       setError('اسناد دریافت نشد. لطفا دوباره تلاش کنید');
@@ -131,7 +136,6 @@ const Zamime = () => {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
-      alert('File successfully deleted.');
       // Refresh the list of documents after successful deletion
       fetchOtherDocuments(fileId);
       setSuccessMessage('حذف با موفقیت انجام شد'); // Display a pop-up for successful upload
@@ -192,7 +196,8 @@ const Zamime = () => {
               <th className="py-3 px-4">عنوان فایل</th>
               <th className="py-3 px-4">تاریخ بارگزاری</th>
               <th className="py-3 px-4">بارگذاری شده توسط</th>
-              <th className="py-3 px-4">عملیات</th>
+              <th className="py-3 px-4"></th>
+              <th className="py-3 px-4"></th>
             </tr>
           </thead>
           <tbody>
@@ -201,13 +206,17 @@ const Zamime = () => {
                 <td className="py-3 px-4">{doc.document_name}</td>
                 <td className="py-3 px-4 text-center">{doc.upload_date_jalali}</td>
                 <td className="py-3 px-4 text-center">{doc.uploaded_by_name}</td>
+               
                 <td className="py-3 px-4 text-center">
                   <button onClick={() => handleDownload(doc._id.$oid)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
                     <i className="fas fa-download mr-2"></i>دانلود
                   </button>
+                  </td>
+                  <td className=" text-center">
                   <button onClick={() => handleDelete(doc._id.$oid)} className="text-red-500 hover:text-red-700 focus:outline-none ml-4">
-                    <i className="fas fa-trash-alt mr-2"></i>حذف
+                    <i className=" "></i><FaTrash/>
                   </button>
+                
                 </td>
               </tr>
             ))}
