@@ -37,13 +37,13 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
   };
 
   return (
-    <div className="my-4">
-      <table className="border-collapse">
+    <div className="my-4 overflow-auto">
+      <table className="border-collapse table-auto w-full">
         <tbody>
           {tableData.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, colIndex) => (
-                <td key={colIndex} className="border border-gray-400">
+                <td key={colIndex} className="border border-gray-400 p-2">
                   <input
                     className="p-1 w-full"
                     type="text"
@@ -52,7 +52,7 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
                   />
                 </td>
               ))}
-              <td>
+              <td className="p-2">
                 <button
                   className="text-red-600 font-bold py-1 px-2 rounded"
                   onClick={() => removeRow(rowIndex)}
@@ -62,10 +62,10 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
               </td>
             </tr>
           ))}
-          <tr>
-            {tableData.length > 0 &&
-              tableData[0].map((_, colIndex) => (
-                <td key={colIndex}>
+          {tableData.length > 0 && (
+            <tr>
+              {tableData[0].map((_, colIndex) => (
+                <td key={colIndex} className="p-2">
                   <button
                     className="text-red-600 font-bold py-1 px-2 rounded"
                     onClick={() => removeColumn(colIndex)}
@@ -74,21 +74,25 @@ const DynamicTableEditor = ({ tableData, setTableData }) => {
                   </button>
                 </td>
               ))}
-          </tr>
+              <td className="p-2"></td>
+            </tr>
+          )}
         </tbody>
       </table>
-      <button
-        className="bg-[color:var(--color-primary-variant)]  text-white font-bold py-2 px-4 rounded mr-2 my-5"
-        onClick={addRow}
-      >
-        اضافه کردن سطر
-      </button>
-      <button
-        className="bg-[color:var(--color-primary-variant)] text-white font-bold py-2 px-4 rounded mr-2 my-5"
-        onClick={addColumn}
-      >
-        اضافه کردن ستون
-      </button>
+      <div className="my-5">
+        <button
+          className="bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={addRow}
+        >
+          اضافه کردن سطر
+        </button>
+        <button
+          className="bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={addColumn}
+        >
+          اضافه کردن ستون
+        </button>
+      </div>
     </div>
   );
 };

@@ -14,10 +14,10 @@ import Checklist from './components/Files/filedetails/Checklist/Checklist';
 import TarikhChe from './components/Files/filedetails/TarikhChe';
 import FinalReport from './components/Files/filedetails/FinalReport';
 import Findings from './components/Files/filedetails/Findings/Findings';
-import { ReportProvider } from './components/Files/filedetails/ReportContext';  // Ensure the import path is correct
+import { ReportProvider } from './components/Files/filedetails/ReportContext';
 import FindingDetailPage from './components/Files/filedetails/Findings/FindingDetailPage';
 import FirstReport from './components/Files/filedetails/FirstReport/FirstReport';
-import BranchAnsr from './components/Files/filedetails/BranchAnsr'
+import BranchAnsr from './components/Files/filedetails/BranchAnsr';
 import ChecklistHa from './components/Files/filedetails/ChecklistHa';
 import ReportTable from './components/Files/filedetails/ReportTable';
 import Word from './components/Files/filedetails/Word';
@@ -65,29 +65,27 @@ function App() {
     <ReportProvider>
       <Router>
         <div>
-        {isAuthenticated && window.location.pathname !== '/login' && <Nav /> }
+          {isAuthenticated && window.location.pathname !== '/login' && <Nav />}
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/users" element={isAuthenticated ? <UserList /> : <Navigate to="/login" />} />
             <Route path="/branches" element={isAuthenticated ? <BranchList /> : <Navigate to="/login" />} />
-            <Route path="/newfile" element={isAuthenticated ?  <NewFile />  : <Navigate to="/login" />} />
+            <Route path="/newfile" element={isAuthenticated ? <NewFile /> : <Navigate to="/login" />} />
             <Route path="/completedfiles" element={isAuthenticated ? <CompletedFiles /> : <Navigate to="/login" />} />
             <Route path="/ongoingfiles" element={isAuthenticated ? <OngoingFiles /> : <Navigate to="/login" />} />
-            <Route path="/report/:id"  element={isAuthenticated ? <FileDetailsPage /> : <Navigate to="/login" />} />
-            <Route path="/zamime"  element={isAuthenticated ? <Zamime /> : <Navigate to="/login" />} />
-            <Route path="/takhsis"  element={isAuthenticated ? <Allocation /> : <Navigate to="/login" />} />
+            <Route path="/report/:id" element={isAuthenticated ? <FileDetailsPage /> : <Navigate to="/login" />} />
+            <Route path="/zamime" element={isAuthenticated ? <Zamime /> : <Navigate to="/login" />} />
+            <Route path="/takhsis" element={isAuthenticated ? <Allocation /> : <Navigate to="/login" />} />
             <Route path="/checklist" element={isAuthenticated ? <Checklist /> : <Navigate to="/login" />} />
             <Route path="/checklistha" element={isAuthenticated ? <ChecklistHa /> : <Navigate to="/login" />} />
-            <Route path="/comment"  element={isAuthenticated ? <TarikhChe /> : <Navigate to="/login" />}/>
-            <Route path="/final-report" element={<FinalReport />} />
+            <Route path="/comment" element={isAuthenticated ? <TarikhChe /> : <Navigate to="/login" />} />
+            <Route path="/final-report" element={isAuthenticated ? <FinalReport /> : <Navigate to="/login" />} />
             <Route path="/yaft" element={isAuthenticated ? <Findings /> : <Navigate to="/login" />} />
-            <Route path="/findingdetailpage"element={isAuthenticated ? <FindingDetailPage /> : <Navigate to="/login" />} />
-            <Route path="/first-report" element={ <FirstReport /> } />
-            <Route path="/word" element={ <Word /> } />
-            <Route path="/reporttable" element={ <ReportTable /> } />
-            <Route path="//branchansr" element={isAuthenticated ? <BranchAnsr /> : <Navigate to="/login" />} />
-
-
+            <Route path="/findingdetailpage" element={isAuthenticated ? <FindingDetailPage /> : <Navigate to="/login" />} />
+            <Route path="/first-report/:reportType" element={isAuthenticated ? <FirstReport /> : <Navigate to="/login" />} />
+            <Route path="/word" element={isAuthenticated ? <Word /> : <Navigate to="/login" />} />
+            <Route path="/reporttable" element={isAuthenticated ? <ReportTable /> : <Navigate to="/login" />} />
+            <Route path="/branchansr" element={isAuthenticated ? <BranchAnsr /> : <Navigate to="/login" />} />
             <Route path="/" element={<Navigate to="/login" />} />
           </Routes>
         </div>

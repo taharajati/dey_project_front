@@ -98,7 +98,7 @@ const confirmDeleteUser = async () => {
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full ">
             <h2 className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)] ">آیا مطمئن هستید که می‌خواهید این کاربر را حذف کنید؟</h2>
             <div className="flex justify-center">
-              <button onClick={ confirmDeleteUser} className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 mr-2">حذف</button>
+              <button onClick={ confirmDeleteUser} className="bg-[color:var(--color-primary-va)] text-white py-2 px-4 rounded-md hover:bg-red-600 mr-2">حذف</button>
               <button onClick={() => setShowConfirmation(false)} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400">انصراف</button>
             </div>
           </div>

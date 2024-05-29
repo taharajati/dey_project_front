@@ -7,6 +7,7 @@ import DynamicTableEditor from './DynamicTableEditor';
 import { useReport } from '../ReportContext';
 import { FaTrash } from "react-icons/fa";
 import { MdModeEdit } from "react-icons/md";
+import NavList from '../NavList';
 
 const FindingDetailPage = () => {
   const location = useLocation();
@@ -248,6 +249,7 @@ const handleSaveChanges = async () => {
   };
   return (
     <>
+    <NavList/>
     {isLoading && (
       <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
         <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
@@ -436,7 +438,7 @@ const handleSaveChanges = async () => {
           <textarea
             value={section.text}
             onChange={(e) => handleTextChange(index, e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded h-[600px]"
           />
            <DynamicTableEditor
             tableData={section.tableData}

@@ -109,10 +109,10 @@ const ReportTable = () => {
     }
   };
 
-  const renderEditOption = (created, finished) => {
+  const renderEditOption = (created, finished, reportType) => {
     if (created && !finished) {
       return (
-        <NavLink to="/first-report">
+        <NavLink to={`/first-report/${reportType}`}>
           <td className="py-3 px-6 text-[color:var(--color-primary)]">ویرایش و نهایی سازی</td>
         </NavLink>
       );
@@ -126,7 +126,7 @@ const ReportTable = () => {
   const renderPdfCreationOption = (created, finished, fileId, reportType) => {
     if (created && !finished) {
       return (
-        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handlePdfCreationClick(fileId, reportType)}>ایجاد گزارش PDF</td>
+        <td className="py-3 px-6 text-[color:var(--color-primary)] cursor-pointer" onClick={() => handlePdfCreationClick(fileId, reportType)}>ایجاد گزارش PDF</td>
       );
     } else {
       return (
@@ -135,11 +135,10 @@ const ReportTable = () => {
     }
   };
 
-
   const renderPdfDownloadOption = (pdfCreated, reportId, reportType) => {
     if (pdfCreated) {
       return (
-        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handlePdfDownloadClick(reportId, reportType)}>دانلود گزارش PDF</td>
+        <td className="py-3 px-6 text-[color:var(--color-primary)] cursor-pointer" onClick={() => handlePdfDownloadClick(reportId, reportType)}>دانلود گزارش PDF</td>
       );
     } else {
       return (
@@ -151,7 +150,7 @@ const ReportTable = () => {
   const renderReportFinalizationOption = (pdfCreated, finished, reportType, fileId) => {
     if (pdfCreated && !finished) {
       return (
-        <td className="py-3 px-6 text-[color:var(--color-primary)]" onClick={() => handleReportFinalizationClick(fileId, reportType)}>نهایی سازی گزارش</td>
+        <td className="py-3 px-6 text-[color:var(--color-primary)] cursor-pointer" onClick={() => handleReportFinalizationClick(fileId, reportType)}>نهایی سازی گزارش</td>
       );
     } else {
       return (
@@ -190,7 +189,7 @@ const ReportTable = () => {
                     <tr key={report._id.$oid} className="bg-white border-b text-center border-gray-200">
                       <td className="py-3 px-6">{report.report_type_fa}</td>
                       <td className="py-3 px-6">{report.status}</td>
-                      {renderEditOption(report.created, report.finished)}
+                      {renderEditOption(report.created, report.finished, report.report_type)}
                       {renderPdfCreationOption(report.created, report.finished, fileId, report.report_type)}
                       {renderReportFinalizationOption(report.pdf_created, report.finished, report.report_type, fileId)}
                       {renderPdfDownloadOption(report.pdf_created, fileId, report.report_type)}
@@ -204,19 +203,23 @@ const ReportTable = () => {
       </div>
       {/* Popup for error message */}
       {errorq && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
-            <button onClick={() => setErrorq('')} className="text-white mb-2 bg-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
-            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{errorq}</p>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded shadow-md text-center">
+            <p className="text-red-600">{errorq}</p>
+            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={() => setErrorq('')}>
+              OK
+            </button>
           </div>
         </div>
       )}
       {/* Popup for success message */}
       {successMessage && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
-            <button onClick={() => setSuccessMessage('')} className="text-white mb-2 bg-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-green-700">X</button>
-            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded shadow-md text-center">
+            <p className="text-green-600">{successMessage}</p>
+            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={() => setSuccessMessage('')}>
+              OK
+            </button>
           </div>
         </div>
       )}
