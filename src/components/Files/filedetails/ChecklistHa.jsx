@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useContext } from 'react';
 import NavList from './NavList';
 import { useReport } from '../filedetails/ReportContext';
+import { PermissionsContext } from '../../../App'; // Import the context
+
 
 const ChecklistHa = () => {
   const [checklistStatus, setChecklistStatus] = useState(null);
@@ -8,8 +10,12 @@ const ChecklistHa = () => {
 
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const permissions = useContext(PermissionsContext); // Use the context
+
 
   const { fileId } = useReport();
+
+
 
   const translations = {
     "Fire": "آتش سوزی",
@@ -43,6 +49,9 @@ const ChecklistHa = () => {
     "ExaminingTheEngineeringIssuanceT": "بررسی عملیات صدور رشته مهندسی تمام خطر نصب و پیمانکاری",
     "ExaminingTheEngineeringIssuanceMachineFailure": "بررسی عملیات صدور رشته مهندسی شکست ماشین آلات"
 };
+
+
+
 
   useEffect(() => {
     const fetchChecklistStatus = async () => {
@@ -112,13 +121,18 @@ const ChecklistHa = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
         </div>
       )}
+
+      {permissions?.checklist_status_detail.list&& (
+
       <div className="  justify-center">
       <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
         <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>وضعیت چک لیست ها </h1>
+         
+
+
         <button onClick={handleCreateReport} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
           
-        {isLoading ? 'درحال ایجاد متن گزارش اولیه' : 'ایجاد متن گزارش اولیه'
-}
+        {isLoading ? 'درحال ایجاد متن گزارش اولیه' : 'ایجاد متن گزارش اولیه'}
 
           
         </button>
@@ -169,8 +183,13 @@ const ChecklistHa = () => {
           </table>
         )}
       </div>
+
+    
+
       </div>
       </div>
+
+)}
             {/* Error Pop-up */}
             {error && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

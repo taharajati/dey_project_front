@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from "react";
 import axios from 'axios';
 import { useReport } from './filedetails/ReportContext'; // Adjust the import path as necessary
 import NavList from './filedetails/NavList';
+import { PermissionsContext } from '../../App'; // Import the context
+
+
 
 const FileDetailsPage = () => {
   const [documents, setDocuments] = useState([]);
@@ -10,8 +13,12 @@ const FileDetailsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const permissions = useContext(PermissionsContext); // Use the context
+
 
   const { fileId } = useReport(); // Retrieve fileId from ReportContext
+
+
 
   useEffect(() => {
     if (fileId) {
@@ -114,6 +121,8 @@ const FileDetailsPage = () => {
     }
   };
 
+  
+
   return (
     <>
       <NavList activeReportId={fileId} />
@@ -125,6 +134,8 @@ const FileDetailsPage = () => {
       <div className="flex flex-col w-full mt-8 px-5 max-md:mt-10 max-md:max-w-full m-[-100px]" dir="rtl">
         <h2 className=" mb-4 font-semibold  text-[color:var(--color-primary-variant)] text-2xl " dir="rtl"> مدارک و فایل ها</h2>
 
+        {permissions?.document_detail.add && (
+
         <div className="mb-3 w-full max-w-md">
           <label htmlFor="documentType" className="block text-black mb-2">انتخاب نوع مدرک :</label>
           <select id="documentType" onChange={(e) => setSelectedDocumentType(e.target.value)} className="block w-full bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-500">
@@ -135,18 +146,31 @@ const FileDetailsPage = () => {
               </option>
             ))}
           </select>
+          
         </div>
+         )}
+
+         {permissions?.document_detail.add && (
+
         <div className="w-full max-w-md">
           <label htmlFor="fileUpload">انتخاب فایل :</label>
           <input type="file" id="fileUpload" onChange={handleFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 m-4" />
           <button onClick={handleFileUpload} disabled={isLoading} className="mt-3 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-            {isLoading ? 'Uploading...' : 'بارگزاری'}
+            {isLoading ? 'درحال بارگزاری...' : 'بارگزاری'}
           </button>
         </div>
+        
+      )}
+
+
       </div>
+
+   
 
       {/* Uploaded Files Table */}
       <div className="max-w-full overflow-x-auto mt-8 px-5 max-md:mt-10">
+      {permissions?.document_detail.list && (
+
         <table className="min-w-full  my-[90px]" dir='rtl'>
           <thead>
             <tr className="bg-gray-200 text-gray-800 font-semibold text-sm">
@@ -169,6 +193,7 @@ const FileDetailsPage = () => {
             ))}
           </tbody>
         </table>
+          )}
       </div>
         {/* Error Pop-up */}
         {error && (

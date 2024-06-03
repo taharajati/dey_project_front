@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import { useReport } from './ReportContext'; // Adjust the import path as necessary
 import NavList from './NavList';
 import { FaTrash } from "react-icons/fa";
+import { PermissionsContext } from '../../../App'; // Import the context
+
 
 
 const Zamime = () => {
@@ -12,8 +14,18 @@ const Zamime = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const permissions = useContext(PermissionsContext); // Use the context
+
 
   const { fileId } = useReport(); // Retrieve fileId from ReportContext
+
+
+  console.log("permissions",permissions)
+
+  const localPermissions = { ...permissions };
+  localPermissions.other_documents_detail = { ...localPermissions.other_documents_detail,add : false };
+  console.log("localPermissions",localPermissions)
+
 
   useEffect(() => {
     if (fileId) {
@@ -164,6 +176,8 @@ const Zamime = () => {
       <div className="flex flex-col w-full mt-8 px-5 max-md:mt-10 max-md:max-w-full m-[-100px]" dir="rtl">
         <h2 className="mb-4 font-semibold text-[color:var(--color-primary-variant)] text-2xl" dir="rtl">فایل های پیوست دیگر</h2>
         
+        {permissions?.other_documents_detail.add&& (
+
         <div className="mb-3 w-full max-w-md">
           <label htmlFor="description" className="block text-black mb-2">توضیحات :</label>
           <input
@@ -174,6 +188,9 @@ const Zamime = () => {
             className="block w-full bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-500"
           />
         </div>
+         )}
+        {permissions?.other_documents_detail.add&& (
+
         <div className="w-full max-w-md">
           <label htmlFor="fileUpload">انتخاب فایل :</label>
           <input
@@ -186,9 +203,12 @@ const Zamime = () => {
             {isLoading ? 'درحال بارگزاری...' : 'بارگزاری'}
           </button>
         </div>
+         )}
       </div>
 
       {/* Uploaded Files Table */}
+      {permissions?.other_documents_detail.list&& (
+
       <div className="max-w-full overflow-x-auto mt-8 px-5 max-md:mt-10">
         <table className="min-w-full my-[90px]" dir='rtl'>
           <thead>
@@ -196,8 +216,12 @@ const Zamime = () => {
               <th className="py-3 px-4">عنوان فایل</th>
               <th className="py-3 px-4">تاریخ بارگزاری</th>
               <th className="py-3 px-4">بارگذاری شده توسط</th>
+              
               <th className="py-3 px-4"></th>
+              {permissions?.other_documents_detail.delete&& (
+
               <th className="py-3 px-4"></th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -223,6 +247,8 @@ const Zamime = () => {
           </tbody>
         </table>
       </div>
+              )}
+
              {/* Error Pop-up */}
              {error && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

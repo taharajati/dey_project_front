@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
-
+import { PermissionsContext } from '../../App'; // Import the context
 
 const LIST_OF_TITLES = [
   { value: "manager", label: "مدیر" },
@@ -18,13 +18,21 @@ function UserList() {
   const [selectedTitle, setSelectedTitle] = useState(""); // New state for selected title
   const [userToDelete, setUserToDelete] = useState(null); // State to store user to delete
   const [showConfirmation, setShowConfirmation] = useState(false); // State to control confirmation box
+  const permissions = useContext(PermissionsContext); // Use the context
 
+/*
+  console.log("permissions",permissions)
 
+  const localPermissions = { ...permissions };
+  localPermissions.checklist_status_detail = { ...localPermissions.checklist_status_detail,list : false };
+  console.log("localPermissions",localPermissions)
+*/
+  
   useEffect(() => {
     const storedToken = localStorage.getItem("accessToken");
     if (storedToken) {
       setToken(storedToken);
-      fetchUsers(storedToken, "branch_manager"); // Fetch users with the "branch_manager" title
+      fetchUsers(storedToken); // Fetch users with the "branch_manager" title
     }
   }, []);
 
@@ -49,34 +57,32 @@ function UserList() {
     } catch (error) {
       console.error('Error fetching users:', error.message);
     }
-  };  
+  };
 
-console.log(users)
+  const handleDeleteUser = async (username) => {
+    setUserToDelete(username); // Set the user to delete
+    setShowConfirmation(true); // Show confirmation box
+  };
 
-const handleDeleteUser = async (username) => {
-  setUserToDelete(username); // Set the user to delete
-  setShowConfirmation(true); // Show confirmation box
-};
-
-const confirmDeleteUser = async () => {
-  try {
-    const response = await fetch(`http://188.121.99.245:8080/api/user/${userToDelete}/`, {
-      method: 'DELETE',
-      headers: {
-        'accept': 'application/json',
-        'Authorization': `Bearer ${token}`
+  const confirmDeleteUser = async () => {
+    try {
+      const response = await fetch(`http://188.121.99.245:8080/api/user/${userToDelete}/`, {
+        method: 'DELETE',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        fetchUsers(token, selectedTitle);
+      } else {
+        console.error('Failed to delete user:', response.status, response.statusText);
       }
-    });
-    if (response.ok) {
-      fetchUsers(token, selectedTitle);
-    } else {
-      console.error('Failed to delete user:', response.status, response.statusText);
+    } catch (error) {
+      console.error('Error deleting user:', error.message);
     }
-  } catch (error) {
-    console.error('Error deleting user:', error.message);
-  }
-  setShowConfirmation(false); // Hide confirmation box after deletion
-};
+    setShowConfirmation(false); // Hide confirmation box after deletion
+  };
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -86,10 +92,14 @@ const confirmDeleteUser = async () => {
     setSelectedTitle(e.target.value);
     fetchUsers(token, e.target.value);
   };
+
   function getTitleTranslation(titleValue) {
-    const foundTitle = LIST_OF_TITLES.find(title => title.value === titleValue);
+    const foundTitle = LIST_OF_TITLES.find((title) => title.value === titleValue);
     return foundTitle ? foundTitle.label : titleValue;
   }
+
+  console.log("permissions",permissions)
+
   return (
     <div className="flex flex-col items-center w-full mt-10  mx-auto px-5 max-md:mt-10 max-md:max-w-full">
           {/* Confirmation box */}
@@ -105,9 +115,11 @@ const confirmDeleteUser = async () => {
         </div>
       )}
       <div className="flex justify-between items-center w-full px-16 py-3 rounded-2xl max-md:px-5  mb-[-25px]">
+      {permissions?.users_detail.add && (
         <button onClick={toggleModal} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
           اضافه کردن کاربر
         </button>      
+        )}
         <div className="">افراد</div>
 
         {showModal && <AddUserForm onClose={toggleModal} token={token} fetchUsers={fetchUsers} selectedTitle={selectedTitle} />}
@@ -133,6 +145,8 @@ const confirmDeleteUser = async () => {
       </div>
       <div className="mt-2 max-w-full h-0.5 bg-black border border-black border-solid w-full " />
       <div className="bg-[color:var(--color-bg)] mt-3 w-[1100px] rounded-xl p-4 " dir="rtl">
+      {permissions?.users_detail.list&& (
+
         <table className="w-full border-collapse  ">
           <thead className="bg-gray-200 text-center"> 
             <tr >
@@ -140,7 +154,9 @@ const confirmDeleteUser = async () => {
               <th className="px-4 py-2">نام خانوادگی</th>
               <th className="px-4 py-2">نام خانوادگی</th>
               <th className="px-4 py-2">سمت</th>
+              {permissions?.users_detail.delete && (
               <th className="px-4 py-2"></th>
+            )}
             </tr>
           </thead>
           <tbody>
@@ -150,15 +166,21 @@ const confirmDeleteUser = async () => {
                 <td className="px-4 py-2">{user.last_name}</td>
                 <td>{user.full_name}</td>
                 <td className="px-4 py-2">{getTitleTranslation(user.title)}</td>
+                {permissions?.users_detail.delete && (
                 <td className="px-4 py-2">
+                
+
                 <button className="text-red-500" onClick={() => handleDeleteUser(user.username)}>
               <FaTrash />
             </button>
+          
                 </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
+         )}
       </div>
       <br/>
     </div>

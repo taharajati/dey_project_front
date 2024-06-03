@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useReport } from './filedetails/ReportContext';
 import { IoClose } from "react-icons/io5";
+import { FaTrash } from "react-icons/fa";
+
+import { PermissionsContext } from '../../App'; // Import the context
+
 
 const OngoingFiles = () => {
   const [ongoingFiles, setOngoingFiles] = useState([]);
@@ -9,6 +13,8 @@ const OngoingFiles = () => {
   const [fileToDelete, setFileToDelete] = useState(null); // State to store the file to delete
   const navigate = useNavigate();
   const { updateFileId } = useReport(); // Use updateFileId instead of setReportId
+  const permissions = useContext(PermissionsContext); // Use the context
+
 
   useEffect(() => {
     fetchOngoingFiles();
@@ -82,8 +88,14 @@ const OngoingFiles = () => {
                 <th className="px-5 py-4 ">رئیس حسابرسی</th>
                 <th className="px-5 py-4 ">مرحله</th>
                 <th className="px-5 py-4 ">دوره رسیدگی</th>
+                {permissions?.report_detail.edit && (
+
                 <th className="px-5 py-4 ">مشاهده جزئیات</th>
+              )}
+                {permissions?.report_detail.delete && (
+
                 <th className="px-5 py-4 "></th>
+              )}
               </tr>
             </thead>
             <tbody>
@@ -94,6 +106,8 @@ const OngoingFiles = () => {
                   <td className="px-5 py-4 ">{file.audit_chief_full_name}</td>
                   <td className="px-5 py-4 ">{file.step}</td>
                   <td className="px-5 py-4 ">{file.period}</td>
+                  {permissions?.report_detail.edit && (
+
                   <td className="px-5 py-4 ">
                     <button 
                       onClick={() => redirectToReportDetail(file._id.$oid)}
@@ -102,14 +116,17 @@ const OngoingFiles = () => {
                       مشاهده جزئیات
                     </button>
                   </td>
+                   )}
+                   {permissions?.report_detail.delete && (
                   <td className="px-4 py-2">
                     <button 
                       onClick={() => handleDeleteConfirmation(file._id.$oid)} // Open confirmation dialog
                       className="text-[color:var(--color-primary-variant)] hover:text-[color:var(--color-primary)] focus:outline-none text-center"
                     >
-                      <IoClose />
+                      <FaTrash />
                     </button>
                   </td>
+                   )}
                 </tr>
               ))}
             </tbody>

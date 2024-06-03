@@ -3,12 +3,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import NavList from '../NavList';
+import { Chart, CategoryScale, LinearScale, LineController, PointElement, LineElement, Title } from 'chart.js/auto';
 
 import FindingComponent from './finding_box'; 
 
 import { useReport } from '../ReportContext'; // Adjust the import path as necessary
 
 
+Chart.register(CategoryScale, LinearScale, LineController, PointElement, LineElement, Title); // Register necessary components
 
 
 
@@ -31,7 +33,9 @@ const FirstReport = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { fileId } = useReport(); // Retrieve fileId from ReportContext
-
+  const chartCanvasRef = useRef(null);
+  const pieChart1CanvasRef = useRef(null);
+  const pieChart2CanvasRef = useRef(null);
   const navigate = useNavigate(); // Use useNavigate hook
 
 
@@ -41,7 +45,12 @@ const FirstReport = () => {
   }, []);
   
 
-
+  useEffect(() => {
+    if (reportData) {
+      createChart(); // Call createChart when reportData is available
+    }
+    
+  }, [reportData]);
   
   const fetchReportData = async () => {
     try {
@@ -71,6 +80,188 @@ const FirstReport = () => {
     }
 
   };
+ 
+
+
+  const createChart = () => {
+    const ctx = chartCanvasRef.current.getContext('2d');
+    const persianLabels = reportData.Chart_1.x_axis_labels.map(label => englishToPersianNumber(label));
+    const persianPerformanceData = reportData.Chart_1.data.map(item => englishToPersianNumber(item.performance));
+    const persianBudgetData = reportData.Chart_1.data.map(item => englishToPersianNumber(item.premium_budget));
+    const performanceDataEnglish = reportData.Chart_1.data.map(item => item.performance); // Keep data in English
+    const BudgetDataEnglish = reportData.Chart_1.data.map(item => item.premium_budget); // Keep data in English
+
+    console.log('Persian Labels:', persianLabels);
+    console.log('Persian Performance Data:', persianPerformanceData);
+    console.log('Persian Budget Data:', persianBudgetData);
+
+    Chart.defaults.font.size = 20;
+    Chart.defaults.font.family = "Lalezar"
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: reportData.Chart_1.x_axis_labels,
+        datasets: [
+          {
+            label: 'کارایی',
+            data: performanceDataEnglish,
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'بودجه ممتاز',
+            data: BudgetDataEnglish,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            type: 'category',
+
+            font: {
+              size: 25 // Larger font size for x-axis labels
+            },
+            
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            type: 'linear',
+            beginAtZero: true,
+            ticks: {
+              callback: function(value, index, values) {
+                return englishToPersianNumber(value);
+              },
+              font: {
+                size: 25 // Larger font size for y-axis ticks
+              }
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                label += englishToPersianNumber(context.parsed.y);
+                return label;
+              }
+            },
+            title: {
+              font: {
+                size: 25 // Larger font size for tooltip title
+              }
+            },
+            body: {
+              font: {
+                size: 25 // Larger font size for tooltip body
+              }
+            }
+          },
+          legend: {
+            display: true,
+            labels: {
+              fontSize: 25 // Larger font size for legend labels
+            },
+            title: {
+              font: {
+                size: 25 // Larger font size for legend labels
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 2000,
+          easing: 'easeInOutQuart'
+        },
+        legend: {
+          display: true,
+          labels: {
+            font: {
+              size: 25 // Larger font size for legend labels
+            }
+          }
+        }
+      }
+      
+    });
+    
+    
+
+    // Next, create the first pie chart
+    const pieChart1Ctx = pieChart1CanvasRef.current.getContext('2d');
+    const pieChart1 = new Chart(pieChart1Ctx, {
+        type: 'pie',
+        data: {
+            labels: reportData.Chart_2.x_axis_labels,
+            datasets: [{
+                label: reportData.Chart_2.caption,
+                data: reportData.Chart_2.data.map(item => item.value),
+                backgroundColor:  [
+                  '#FF5252', // Color for خودرو شخص ثالث
+                  '#FFC352', // Color for عمر گروهی
+                  '#EFFF52', // Color for آتش سوزی
+                  '#89FF52', // Color for بدنه اتومبیل
+                  '#52FFB8', // Color for باربری
+                  '#52CDFF', // Color for درمان
+                  '#5C52FF', // Color for حوادث
+                  '#A352FF', // Color for مسئولیت
+                  '#E552FF', // Color for مهندسی
+                  '#FF52D0', // Color for سایر (کشتی)
+                  '#52FF77', // Color for عمر و سرمایه گذاری
+                 
+              ],
+                borderColor: 'rgba(255, 255, 255)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            // Options for the first pie chart...
+        }
+    });
+
+    // Finally, create the second pie chart
+    const pieChart2Ctx = pieChart2CanvasRef.current.getContext('2d');
+    const pieChart2 = new Chart(pieChart2Ctx, {
+        type: 'pie',
+        data: {
+            labels: reportData.Chart_3.x_axis_labels,
+            datasets: [{
+                label: reportData.Chart_3.caption,
+                data: reportData.Chart_3.data.map(item => item.value),
+                backgroundColor: [
+                  '#FF5252', // Color for خودرو شخص ثالث
+                  '#FFC352', // Color for عمر گروهی
+                  '#EFFF52', // Color for آتش سوزی
+                  '#89FF52', // Color for بدنه اتومبیل
+                  '#52FFB8', // Color for باربری
+                  '#52CDFF', // Color for درمان
+                  '#5C52FF', // Color for حوادث
+                  '#A352FF', // Color for مسئولیت
+                  '#E552FF', // Color for مهندسی
+                  '#FF52D0', // Color for سایر (کشتی)
+                  '#52FF77', // Color for عمر و سرمایه گذاری
+                 
+              ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            // Options for the second pie chart...
+        }
+    });
+};
+
 
   const handleSave = async () => {
     try {
@@ -282,6 +473,7 @@ const handleGoBack = () => {
             </div>
 
           {/* Content for the goals */}
+
             <div className="goals">
   <h4 className="text-2xl font-bold my-10">
     {isEditing ? (
@@ -675,22 +867,118 @@ const handleGoBack = () => {
 </div>
 
 
- {/* Content for the Finding_1 */}
+{/* Content for the FinancialPerformanceIssueLossByType */}
 
-<div className="Finding_1">
+<div className="FinancialPerformanceIssueLossByType">
+  {isEditing ? (
+    <textarea
+      className="w-full p-2 rounded-lg border border-gray-300"
+      rows={2}
+      value={englishToPersianNumber(editedData.FinancialPerformanceIssueLossByType.title)}
+      onChange={(e) => handleInputChange(e, 'FinancialPerformanceIssueLossByType.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10">
+      {englishToPersianNumber(reportData.FinancialPerformanceIssueLossByType.title)}
+    </h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.FinancialPerformanceIssueLossByType.description)}
+      onChange={(e) => handleInputChange(e, 'FinancialPerformanceIssueLossByType.description')}
+    />
+  ) : (
+    <p className="mb-6">
+      {englishToPersianNumber(reportData.FinancialPerformanceIssueLossByType.description)}
+    </p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">
+      {englishToPersianNumber(reportData.FinancialPerformanceIssueLossByType.table.caption)}
+    </caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(reportData.FinancialPerformanceIssueLossByType.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{englishToPersianNumber(columnName)}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.FinancialPerformanceIssueLossByType.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className="bg-white">
+            {Object.keys(rowData).map((key, index) => (
+              <td key={index} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(rowData[key])}
+                  onChange={(e) => handleInputChange(e, `FinancialPerformanceIssueLossByType.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        reportData.FinancialPerformanceIssueLossByType.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((value, index) => (
+              <td key={index} className={`px-4 py-2 text-center ${value < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(value)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
 
- <FindingComponent
-  finding="Finding_1"
-  editedData={editedData}
-  isEditing={isEditing}
-  handleInputChange={handleInputChange}
-  findingGroup={reportData?.Finding_1?.finding_group}
-/>
-  </div>
+
+
+  {/* Content for the Chart_1 */}
+
+  <caption className="text-lg font-semibold my-6 w-[800px]">{reportData.Chart_1.caption}</caption>
+ 
+   <div className=" text-lg " style={{ width: '1350px', height: '690px' }}>
+ 
+     <canvas className=' text-5x' ref={chartCanvasRef}></canvas>
+   </div>
+
+   {/* Content for the Chart_2 */}
+
+   <caption className="text-lg font-semibold my-6 w-[800px] ">{reportData.Chart_2.caption}</caption>
+ 
+   <div className=" mr-[400px]" style={{ width: '600px', height: '450px' }}>
+       <canvas ref={pieChart1CanvasRef}></canvas>
+     </div>
+
+     {/* Content for the Chart_3 */}
+
+     <caption className="text-lg font-semibold my-6 w-[800px]">{reportData.Chart_3.caption}</caption>
+ 
+     <div className="mr-[400px]" style={{ width: '600px', height: '450px' }}>
+       <canvas ref={pieChart2CanvasRef}></canvas>
+     </div>
+
+
+ {/* Content for the Finding_Branch_performance_control_with_approved_budget */}
+
+<div className="Finding_Branch_performance_control_with_approved_budget">
+        <FindingComponent
+          finding="Finding_Branch_performance_control_with_approved_budget"
+          editedData={editedData}
+          isEditing={isEditing}
+          handleInputChange={handleInputChange}
+          findingGroup={reportData?.Finding_Branch_performance_control_with_approved_budget?.finding_group}
+        />
+      </div>
 
  {/* Content for the SalesPerformance */}
 
-<div className="FindiSalesPerformanceng_1">
+<div className="SalesPerformance">
   <h4 className="text-2xl font-bold my-10 p-5">
     {isEditing ? (
       <textarea
@@ -756,18 +1044,17 @@ const handleGoBack = () => {
 </div>
 
 
- {/* Content for the Finding_2 */}
+ {/* Content for the Finding_Sales_network_performance */}
 
-<div className="Finding_2">
-
-<FindingComponent
-  finding="Finding_2"
-  editedData={editedData}
-  isEditing={isEditing}
-  handleInputChange={handleInputChange}
-  findingGroup={reportData?.Finding_2?.finding_group}
-/>
-  </div>
+ <div className="Finding_Sales_network_performance">
+        <FindingComponent
+          finding="Finding_Sales_network_performance"
+          editedData={editedData}
+          isEditing={isEditing}
+          handleInputChange={handleInputChange}
+          findingGroup={reportData?.Finding_Sales_network_performance?.finding_group}
+        />
+      </div>
 
 {/* Content for the AgentSales */}
 <div className="AgentSales my-8">
@@ -887,17 +1174,17 @@ const handleGoBack = () => {
   </div>
 </div>
 
-{/* Content for Finding_3 */}
+{/* Content for Finding_Operational_program_of_the_branch */}
 
-<div  className="Finding_3">
-  <FindingComponent
-  finding="Finding_3"
-  editedData={editedData}
-  isEditing={isEditing}
-  handleInputChange={handleInputChange}
-  findingGroup={reportData?.Finding_3?.finding_group}
-/>
-</div>
+<div className="Finding_Operational_program_of_the_branch">
+        <FindingComponent
+          finding="Finding_Operational_program_of_the_branch"
+          editedData={editedData}
+          isEditing={isEditing}
+          handleInputChange={handleInputChange}
+          findingGroup={reportData?.Finding_Operational_program_of_the_branch?.finding_group}
+        />
+      </div>
  
 {/* Content for the Assets */}
 <div className="Assets my-8">
@@ -927,19 +1214,17 @@ const handleGoBack = () => {
   </p>
 </div>
 
- {/* Content for Finding_4 */}
+{/* Content for Finding_Property_and_assets_of_the_branch */}
 
- <div  className="Finding_4">
-
-<FindingComponent
-  finding="Finding_4"
-  editedData={editedData}
-  isEditing={isEditing}
-  handleInputChange={handleInputChange}
-  findingGroup={reportData?.Finding_4?.finding_group}
-/>
-  </div>
-  
+<div className="Finding_Property_and_assets_of_the_branch">
+        <FindingComponent
+          finding="Finding_Property_and_assets_of_the_branch"
+          editedData={editedData}
+          isEditing={isEditing}
+          handleInputChange={handleInputChange}
+          findingGroup={reportData?.Finding_Property_and_assets_of_the_branch?.finding_group}
+        />
+      </div>
 
 {/* Claims */}
 <div className="Claims">
@@ -1108,16 +1393,16 @@ const handleGoBack = () => {
 
 
  
- {/* Finding_5 */}
+ {/* Finding_Branch_claims_status */}
 
- <div className="Finding_5">
+ <div className="Finding_Branch_claims_status">
 
   <FindingComponent
-  finding="Finding_5"
+  finding="Finding_Branch_claims_status"
   editedData={editedData}
   isEditing={isEditing}
   handleInputChange={handleInputChange}
-  findingGroup={reportData?.Finding_5?.finding_group}
+  findingGroup={reportData?.Finding_Branch_claims_status?.finding_group}
 />
 </div>
 
@@ -1208,7 +1493,1577 @@ const handleGoBack = () => {
 </div>
 
 
+ {/* Finding_Branch_sales_network */}
 
+ <div className="Finding_Branch_sales_network">
+
+  <FindingComponent
+  finding="Finding_Branch_sales_network"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Branch_sales_network?.finding_group}
+/>
+</div>
+
+{/* PerformanceControlOfBranch */}
+<div className="PerformanceControlOfBranch my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full  rounded-lg border border-gray-300"
+      value={editedData.PerformanceControlOfBranch.title}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.PerformanceControlOfBranch.description}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.PerformanceControlOfBranch.description}</p>
+  )}
+</div>
+
+{/* PerformanceControlOfBranch_CarThird */}
+<div className="PerformanceControlOfBranch_CarThird my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full  rounded-lg border border-gray-300"
+      value={editedData.PerformanceControlOfBranch_CarThird.title}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_CarThird.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_CarThird.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.PerformanceControlOfBranch_CarThird.description}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_CarThird.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.PerformanceControlOfBranch_CarThird.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_CarThird.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_CarThird.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_CarThird.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_CarThird.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.PerformanceControlOfBranch_CarThird.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_CarThird */}
+<div className="InsurancePerformanceByTypeOther_CarThird my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full  rounded-lg border border-gray-300"
+      value={editedData.InsurancePerformanceByTypeOther_CarThird.title}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_CarThird.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_CarThird.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.InsurancePerformanceByTypeOther_CarThird.description}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_CarThird.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.InsurancePerformanceByTypeOther_CarThird.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_CarThird.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_CarThird.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_CarThird.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_CarThird.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.InsurancePerformanceByTypeOther_CarThird.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+ {/* Finding_Car_third_party_insurance */}
+
+ <div className="Finding_Car_third_party_insurance">
+
+  <FindingComponent
+  finding="Finding_Car_third_party_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Car_third_party_insurance?.finding_group}
+/>
+</div>
+
+ {/* Finding_Car_third_party_insurance_financial_loss */}
+
+ <div className="Finding_Car_third_party_insurance_financial_loss">
+
+  <FindingComponent
+  finding="Finding_Car_third_party_insurance_financial_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Car_third_party_insurance_financial_loss?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Car_third_party_insurance_live_loss */}
+
+ <div className="Finding_Car_third_party_insurance_live_loss">
+
+  <FindingComponent
+  finding="Finding_Car_third_party_insurance_live_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Car_third_party_insurance_live_loss?.finding_group}
+/>
+</div>
+
+
+{/* PerformanceControlOfBranch_Body */}
+<div className="PerformanceControlOfBranch_Body my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full p-2 rounded-lg border border-gray-300"
+      value={editedData.PerformanceControlOfBranch_Body.title}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Body.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Body.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.PerformanceControlOfBranch_Body.description}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Body.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.PerformanceControlOfBranch_Body.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Body.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_Body.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_Body.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_Body.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.PerformanceControlOfBranch_Body.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_Body */}
+<div className="InsurancePerformanceByTypeOther_Body my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full  rounded-lg border border-gray-300"
+      value={editedData.InsurancePerformanceByTypeOther_Body.title}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Body.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Body.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.InsurancePerformanceByTypeOther_Body.description}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Body.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.InsurancePerformanceByTypeOther_Body.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Body.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_Body.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_Body.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_Body.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.InsurancePerformanceByTypeOther_Body.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+ {/* Finding_Car_body_insurance */}
+
+ <div className="Finding_Car_body_insurance">
+
+  <FindingComponent
+  finding="Finding_Car_body_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Car_body_insurance?.finding_group}
+/>
+</div>
+
+{/* Finding_Car_body_insurance_loss */}
+
+<div className="Finding_Car_body_insurance_loss">
+
+<FindingComponent
+finding="Finding_Car_body_insurance_loss"
+editedData={editedData}
+isEditing={isEditing}
+handleInputChange={handleInputChange}
+findingGroup={reportData?.Finding_Car_body_insurance_loss?.finding_group}
+/>
+</div>
+
+{/* PerformanceControlOfBranch_Fire */}
+<div className="PerformanceControlOfBranch_Fire my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={editedData.PerformanceControlOfBranch_Fire.title}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Fire.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Fire.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.PerformanceControlOfBranch_Fire.description}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Fire.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.PerformanceControlOfBranch_Fire.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Fire.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_Fire.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_Fire.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_Fire.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.PerformanceControlOfBranch_Fire.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_Fire */}
+<div className="InsurancePerformanceByTypeOther_Fire my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full  rounded-lg border border-gray-300"
+      value={editedData.InsurancePerformanceByTypeOther_Fire.title}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Fire.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Fire.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.InsurancePerformanceByTypeOther_Fire.description}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Fire.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.InsurancePerformanceByTypeOther_Fire.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Fire.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_Fire.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_Fire.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_Fire.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.InsurancePerformanceByTypeOther_Fire.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+ {/* Finding_Fire_insurance */}
+
+ <div className="Finding_Fire_insurance">
+
+<FindingComponent
+finding="Finding_Fire_insurance"
+editedData={editedData}
+isEditing={isEditing}
+handleInputChange={handleInputChange}
+findingGroup={reportData?.Finding_Fire_insurance?.finding_group}
+/>
+</div>
+
+ {/* Finding_Fire_insurance_loss */}
+
+ <div className="Finding_Fire_insurance_loss">
+
+  <FindingComponent
+  finding="Finding_Fire_insurance_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Fire_insurance_loss?.finding_group}
+/>
+</div>
+
+{/* PerformanceControlOfBranch_Liability */}
+<div className="PerformanceControlOfBranch_Liability my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={editedData.PerformanceControlOfBranch_Liability.title}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Liability.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Liability.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.PerformanceControlOfBranch_Liability.description}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Liability.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.PerformanceControlOfBranch_Liability.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Liability.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_Liability.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_Liability.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_Liability.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.PerformanceControlOfBranch_Liability.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_Liability */}
+<div className="InsurancePerformanceByTypeOther_Liability my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={editedData.InsurancePerformanceByTypeOther_Liability.title}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Liability.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Liability.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.InsurancePerformanceByTypeOther_Liability.description}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Liability.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{editedData.InsurancePerformanceByTypeOther_Liability.description}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Liability.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_Liability.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_Liability.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_Liability.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.InsurancePerformanceByTypeOther_Liability.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+ {/* Finding_Liability_insurance */}
+
+ <div className="Finding_Liability_insurance">
+
+  <FindingComponent
+  finding="Finding_Liability_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Liability_insurance?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Liability_insurance_loss */}
+
+ <div className="Finding_Liability_insurance_loss">
+
+  <FindingComponent
+  finding="Finding_Liability_insurance_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Liability_insurance_loss?.finding_group}
+/>
+</div>
+
+
+ 
+{/* PerformanceControlOfBranch_Engineering */}
+<div className="PerformanceControlOfBranch_Engineering my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={englishToPersianNumber(editedData.PerformanceControlOfBranch_Engineering.title)}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Engineering.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Engineering.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={editedData.PerformanceControlOfBranch_Engineering.description}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Engineering.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{englishToPersianNumber(editedData.PerformanceControlOfBranch_Engineering.description)}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Engineering.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_Engineering.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_Engineering.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_Engineering.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.PerformanceControlOfBranch_Engineering.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_Engineering */}
+<div className="InsurancePerformanceByTypeOther_Engineering my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={editedData.InsurancePerformanceByTypeOther_Engineering.title}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Engineering.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Engineering.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Engineering.description)}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Engineering.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Engineering.description)}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Engineering.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_Engineering.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_Engineering.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={rowData[key]}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_Engineering.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.InsurancePerformanceByTypeOther_Engineering.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+
+
+ {/* Finding_Engineering_insurance */}
+
+ <div className="Finding_Engineering_insurance">
+
+  <FindingComponent
+  finding="Finding_Engineering_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Engineering_insurance?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Engineering_insurance_loss */}
+
+ <div className="Finding_Engineering_insurance_loss">
+
+  <FindingComponent
+  finding="Finding_Engineering_insurance_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Engineering_insurance_loss?.finding_group}
+/>
+</div>
+
+
+
+{/* PerformanceControlOfBranch_Cargo */}
+<div className="PerformanceControlOfBranch_Cargo my-8">
+  <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Cargo.title)}</h4>
+  <p className='px-5 pb-5'>{englishToPersianNumber(editedData.PerformanceControlOfBranch_Cargo.description)}</p>
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Cargo.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_Cargo.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {editedData.PerformanceControlOfBranch_Cargo.table.data.map((rowData, rowIndex) => (
+        <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+          {Object.values(rowData).map((cellData, cellIndex) => (
+            <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+              {englishToPersianNumber(cellData)}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_Cargo */}
+<div className="InsurancePerformanceByTypeOther_Cargo my-8">
+  <p className='px-5 pb-5'>{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Cargo.description)}</p>
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Cargo.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_Cargo.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {editedData.InsurancePerformanceByTypeOther_Cargo.table.data.map((rowData, rowIndex) => (
+        <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+          {Object.values(rowData).map((cellData, cellIndex) => (
+            <td key={cellIndex} className={`px-4 py-2 text-center`}>
+              {englishToPersianNumber(cellData)}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+ {/* Finding_Cargo_insurance */}
+
+ <div className="Finding_Cargo_insurance">
+
+  <FindingComponent
+  finding="Finding_Cargo_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Cargo_insurance?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Cargo_insurance_loss */}
+
+ <div className="Finding_Cargo_insurance_loss">
+
+  <FindingComponent
+  finding="Finding_Cargo_insurance_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Cargo_insurance_loss?.finding_group}
+/>
+</div>
+
+
+{/* Content for the PerformanceControlOfBranch_Ship */}
+<div className="PerformanceControlOfBranch_Ship">
+  <h4 className="text-2xl font-bold my-10">
+    {isEditing ? (
+      <textarea
+        className="w-full p-2 rounded-lg border border-gray-300"
+        rows={2}
+        value={englishToPersianNumber(editedData.PerformanceControlOfBranch_Ship.title)}
+        onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Ship.title')}
+      />
+    ) : (
+      englishToPersianNumber(reportData.PerformanceControlOfBranch_Ship.title)
+    )}
+  </h4>
+  <p className="mb-6">
+    {isEditing ? (
+      <textarea
+        className="w-full p-2 rounded-lg border border-gray-300"
+        rows={4}
+        value={englishToPersianNumber(editedData.PerformanceControlOfBranch_Ship.description)}
+        onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Ship.description')}
+      />
+    ) : (
+      englishToPersianNumber(reportData.PerformanceControlOfBranch_Ship.description)
+    )}
+  </p>
+  <table className="table-auto w-full" dir='rtl'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(reportData.PerformanceControlOfBranch_Ship.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(reportData.PerformanceControlOfBranch_Ship.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_Ship.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className="bg-white">
+            {Object.keys(rowData).map((key, index) => (
+              <td key={index} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(rowData[key])}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_Ship.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        reportData.PerformanceControlOfBranch_Ship.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((value, index) => (
+              <td key={index} className={`px-4 py-2 text-center ${value < 0 ? 'text-red-500' : ''}`}>{englishToPersianNumber(value)}</td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* Content for the InsurancePerformanceByTypeOther_Ship */}
+<div className="InsurancePerformanceByTypeOther_Ship">
+  <h4 className="text-2xl font-bold my-10">
+    {isEditing ? (
+      <textarea
+        className="w-full p-2 rounded-lg border border-gray-300"
+        rows={2}
+        value={englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Ship.title)}
+        onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Ship.title')}
+      />
+    ) : (
+      englishToPersianNumber(reportData.InsurancePerformanceByTypeOther_Ship.title)
+    )}
+  </h4>
+  <p className="mb-6">
+    {isEditing ? (
+      <textarea
+        className="w-full p-2 rounded-lg border border-gray-300"
+        rows={4}
+        value={englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Ship.description)}
+        onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Ship.description')}
+      />
+    ) : (
+      englishToPersianNumber(reportData.InsurancePerformanceByTypeOther_Ship.description)
+    )}
+  </p>
+  <table className="table-auto w-full" dir='rtl'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(reportData.InsurancePerformanceByTypeOther_Ship.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(reportData.InsurancePerformanceByTypeOther_Ship.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_Ship.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className="bg-white">
+            {Object.keys(rowData).map((key, index) => (
+              <td key={index} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(rowData[key])}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_Ship.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        reportData.InsurancePerformanceByTypeOther_Ship.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((value, index) => (
+              <td key={index} className={`px-4 py-2 text-center ${value < 0 ? 'text-red-500' : ''}`}>{englishToPersianNumber(value)}</td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+
+ {/* Finding_Ship_insurance */}
+
+ <div className="Finding_Ship_insurance">
+
+  <FindingComponent
+  finding="Finding_Ship_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Ship_insurance?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Ship_insurance_loss */}
+
+ <div className="Finding_Ship_insurance_loss">
+
+  <FindingComponent
+  finding="Finding_Ship_insurance_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Ship_insurance_loss?.finding_group}
+/>
+</div>
+
+
+{/* PerformanceControlOfBranch_LifeGA */}
+<div className="PerformanceControlOfBranch_LifeGA my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={englishToPersianNumber(editedData.PerformanceControlOfBranch_LifeGA.title)}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_LifeGA.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_LifeGA.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.PerformanceControlOfBranch_LifeGA.description)}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_LifeGA.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{englishToPersianNumber(editedData.PerformanceControlOfBranch_LifeGA.description)}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_LifeGA.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_LifeGA.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_LifeGA.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(rowData[key])}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_LifeGA.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.PerformanceControlOfBranch_LifeGA.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_LifeGA */}
+<div className="InsurancePerformanceByTypeOther_LifeGA my-8">
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_LifeGA.description)}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_LifeGA.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_LifeGA.description)}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_LifeGA.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_LifeGA.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_LifeGA.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(rowData[key])}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_LifeGA.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.InsurancePerformanceByTypeOther_LifeGA.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+
+ {/* Finding_Life_and_GA_insurance */}
+
+ <div className="Finding_Life_and_GA_insurance">
+
+  <FindingComponent
+  finding="Finding_Life_and_GA_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Life_and_GA_insurance?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Life_and_GA_insurance_loss */}
+
+ <div className="Finding_Life_and_GA_insurance_loss">
+
+  <FindingComponent
+  finding="Finding_Life_and_GA_insurance_loss"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Life_and_GA_insurance_loss?.finding_group}
+/>
+</div>
+
+
+
+{/* PerformanceControlOfBranch_Health */}
+<div className="PerformanceControlOfBranch_Health my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={englishToPersianNumber(editedData.PerformanceControlOfBranch_Health.title)}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Health.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Health.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.PerformanceControlOfBranch_Health.description)}
+      onChange={(e) => handleInputChange(e, 'PerformanceControlOfBranch_Health.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{englishToPersianNumber(editedData.PerformanceControlOfBranch_Health.description)}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.PerformanceControlOfBranch_Health.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.PerformanceControlOfBranch_Health.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.PerformanceControlOfBranch_Health.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(rowData[key])}
+                  onChange={(e) => handleInputChange(e, `PerformanceControlOfBranch_Health.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.PerformanceControlOfBranch_Health.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center ${cellData < 0 ? 'text-red-500' : ''}`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* InsurancePerformanceByTypeOther_Health */}
+<div className="InsurancePerformanceByTypeOther_Health my-8">
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Health.description)}
+      onChange={(e) => handleInputChange(e, 'InsurancePerformanceByTypeOther_Health.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Health.description)}</p>
+  )}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData.InsurancePerformanceByTypeOther_Health.table.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.InsurancePerformanceByTypeOther_Health.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData.InsurancePerformanceByTypeOther_Health.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.keys(rowData).map((key, cellIndex) => (
+              <td key={cellIndex} className="px-4 py-2">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(rowData[key])}
+                  onChange={(e) => handleInputChange(e, `InsurancePerformanceByTypeOther_Health.table.data[${rowIndex}].${key}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData.InsurancePerformanceByTypeOther_Health.table.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+ {/* Finding_Health_insurance */}
+
+ <div className="Finding_Health_insurance">
+
+  <FindingComponent
+  finding="Finding_Health_insurance"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Health_insurance?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Health_insurance_personnel */}
+
+ <div className="Finding_Health_insurance_personnel">
+
+  <FindingComponent
+  finding="Finding_Health_insurance_personnel"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Health_insurance_personnel?.finding_group}
+/>
+</div>
+
+ {/* Finding_Health_insurance_eval_comp */}
+
+ <div className="Finding_Health_insurance_eval_comp">
+
+  <FindingComponent
+  finding="Finding_Health_insurance_eval_comp"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Health_insurance_eval_comp?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Health_insurance_contracts */}
+
+ <div className="Finding_Health_insurance_contracts">
+
+  <FindingComponent
+  finding="Finding_Health_insurance_contracts"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Health_insurance_contracts?.finding_group}
+/>
+</div>
+
+
+{/* LossHavale */}
+<div className="LossHavale my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={englishToPersianNumber(editedData.LossHavale.title)}
+      onChange={(e) => handleInputChange(e, 'LossHavale.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.LossHavale.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.LossHavale.description)}
+      onChange={(e) => handleInputChange(e, 'LossHavale.description')}
+    />
+  ) : null}
+</div>
+
+{/* LossRemained */}
+<div className="LossRemained my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={englishToPersianNumber(editedData.LossRemained.title)}
+      onChange={(e) => handleInputChange(e, 'LossRemained.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData.LossRemained.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData.LossRemained.description)}
+      onChange={(e) => handleInputChange(e, 'LossRemained.description')}
+    />
+  ) : (
+    <p className='px-5 pb-5'>{englishToPersianNumber(editedData.LossRemained.description)}</p>
+  )}
+</div>
+
+
+ {/* Finding_Deferred_damage_control */}
+
+ <div className="Finding_Deferred_damage_control">
+
+  <FindingComponent
+  finding="Finding_Deferred_damage_control"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Deferred_damage_control?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Damage_remittances_without_settlement_and_payment */}
+
+ <div className="Finding_Damage_remittances_without_settlement_and_payment">
+
+  <FindingComponent
+  finding="Finding_Damage_remittances_without_settlement_and_payment"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Damage_remittances_without_settlement_and_payment?.finding_group}
+/>
+</div>
+
+
+ {/* Finding_Settlement_with_customers_without_payment_operations */}
+
+ <div className="Finding_Settlement_with_customers_without_payment_operations">
+
+  <FindingComponent
+  finding="Finding_Settlement_with_customers_without_payment_operations"
+  editedData={editedData}
+  isEditing={isEditing}
+  handleInputChange={handleInputChange}
+  findingGroup={reportData?.Finding_Settlement_with_customers_without_payment_operations?.finding_group}
+/>
+</div>
+
+
+
+
+{/* LowRisks */}
+<div className="LowRisks my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={englishToPersianNumber(editedData?.LowRisks?.title)}
+      onChange={(e) => handleInputChange(e, 'LowRisks.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData?.LowRisks?.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData?.LowRisks?.description)}
+      onChange={(e) => handleInputChange(e, 'LowRisks.description')}
+    />
+  ) : null}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData?.LowRisks?.table?.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData?.LowRisks?.table?.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData?.LowRisks?.table?.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center`}>
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(cellData)}
+                  onChange={(e) => handleInputChange(e, `LowRisks.table.data[${rowIndex}].${Object.keys(rowData)[cellIndex]}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData?.LowRisks?.table?.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
+
+{/* HighRisks */}
+<div className="HighRisks my-8">
+  {isEditing ? (
+    <input
+      type="text"
+      className="text-2xl font-bold my-10 p-5 w-full rounded-lg border border-gray-300"
+      value={englishToPersianNumber(editedData?.HighRisks?.title)}
+      onChange={(e) => handleInputChange(e, 'HighRisks.title')}
+    />
+  ) : (
+    <h4 className="text-2xl font-bold my-10 p-5">{englishToPersianNumber(editedData?.HighRisks?.title)}</h4>
+  )}
+  {isEditing ? (
+    <textarea
+      className="px-5 pb-5 w-full p-2 rounded-lg border border-gray-300"
+      rows={4}
+      value={englishToPersianNumber(editedData?.HighRisks?.description)}
+      onChange={(e) => handleInputChange(e, 'HighRisks.description')}
+    />
+  ) : null}
+  <table className="table-auto w-full" dir='ltr'>
+    <caption className="text-lg font-semibold mb-6">{englishToPersianNumber(editedData?.HighRisks?.table?.caption)}</caption>
+    <thead>
+      <tr className="bg-gray-200">
+        {Object.values(editedData.HighRisks.table.column_names).map((columnName, index) => (
+          <th key={index} className="px-4 py-2">{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {isEditing ? (
+        editedData?.HighRisks?.table?.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center`}>
+                <input
+                  type="text"
+                  className="w-full p-2 rounded-lg border border-gray-300"
+                  value={englishToPersianNumber(cellData)}
+                  onChange={(e) => handleInputChange(e, `HighRisks.table.data[${rowIndex}].${Object.keys(rowData)[cellIndex]}`)}
+                />
+              </td>
+            ))}
+          </tr>
+        ))
+      ) : (
+        editedData?.HighRisks?.table?.data.map((rowData, rowIndex) => (
+          <tr key={rowIndex} className={rowIndex % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+            {Object.values(rowData).map((cellData, cellIndex) => (
+              <td key={cellIndex} className={`px-4 py-2 text-center`}>
+                {englishToPersianNumber(cellData)}
+              </td>
+            ))}
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
 
 
              <div className='flex mt-5 mb-5'>

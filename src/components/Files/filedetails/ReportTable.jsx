@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
 import NavList from './NavList';
 import { useReport } from '../filedetails/ReportContext';
+import { PermissionsContext } from '../../../App'; // Import the context
+
 
 const ReportTable = () => {
   const [reports, setReports] = useState([]);
@@ -10,8 +12,12 @@ const ReportTable = () => {
   const [error, setError] = useState('');
   const [errorq, setErrorq] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
+  const permissions = useContext(PermissionsContext); // Use the context
   const { fileId } = useReport();
+
+  console.log("permissions",permissions)
+
+
 
   useEffect(() => {
     fetchReports();
@@ -159,6 +165,23 @@ const ReportTable = () => {
     }
   };
 
+  const renderRow = (report) => {
+    const reportType = report.report_type;
+    if (permissions.report_content_detail[reportType]) {
+      return (
+        <tr key={report._id.$oid} className="bg-white border-b text-center border-gray-200">
+          <td className="py-3 px-6">{report.report_type_fa}</td>
+          <td className="py-3 px-6">{report.status}</td>
+          {renderEditOption(report.created, report.finished, reportType)}
+          {renderPdfCreationOption(report.created, report.finished, fileId, reportType)}
+          {renderReportFinalizationOption(report.pdf_created, report.finished, reportType, fileId)}
+          {renderPdfDownloadOption(report.pdf_created, fileId, reportType)}
+        </tr>
+      );
+    }
+    return null; // If no permission, return null (do not render row)
+  };
+
   return (
     <>
       <NavList />
@@ -185,16 +208,7 @@ const ReportTable = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {reports.map(report => (
-                    <tr key={report._id.$oid} className="bg-white border-b text-center border-gray-200">
-                      <td className="py-3 px-6">{report.report_type_fa}</td>
-                      <td className="py-3 px-6">{report.status}</td>
-                      {renderEditOption(report.created, report.finished, report.report_type)}
-                      {renderPdfCreationOption(report.created, report.finished, fileId, report.report_type)}
-                      {renderReportFinalizationOption(report.pdf_created, report.finished, report.report_type, fileId)}
-                      {renderPdfDownloadOption(report.pdf_created, fileId, report.report_type)}
-                    </tr>
-                  ))}
+                {reports.map(report => renderRow(report))}
                 </tbody>
               </table>
             )}

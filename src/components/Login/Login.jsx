@@ -78,7 +78,7 @@ function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="border border-gray-300 rounded-md px-4 py-2 w-full"
-                style={{ paddingRight: '2.5rem' }}
+                style={{ paddingRight: '1rem' }}
                 dir="rtl"
               />
               <button

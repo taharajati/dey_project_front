@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import NavList from '../NavList';
 import { useReport } from '../ReportContext'; // Import the useReport hook
+import { PermissionsContext } from '../../../../App'; // Import the context
+
 
 const Allocation = () => {
     const [experts, setExperts] = useState([]);
@@ -10,6 +12,9 @@ const Allocation = () => {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const { fileId } = useReport(); // Retrieve fileId from ReportContext
+    const permissions = useContext(PermissionsContext); // Use the context
+
+
 
     const translations = {
         "fire_expert": "آتش سوزی",
@@ -21,6 +26,8 @@ const Allocation = () => {
         "life_expert": "زندگی",
         "life_and_ga_expert": "عمر و حوادث گروهی"
     };
+
+ 
 
     useEffect(() => {
         if (fileId) {
@@ -128,6 +135,8 @@ const Allocation = () => {
                 <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
                     <h1 className="text-2xl   font-semibold  mb-10    text-[color:var(--color-primary-variant)]" dir='rtl'>تخصیص</h1>
                    
+                    {permissions?.assign_detail.list&& (
+
                     <form onSubmit={handleSubmit} className="flex flex-col">
                         {Object.keys(translations).map((key) => (
                             <div key={key} className="mb-4 flex flex-col">
@@ -146,10 +155,14 @@ const Allocation = () => {
                                 </select>
                             </div>
                         ))}
+                          {permissions?.assign_detail.add&& (
+
                         <button className="mt-6 py-2 px-4 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold rounded-md" type="submit">
                             بروزرسانی تخصیص
                         </button>
+                         )}
                     </form>
+                     )}
                 </div>
             </div>
             {/* Popup for error message */}

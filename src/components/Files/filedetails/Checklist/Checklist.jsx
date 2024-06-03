@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import NavList from '../NavList';
 import Modal from './Modal';
 import { FaTrash } from "react-icons/fa";
 import { useReport } from '../ReportContext';
+import { PermissionsContext } from '../../../../App'; // Import the context
+
 
 const Checklist = () => {
   const [checklistData, setChecklistData] = useState({});
@@ -20,6 +22,8 @@ const Checklist = () => {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [rowToDelete, setRowToDelete] = useState({ tableId: null, detailName: null });
+  const permissions = useContext(PermissionsContext); // Use the context
+
 
   const { fileId } = useReport();
 
@@ -55,6 +59,12 @@ const Checklist = () => {
     "ExaminingTheEngineeringIssuanceT": "بررسی عملیات صدور رشته مهندسی تمام خطر نصب و پیمانکاری",
     "ExaminingTheEngineeringIssuanceMachineFailure": "بررسی عملیات صدور رشته مهندسی شکست ماشین آلات"
   };
+
+  console.log("permissions",permissions)
+
+  const localPermissions = { ...permissions };
+  localPermissions.checklist_detail = { ...localPermissions.checklist_detail,delete : false };
+  console.log("localPermissions",localPermissions)
 
 
   useEffect(() => {
@@ -244,10 +254,13 @@ const Checklist = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
         </div>
       )}
+            {permissions?.checklist_detail.list&& (
+
       <div className="  justify-center">
       <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
       <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>چک لیست</h1>
 
+      
       <button onClick={handleCompleteChecklist} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md mb-4">
           تکمیل چک لیست
         </button>
@@ -259,15 +272,21 @@ const Checklist = () => {
             {Object.entries(sectionDetails).map(([detailName, detail]) => (
               <div key={detailName} className="mt-4">
                 <h3 className="text-md font-semibold text-gray-700">{translations[detailName] || detailName}</h3>
-                <button onClick={() => handleAddRowClick(sectionName, detailName)} className="text-[11px] mb-2 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded">
+                {permissions?.checklist_detail.add&& (
+
+                <button onClick={() => handleAddRowClick(sectionName, detailName)} className="text-[11px] m-5 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded">
                   افزودن ردیف جدید
                 </button>
+                )}
                 {detail.data && detail.data.length > 0 ? (
                   <div className="overflow-x-auto shadow-md w-[80%]">
                     <table className="min-w-full leading-normal">
                       <thead>
                         <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                        {permissions?.checklist_detail.delete&& (
+
                           <th className="py-3 px-6 text-left"></th>
+                        )}
                           <th className="py-3 px-6 text-left">شماره بیمه</th>
                           <th className="py-3 px-6 text-left">هزینه کل</th>
                           {Object.keys(detail.data[0]).filter(key => key.startsWith('q')).map(q => (
@@ -278,11 +297,15 @@ const Checklist = () => {
                       <tbody>
                         {detail.data.map((item, index) => (
                           <tr key={index} className="bg-white border-b border-gray-200">
+
+                           {permissions?.checklist_detail.delete&& (
+
                             <td className="py-3 px-6 text-left whitespace-nowrap">
                               <button onClick={() => handleDeleteClick(item._id?.$oid, detailName)} className="text-red-500">
                                 <FaTrash />
                               </button>
                             </td>
+                            )}
                             <td className="py-3 px-6 text-left">{item.insurance_number}</td>
                             <td className="py-3 px-6 text-left">{item.total_cost}</td>
                             {Object.keys(item).filter(key => key.startsWith('q')).map(q => (
@@ -298,8 +321,12 @@ const Checklist = () => {
                 ) : <p className='text-[color:var(--color-primary-variant)]'>هیچ داده ای برای این دسته در دسترس نیست</p>}
               </div>
             ))}
+            
           </div>
+          
         )) : <p className="text-center text-lg"> </p>}
+         
+        
         {showConfirmation && (
           <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded shadow-md">
@@ -317,6 +344,7 @@ const Checklist = () => {
         )}
       </div>
       </div>
+      )}
          {/* Error Pop-up */}
          {error && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { MdModeEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
+import { PermissionsContext } from '../../App'; // Import the context
+
 
 
 
@@ -16,8 +18,15 @@ function BranchList() {
   const [editBranchData, setEditBranchData] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [branchToDelete, setBranchToDelete] = useState(null);
+  const permissions = useContext(PermissionsContext); // Use the context
 
 
+
+  console.log("permissions",permissions)
+
+  const localPermissions = { ...permissions };
+  localPermissions.branch_detail = { ...localPermissions.branch_detail,list : false };
+  console.log("localPermissions",localPermissions)
 
 
   useEffect(() => {
@@ -127,14 +136,18 @@ function BranchList() {
   return (
     <div className="flex flex-col items-center w-full  mt-10 mx-auto px-5 max-md:mt-10 max-md:max-w-full">
       <div className="flex justify-between items-center w-full px-16 py-3 rounded-2xl max-md:px-5">
+      {permissions?.branch_detail.add && (
         <button onClick={toggleModal} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md">
           اضافه کردن شعبه
         </button>
+        )}
         {showModal && <AddBranchForm onClose={toggleModal} token={token} fetchBranches={fetchBranches} handleBranchManagerChange={handleBranchManagerChange} selectedBranchManager={selectedBranchManager} branchManagers={branchManagers} />}
         <div>شعب</div>
       </div>
       <div className="mt-2 max-w-full h-0.5 bg-black border border-black border-solid w-full" />
       <div className="bg-[color:var(--color-bg)] mt-3 max-w-full w-[1200px] rounded-xl p-4"  dir="rtl">
+      {permissions?.branch_detail.list&& (
+
         <table className="w-full border-collapse">
           <thead className="bg-gray-200 text-center">
             <tr>
@@ -144,8 +157,14 @@ function BranchList() {
               <th className="px-4 py-2">تاریخ تاسیس</th>
               <th className="px-4 py-2">سطح</th>
               <th className="px-4 py-2">توضیحات</th>
+              {permissions?.branch_detail.edit && (
+
               <th className="px-4 py-2"></th>
+            )}
+              {permissions?.branch_detail.delete && (
+
               <th className="px-4 py-2"></th>
+            )}
             </tr>
           </thead>
           <tbody>
@@ -157,9 +176,13 @@ function BranchList() {
                 <td className="px-4 py-2">{branch.establishment_date_jalali}</td>
                 <td className="px-4 py-2">{branch.level}</td>
                 <td className="px-4 py-2">{branch.description}</td>
+                {permissions?.branch_detail.edit && (
+
                 <td className="px-4 py-2">
                   <button className="text-[color:var(--color-primary)] py-2 px-4 rounded-md" onClick={() => handleEditBranch(branch)}><MdModeEdit/></button>
                 </td>
+                 )}
+                {permissions?.branch_detail.delete && (
                 <td className="px-4 py-2">
                 <button
                     className="text-red-500"
@@ -168,10 +191,12 @@ function BranchList() {
                     <FaTrash />
                   </button>
                 </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
+         )}
       </div>
        {/* Add modal for editing */}
        { showEditModal && <EditBranchForm onClose={handleEditModalClose} branch={editBranchData} token={token} fetchBranches={fetchBranches} branchManagers={branchManagers} />}

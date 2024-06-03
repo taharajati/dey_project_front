@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useContext } from 'react';
 import NavList from './NavList';
 import { useReport } from './ReportContext'; // Import the useReport hook
+import { PermissionsContext } from '../../../App'; // Import the context
+import { FaTrash } from "react-icons/fa";
 
 
 
@@ -11,8 +13,15 @@ const TarikhChe = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const { fileId } = useReport(); // Retrieve fileId using useReport hook
+  const permissions = useContext(PermissionsContext); // Use the context
 
+  console.log("permissions",permissions)
 
+  const localPermissions = { ...permissions };
+  localPermissions.comment_detail = { ...localPermissions.comment_detail,add : false };
+  console.log("localPermissions",localPermissions)
+
+  
   // Function to fetch comments
   const fetchComments = async () => {
     try {
@@ -79,6 +88,35 @@ const TarikhChe = () => {
     }
   };
 
+   // Function to handle comment deletion
+   const deleteComment = async (commentId) => {
+    try {
+      setIsLoading(true);
+
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`http://188.121.99.245:8080/api/report/comment/?comment_id=${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        // Refresh comments after successful deletion
+        fetchComments();
+      } else {
+        console.error('Failed to delete comment:', response.status, response.statusText);
+        setError('خطا در حذف کامنت');
+        setTimeout(() => {
+          setError('');
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Error deleting comment:', error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Fetch comments on component mount
   useEffect(() => {
     fetchComments();
@@ -94,11 +132,17 @@ console.log(newComment)
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
         </div>
       )}
+
+{localPermissions?.comment_detail.list&& (
+
       <div className=" ml-[700px] justify-center">
       <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
 
         <h2 className="text-2xl font-bold mb-4 my-1 text-[color:var(--color-primary-variant)]">تاریخچه</h2>
+
+
         <h3 className="text-2xl font-bold mb-4 my-1 text-[color:var(--color-primary-variant)]">کامنت ها </h3>
+
         {/* Display existing comments */}
         <ul className="space-y-4">
           {comments.map((comment) => (
@@ -107,10 +151,15 @@ console.log(newComment)
               <div className="flex justify-between text-gray-500">
                 <span>فرستنده : {comment.sender}</span>
                 <span>زمان ارسال : {comment.upload_date_jalali}</span>
+                {permissions?.comment_detail.delete && (
+                      <button onClick={() => deleteComment(comment._id?.$oid)} className="text-red-500"><FaTrash/></button>
+                    )}
               </div>
             </li>
           ))}
         </ul>
+        {permissions?.comment_detail.add&& (
+           <div>
         {/* Input field for new comment */}
         <div className="mt-6">
           <textarea
@@ -120,12 +169,18 @@ console.log(newComment)
             className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
             rows="4"
           />
+
           <button onClick={submitComment} className="mt-2 px-4 py-2 bg-[color:var(--color-bg-variant)] text-white rounded-md hover:bg-[color:var(--color-primary)] focus:outline-none float-right" >
           {isLoading ? 'درحال ارسال کامنت...' : 'تایید کامنت'}
           </button>
+           
         </div>
+        </div>
+      )}
       </div>
+   
       </div>
+       )}
            {/* Error Pop-up */}
            {error && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

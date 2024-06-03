@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import { useReport } from '../ReportContext'; // Import the useReport hook
+import { PermissionsContext } from '../../../../App'; // Import the context
+
 
 const PopUpModal = ({ finding, onClose, findingGroup }) => {
   const [previousMessages, setPreviousMessages] = useState([]);
@@ -9,10 +11,15 @@ const PopUpModal = ({ finding, onClose, findingGroup }) => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const { fileId } = useReport(); // Retrieve fileId using useReport hook
+  const permissions = useContext(PermissionsContext); // Use the context
+
+
+
 
   useEffect(() => {
     fetchPreviousMessages();
   }, [findingGroup]);
+  
   const fetchPreviousMessages = async () => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -91,6 +98,9 @@ const PopUpModal = ({ finding, onClose, findingGroup }) => {
               </li>
             ))}
           </ul>
+
+          {permissions?.report_comment_detail.add&& (
+           <div>
           {/* Input field for new message */}
           <textarea
             value={newMessage}
@@ -115,7 +125,11 @@ const PopUpModal = ({ finding, onClose, findingGroup }) => {
               لغو
             </button>
           </div>
+          </div>
+
+)}
         </div>
+     
       </div>
 
       {/* Error Pop-up */}
