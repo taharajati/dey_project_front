@@ -263,29 +263,35 @@ const FirstReport = () => {
 };
 
 
-  const handleSave = async () => {
-    try {
+const handleSave = async () => {
+  try {
+    const payload = {
+      report_id: fileId,
+      content: editedData,
+      report_type: reportType
+    };
 
-      const response = await fetch("http://188.121.99.245:8080/api/report/export/save_edited", {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-        body: JSON.stringify(editedData),
-      });
-      if (response.ok) {
-        console.log('Report data saved successfully');
-        setIsEditing(false); // Exit edit mode
-        fetchReportData(); // Refresh data
-      } else {
-        console.error('Failed to save report data:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error saving report data:', error);
+    const response = await fetch("http://188.121.99.245:8080/api/report/export/save_edited", {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      console.log('Report data saved successfully');
+      setIsEditing(false); // Exit edit mode
+      fetchReportData(); // Refresh data
+    } else {
+      const errorData = await response.json();
+      console.error('Failed to save report data:', errorData);
     }
-  };
-
+  } catch (error) {
+    console.error('Error saving report data:', error);
+  }
+};
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -398,22 +404,22 @@ const handleGoBack = () => {
                       <textarea
                         className="w-full p-2 rounded-lg border border-gray-300"
                         rows={2}
-                        value={englishToPersianNumber(editedData.introduction?.title)}
+                        value={englishToPersianNumber(editedData?.introduction?.title)}
                         onChange={(e) => handleInputChange(e, 'introduction.title')}
                       />
                     ) : (
-                      englishToPersianNumber(reportData.introduction.title)
+                      englishToPersianNumber(reportData?.introduction?.title)
                     )}
                   </h4>              {isEditing ? (
                 <textarea
                   className="w-full p-[60px] rounded-lg border border-gray-300"
                   rows={12}
-                  value={englishToPersianNumber(editedData.introduction?.content)}
+                  value={englishToPersianNumber(editedData?.introduction?.content)}
                   onChange={(e) => handleInputChange(e, 'introduction.content')}
                 />
               ) : (
                 <div>
-                  <p>{englishToPersianNumber(editableData.introduction?.content)}</p>
+                  <p>{englishToPersianNumber(editableData?.introduction?.content)}</p>
                 </div>
               )}
             </div>
