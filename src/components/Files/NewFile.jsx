@@ -69,7 +69,7 @@ const NewFile = () => {
         if (Array.isArray(data.data)) {
           setAuditChiefs(data.data);
         } else {
-          console.error('فرمت داده نامعتبر دریافت شده برای روسای حسابرسی:', data);
+          console.error('فرمت داده نامعتبر دریافت شده برای سرپرست حسابرسی:', data);
         }
       } else {
         console.error('دریافت مدیران حسابرسی انجام نشد:', response.status, response.statusText);
@@ -251,7 +251,7 @@ const handleExpertCheckboxChange = (e, expertId) => {
             </div>
 <div className="flex">
   <label htmlFor="auditChiefUsername" className="mb-1 mx-3 flex items-center">
-    رئیس حسابداری:
+    سرپرست حسابرسی:
   </label>
   <select
     id="auditChiefUsername"
