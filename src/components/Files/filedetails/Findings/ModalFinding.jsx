@@ -135,7 +135,7 @@ const ModalFinding = ({ open, onClose, entryType, reportId, findingGroup, fetchD
                 </button>
                 <button
                   onClick={onClose}
-                  className="bg-[color:var(--color-primary-variant)] text-white px-4 py-2 rounded hover:bg-gray-400 focus:outline-none m-1"
+                  className="bg-[color:var(--color-primary-variant2)] text-white px-4 py-2 rounded hover:bg-[color:var(--color-primary-variant)] focus:outline-none m-1"
                 >
                   لغو
                 </button>

@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ModalFinding from './ModalFinding';
 import ModalFinding1 from './ModalFinding1';
 import EditModal from './EditModal';
+import AddNoteModal from './AddNoteModal'; // Import the AddNoteModal component
+
 
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -47,6 +49,12 @@ const FindingDetailPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
 
 
+  const [notes, setNotes] = useState([]);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false); // State for note modal
+
+
+
+
 
 
   useEffect(() => {
@@ -73,6 +81,13 @@ const FindingDetailPage = () => {
       const contentListUrl = `http://188.121.99.245:8080/api/report/finding/content_list?report_id=${fileId}&finding_group=${findingGroup}`;
       const contentListResponse = await axios.get(contentListUrl, { headers: { Authorization: `Bearer ${token}` } });
       setContentListData(contentListResponse.data.data || []);
+
+      const contentNoteUrl = `http://188.121.99.245:8080/api/report/finding/notes`;
+      const contentNoteResponse = await axios.get(contentNoteUrl, { headers: { Authorization: `Bearer ${token}` },params: {
+        report_id: fileId,
+        finding_group: findingGroup
+      } });
+      setNotes(contentNoteResponse.data.data || []);
 
     } catch (error) {
       setError('خطا در دریافت اطلاعات');
@@ -358,6 +373,99 @@ const handleFileUpload = async (contentId) => {
     }
   };
 
+ 
+
+
+  
+  const handleAddNote = () => {
+    setIsNoteModalOpen(true);
+  };
+  console.log("handleAddNote",handleAddNote)
+  console.log("setIsNoteModalOpen",setIsNoteModalOpen)
+
+  const handleCloseNoteModal = () => {
+    setIsNoteModalOpen(false);
+  };
+
+  const handleNoteSubmit = async (noteContent) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const requestBody = {
+        report_id: fileId,
+        finding_group: findingGroup,
+        content: noteContent
+      };
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.post('http://188.121.99.245:8080/api/report/finding/notes', requestBody, config);
+      setSuccessMessage('یادداشت با موفقیت اضافه شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      setIsNoteModalOpen(false);
+      fetchData(); // Fetch updated notes list after adding new note
+    } catch (error) {
+      setError('خطا در اضافه کردن یادداشت');
+      setIsNoteModalOpen(false);
+
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error adding note:', error);
+    }
+  };
+
+  const handleEditNote = async (updatedNote) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.put(`http://188.121.99.245:8080/api/report/finding/notes`, updatedNote, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: {
+          item_id: updatedNote._id.$oid
+        }
+      });
+      setSuccessMessage('یادداشت با موفقیت ویرایش شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      fetchData(); // Refresh the notes list after editing
+    } catch (error) {
+      setError('خطا در ویرایش یادداشت');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error editing note:', error);
+    }
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.delete(`http://188.121.99.245:8080/api/report/finding/notes`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        data: {
+          item_id: noteId,
+          report_id: fileId,
+          finding_group: findingGroup
+        }
+      });
+      setSuccessMessage('یادداشت با موفقیت حذف شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      fetchData(); // Refresh the notes list after deleting
+    } catch (error) {
+      setError('خطا در حذف یادداشت');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error deleting note:', error);
+    }
+  };
+  
   return (
     <>
     <NavList/>
@@ -399,10 +507,10 @@ const handleFileUpload = async (contentId) => {
               <td className="px-4 py-2">
                 {editMode.type === 'titles' && editMode.index === index ? (
                   <button
-                    className="bg-blue-500 text-white py-2 px-4 rounded-md ml-2"
+                    className="bg-[color:var(--color-bg-variant)] text-white py-2 px-4 rounded-md ml-2"
                     onClick={handleEntrySave}
                   >
-                    Save
+                    ذخیره
                   </button>
                 ) : (
                   <button
@@ -454,10 +562,10 @@ const handleFileUpload = async (contentId) => {
               <td className="px-4 py-2">
                 {editMode.type === 'risks' && editMode.index === index ? (
                   <button
-                    className="bg-blue-500 text-white py-2 px-4 rounded-md ml-2"
+                    className="bg-[color:var(--color-bg-variant)] text-white py-2 px-4 rounded-md ml-2"
                     onClick={handleEntrySave}
                   >
-                    Save
+                    ذخیره
                   </button>
                 ) : (
                   <button
@@ -509,10 +617,10 @@ const handleFileUpload = async (contentId) => {
               <td className="px-4 py-2">
                 {editMode.type === 'suggestions' && editMode.index === index ? (
                   <button
-                    className="bg-blue-500 text-white py-2 px-4 rounded-md ml-2"
+                    className="bg-[color:var(--color-bg-variant)] text-white py-2 px-4 rounded-md ml-2"
                     onClick={handleEntrySave}
                   >
-                    Save
+                    ذخیره
                   </button>
                 ) : (
                   <button
@@ -542,6 +650,55 @@ const handleFileUpload = async (contentId) => {
         <ModalFinding open={isSuggestionModalOpen} onClose={() => setIsSuggestionModalOpen(false)} entryType="suggestions" fileId={fileId} findingGroup={findingGroup} fetchData={fetchData} />
         <ModalFinding1 isOpen={isContentDetailModalOpen} onClose={handleCloseContentDetailModal} onSubmit={handleContentDetailSubmit} titles={titlesData} />
 
+
+
+
+
+
+
+        <div>
+     
+        {/* New section displaying content list data */}
+        <h2 className="text-2xl font-semibold my-5 text-[color:var(--color-primary-variant)]">یادداشت ها</h2>
+        <table className="min-w-full leading-normal text-center items-center  ">
+          <thead>
+            <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+              <th className="py-3 px-6 ">عنوان</th>
+              <th className="py-3 px-6 "> ویرایش</th>
+              <th className="py-3 px-6 "> حذف</th>
+            </tr>
+          </thead>
+          <tbody>
+          {notes.map(note => (
+              <tr key={note._id.$oid} className="border-b border-gray-200 bg-white text-sm">
+                 <td>{note.title}</td>
+                
+                  <td>
+                <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleDeleteNote(note._id.$oid)}>
+                  <FaTrash />
+                </button>
+              </td>
+
+              <td className="py-3 px-6">
+                  <button
+                    className="btn btn-sm btn-danger me-1 text-[color:var(--color-primary)]"
+                    onClick={() => handleEditNote(note)}
+                  >
+                    <MdModeEdit />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+    
+{/* Button to add content detail */}
+<button onClick={handleAddNote} className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5">
+  اضافه کردن یادداشت
+</button>
+ 
+       
+</div> 
         <div>
      
         {/* New section displaying content list data */}
@@ -641,6 +798,8 @@ const handleFileUpload = async (contentId) => {
         onSubmit={handleEditModalSubmit}
         initialData={editContentData}
       />
+         <AddNoteModal open={isNoteModalOpen} onClose={handleCloseNoteModal} onSubmit={handleNoteSubmit} />
+
     </>
   );
 };
