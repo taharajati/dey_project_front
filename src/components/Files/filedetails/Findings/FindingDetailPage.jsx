@@ -2,71 +2,78 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ModalFinding from './ModalFinding';
+import ModalFinding1 from './ModalFinding1';
+import EditModal from './EditModal';
+
+
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import DynamicTableEditor from './DynamicTableEditor';
 import { useReport } from '../ReportContext';
 import { FaTrash } from "react-icons/fa";
+import { FaFileUpload } from 'react-icons/fa';
+
 import { MdModeEdit } from "react-icons/md";
 import NavList from '../NavList';
+
 
 const FindingDetailPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const findingGroup = queryParams.get('finding_group');
-  const { fileId } = useReport(); // Retrieve fileId using useReport hook
+  const { fileId } = useReport();
 
-  const navigate = useNavigate(); // Use useNavigate hook
+  const navigate = useNavigate();
 
   const [titlesData, setTitlesData] = useState([]);
   const [risksData, setRisksData] = useState([]);
   const [suggestionsData, setSuggestionsData] = useState([]);
+  const [contentListData, setContentListData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
   const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
   const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
   const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
-  const [tableData, setTableData] = useState([[""]]);
+  const [isContentDetailModalOpen, setIsContentDetailModalOpen] = useState(false); // State for content detail modal
 
-  const [sections, setSections] = useState([
-    { text: '', tableData: [['']] } // Ensure at least one section with default data
-  ]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editContentData, setEditContentData] = useState(null);
 
-  const [editMode, setEditMode] = useState({ type: null, index: null }); // To track which entry is being edited and its type
-  const [editedEntry, setEditedEntry] = useState(''); // To store the edited entry
+  const [editMode, setEditMode] = useState({ type: null, index: null });
+  const [editedEntry, setEditedEntry] = useState('');
+
+  const [selectedFile, setSelectedFile] = useState(null);
+
+
+
 
   useEffect(() => {
     fetchData();
   }, []);
-  
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
-  
       const token = localStorage.getItem('accessToken');
-  
+
       const titlesUrl = `http://188.121.99.245:8080/api/report/finding/titles?report_id=${fileId}&finding_group=${findingGroup}`;
       const titlesResponse = await axios.get(titlesUrl, { headers: { Authorization: `Bearer ${token}` } });
       setTitlesData(titlesResponse.data.data || []);
-  
+
       const risksUrl = `http://188.121.99.245:8080/api/report/finding/risks?report_id=${fileId}&finding_group=${findingGroup}`;
       const risksResponse = await axios.get(risksUrl, { headers: { Authorization: `Bearer ${token}` } });
       setRisksData(risksResponse.data.data || []);
-  
+
       const suggestionsUrl = `http://188.121.99.245:8080/api/report/finding/suggestions?report_id=${fileId}&finding_group=${findingGroup}`;
       const suggestionsResponse = await axios.get(suggestionsUrl, { headers: { Authorization: `Bearer ${token}` } });
       setSuggestionsData(suggestionsResponse.data.data || []);
-  
-      const detailsUrl = `http://188.121.99.245:8080/api/report/finding/detail?report_id=${fileId}&finding_group=${findingGroup}`;
-      const detailsResponse = await axios.get(detailsUrl, { headers: { Authorization: `Bearer ${token}` } });
-  
-      const detailsData = detailsResponse.data.data.content.data.map(item => ({
-        text: item.text,
-        tableData: item.table || [] // Ensure tableData is an array
-      }));
-      setSections(detailsData);
-  
+
+      const contentListUrl = `http://188.121.99.245:8080/api/report/finding/content_list?report_id=${fileId}&finding_group=${findingGroup}`;
+      const contentListResponse = await axios.get(contentListUrl, { headers: { Authorization: `Bearer ${token}` } });
+      setContentListData(contentListResponse.data.data || []);
+
     } catch (error) {
       setError('خطا در دریافت اطلاعات');
       setTimeout(() => {
@@ -78,68 +85,12 @@ const FindingDetailPage = () => {
     }
   };
 
-  const handleTextChange = (index, value) => {
-    const updatedSections = [...sections];
-    updatedSections[index].text = value;
-    setSections(updatedSections);
-  };
-
-  const handleTableDataChange = (index, newData) => {
-    const updatedSections = [...sections];
-    updatedSections[index].tableData = newData;
-    setSections(updatedSections);
-  };
-
-const handleSaveChanges = async () => {
-  try {
-    // Format the data for sending to the backend
-    const dataToSend = {
-      report_id: fileId,
-      finding_group: findingGroup,
-      content: {
-        data: sections.map((section) => ({
-          text: section.text,
-          table: section.tableData,
-        })),
-      },
-    };
-
-    console.log('Data to send:', dataToSend);
-
-    // Send a PUT request to the backend API with the formatted data
-    const response = await axios.put(`http://188.121.99.245:8080/api/report/finding/detail`, dataToSend, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      }
-    });
-
-    // Handle the response from the backend
-    console.log('Data sent successfully:', response.data);
-    setSuccessMessage('تغییرات با موفقیت ذخیره شد');
-    setTimeout(() => {
-      setSuccessMessage('');
-    }, 3000);
-  } catch (error) {
-    setError('خطا در ذخیره اطلاعات');
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-    console.error('Error saving data:', error);
-  }
-};
-
   const handleDeleteEntry = async (entryType, id) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const dataToSend = {
-        item_id: id,
-        report_id: fileId,
-        finding_group: findingGroup
-      };
-      await axios.delete(`http://188.121.99.245:8080/api/report/finding/${entryType.toLowerCase()}`, {
+      
+      await axios.delete(`http://188.121.99.245:8080/api/report/finding/content_detail?content_id=${id}`, {
         headers: { Authorization: `Bearer ${token}` },
-        data: dataToSend
       });
       setSuccessMessage('با موفقیت حذف شد');
       setTimeout(() => {
@@ -156,11 +107,10 @@ const handleSaveChanges = async () => {
   };
 
   const handleGoBack = () => {
-    navigate('/yaft'); // Navigate back to the OngoingFiles component
+    navigate('/yaft');
   };
 
   const handleAddEntry = async (entryType) => {
-    // Open the corresponding modal based on the entry type
     switch (entryType) {
       case 'titles':
         setIsTitleModalOpen(true);
@@ -176,39 +126,35 @@ const handleSaveChanges = async () => {
     }
   };
 
-  const addSection = () => {
-    setSections([...sections, { text: '', tableData: [['']] }]);
-  };
-
   const handleEditEntry = (type, index, currentTitle) => {
     setEditMode({ type, index });
     setEditedEntry(currentTitle);
   };
-  
+
   const handleEntryChange = (e) => {
     setEditedEntry(e.target.value);
   };
-  
+
   const handleEntrySave = async () => {
     try {
       const { type, index } = editMode;
       let apiUrl;
       let updatedData;
-      
+
       const token = localStorage.getItem('accessToken');
-  
+
       const requestBody = {
-        report_id: fileId,  // Assuming `fileId` is the report ID
+        report_id: fileId,
         content: editedEntry,
-        finding_group: findingGroup // Assuming `findingGroup` is available in the component
+        finding_group: findingGroup
       };
-  
+
       const config = {
         headers: {
           Authorization: `Bearer ${token}`
         }
       };
-  
+
       switch (type) {
         case 'titles':
           apiUrl = `http://188.121.99.245:8080/api/report/finding/titles?item_id=${titlesData[index]._id.$oid}`;
@@ -231,9 +177,9 @@ const handleSaveChanges = async () => {
         default:
           break;
       }
-  
+
       await axios.put(apiUrl, requestBody, config);
-  
+
       setEditMode({ type: null, index: null });
       setSuccessMessage('تغییرات با موفقیت ذخیره شد');
       setTimeout(() => {
@@ -247,6 +193,171 @@ const handleSaveChanges = async () => {
       console.error('Error saving entry:', error);
     }
   };
+
+  const handleAddContentDetail = () => {
+    setIsContentDetailModalOpen(true);
+  };
+
+  const handleCloseContentDetailModal = () => {
+    setIsContentDetailModalOpen(false);
+  };
+
+  const handleContentDetailSubmit = async (findingTitleId, contentTitle, content) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const requestBody = {
+        report_id: fileId,
+        finding_group: findingGroup,
+        finding_title_id: findingTitleId,
+        content_title: contentTitle,
+        content: content
+      };
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      };
+      await axios.post('http://188.121.99.245:8080/api/report/finding/content_detail', requestBody, config);
+      setSuccessMessage('با موفقیت اضافه شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      setIsContentDetailModalOpen(false);
+      fetchData(); // Fetch updated content list after adding new content detail
+    } catch (error) {
+      setError('خطا در اضافه کردن جزئیات محتوا');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error adding content detail:', error);
+    }
+  };
+
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+
+  // Function to handle file selection
+const handleFileSelect = (file) => {
+  setSelectedFile(file);
+};
+
+// Function to handle file upload
+const handleFileUpload = async (contentId) => {
+  try {
+    if (!selectedFile) {
+      setError('لطفاً یک فایل را انتخاب کنید');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      return;
+    }
+
+    setLoading(true);
+
+    const token = localStorage.getItem('accessToken');
+    const formData = new FormData();
+    formData.append('content_id', contentId);
+
+    formData.append('file', selectedFile);
+
+    await axios.post(`http://188.121.99.245:8080/api/report/finding/upload_content_file`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    setSuccessMessage('با موفقیت بارگزاری شد');
+    setSelectedFile(null); // Clear selected file after successful upload
+    setLoading(false);
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
+
+    // Optionally, you can fetch updated data after successful upload
+    // fetchData();
+
+  } catch (error) {
+    setError('خطا در بارگزاری فایل');
+
+    setLoading(false);
+    setTimeout(() => {
+      setError('');
+    }, 3000);
+    console.error('Error uploading file:', error);
+  }
+};
+
+  const handleFileDelete = async (contentId) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.delete(`http://188.121.99.245:8080/api/report/finding/delete_content_file?content_id=${contentId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setSuccessMessage('با موفقیت حذف شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      fetchData(); // Refresh content list after file delete
+    } catch (error) {
+      setError('خطا در حذف فایل');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error deleting file:', error);
+    }
+  };
+  const handleEditContent = (content) => {
+    setEditContentData(content);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditContentData(null);
+  };
+
+  const handleEditModalSubmit = async (updatedContent) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+  
+      // Transform the updatedContent to the required format
+      const formattedContent = {
+        content_id: updatedContent._id.$oid,
+        finding_title_id: updatedContent.finding_title.$oid,
+        content_title: updatedContent.content_title,
+        content: updatedContent.content,
+      };
+  
+      console.log("formattedContent", formattedContent);
+      await axios.put('http://188.121.99.245:8080/api/report/finding/content_detail', formattedContent, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      setSuccessMessage('با موفقیت ویرایش شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      setIsEditModalOpen(false);
+      fetchData(); // Refresh the content list after editing
+    } catch (error) {
+      setError('خطا در ویرایش جزئیات محتوا');
+      setIsEditModalOpen(false);
+  
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error editing content detail:', error);
+    }
+  };
+
   return (
     <>
     <NavList/>
@@ -429,29 +540,83 @@ const handleSaveChanges = async () => {
         <ModalFinding open={isTitleModalOpen} onClose={() => setIsTitleModalOpen(false)} entryType="titles" fileId={fileId} findingGroup={findingGroup} fetchData={fetchData} />
         <ModalFinding open={isRiskModalOpen} onClose={() => setIsRiskModalOpen(false)} entryType="risks" fileId={fileId} findingGroup={findingGroup} fetchData={fetchData} />
         <ModalFinding open={isSuggestionModalOpen} onClose={() => setIsSuggestionModalOpen(false)} entryType="suggestions" fileId={fileId} findingGroup={findingGroup} fetchData={fetchData} />
+        <ModalFinding1 isOpen={isContentDetailModalOpen} onClose={handleCloseContentDetailModal} onSubmit={handleContentDetailSubmit} titles={titlesData} />
 
         <div>
-        {/* Dynamic Sections */}
-        <h2 className="text-2xl font-semibold my-5 text-[color:var(--color-primary-variant)]"> شرح یافته </h2>
-      {sections.map((section, index) => (
-        <div key={index} className="my-4">
-          <textarea
-            value={section.text}
-            onChange={(e) => handleTextChange(index, e.target.value)}
-            className="w-full p-2 border rounded h-[600px]"
-          />
-           <DynamicTableEditor
-            tableData={section.tableData}
-            setTableData={(newData) => handleTableDataChange(index, newData)}
-          />
-        </div>
-      ))}
+     
+        {/* New section displaying content list data */}
+        <h2 className="text-2xl font-semibold my-5 text-[color:var(--color-primary-variant)]">لیست محتوا</h2>
+        <table className="min-w-full leading-normal text-center items-center  ">
+          <thead>
+            <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+              <th className="py-3 px-6 ">عنوان</th>
+              <th className="py-3 px-6 ">خلاصه</th>
+              <th className="py-3 px-6 ">عنوان یافته</th>
+              <th className="py-3 px-6 ">بارگزاری فایل جدول</th>
+              <th className="py-3 px-6 "> حذف فایل جدول</th>
+              <th className="py-3 px-6 "> ویرایش</th>
+              <th className="py-3 px-6 "> حذف</th>
+            </tr>
+          </thead>
+          <tbody>
+            {contentListData.map((content, index) => (
+              <tr key={index} className="border-b border-gray-200 bg-white text-sm">
+                <td className="py-3 px-6 ">{content.content_title}</td>
+                <td className="py-3 px-6 ">{content.summary}</td>
+                <td className="py-3 px-6 ">{content.finding_title_text}</td>
+                
+            {/* Button for selecting file */}
+  <td>
+  <div>
+      <label className="btn btn-sm btn-primary me-1 cursor-pointer">
+        انتخاب
+        <input type="file" style={{ display: 'none' }} accept=".xlsx" onChange={handleFileChange} />
+      </label>
+      {selectedFile && (
+        <span className="me-2">{selectedFile.name}</span>
+      )}
+      <button className="btn btn-sm btn-primary me-1 mx-5" onClick={() => handleFileUpload(content._id.$oid)}>
+        {loading ? 'در حال بارگزاری...' : 'بارگزاری'}
+      </button>
+    </div>
+  </td>
+
+              <td>
+                <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleFileDelete(content._id.$oid)}>
+                  <FaTrash />
+                </button>
+              </td>
+
+              <td className="py-3 px-6">
+                  <button
+                    className="btn btn-sm btn-danger me-1 text-[color:var(--color-primary)]"
+                    onClick={() => handleEditContent(content)}
+                  >
+                    <MdModeEdit />
+                  </button>
+                </td>
 
 
+              <td>
+                
+                <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleDeleteEntry('content_detail', content._id.$oid)}>
+                  <FaTrash />
+                </button>
+              </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+    
+{/* Button to add content detail */}
+<button
+          onClick={handleAddContentDetail}
+          className="bg-[color:var(--color-primary-variant)] text-white py-2 px-4 rounded-lg mt-4"
+        >
+          اضافه کردن جزئیات محتوا
+        </button>
        
-<button onClick={addSection} className="bg-[color:var(--color-primary-variant)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5">اضافه کردن قسمت جدید </button>
 </div> 
-        <button onClick={handleSaveChanges} className=" bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5"> ذخیره شرح یافته</button>
 
       </div>
       {/* Error Pop-up */}
@@ -470,6 +635,12 @@ const handleSaveChanges = async () => {
           </div>
         </div>
       )}
+      <EditModal
+        isOpen={isEditModalOpen}
+        onClose={handleEditModalClose}
+        onSubmit={handleEditModalSubmit}
+        initialData={editContentData}
+      />
     </>
   );
 };
