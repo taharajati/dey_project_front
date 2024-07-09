@@ -5,6 +5,8 @@ import ModalFinding from './ModalFinding';
 import ModalFinding1 from './ModalFinding1';
 import EditModal from './EditModal';
 import AddNoteModal from './AddNoteModal'; // Import the AddNoteModal component
+import EditNoteModal from './EditNoteModal'; // Import the EditNoteModal component
+
 
 
 
@@ -51,7 +53,8 @@ const FindingDetailPage = () => {
 
   const [notes, setNotes] = useState([]);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false); // State for note modal
-
+  const [isEditNoteModalOpen, setIsEditNoteModalOpen] = useState(false); // State for edit note modal
+  const [currentNote, setCurrentNote] = useState(null); // State for current note to be edited
 
 
 
@@ -414,31 +417,7 @@ const handleFileUpload = async (contentId) => {
     }
   };
 
-  const handleEditNote = async (updatedNote) => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      await axios.put(`http://188.121.99.245:8080/api/report/finding/notes`, updatedNote, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        params: {
-          item_id: updatedNote._id.$oid
-        }
-      });
-      setSuccessMessage('یادداشت با موفقیت ویرایش شد');
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
-      fetchData(); // Refresh the notes list after editing
-    } catch (error) {
-      setError('خطا در ویرایش یادداشت');
-      setTimeout(() => {
-        setError('');
-      }, 3000);
-      console.error('Error editing note:', error);
-    }
-  };
-
+  
   const handleDeleteNote = async (noteId) => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -466,6 +445,42 @@ const handleFileUpload = async (contentId) => {
     }
   };
   
+  const handleEditNote = (note) => {
+    setCurrentNote(note);
+    setIsEditNoteModalOpen(true);
+  };
+
+  const handleEditNoteSubmit = async (updatedNote) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.put(`http://188.121.99.245:8080/api/report/finding/notes`, {
+        report_id: fileId,
+        content: updatedNote.content,
+        finding_group: findingGroup,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: {
+          item_id: updatedNote._id.$oid
+        }
+      });
+      setSuccessMessage('یادداشت با موفقیت ویرایش شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      setIsEditNoteModalOpen(false);
+      fetchData(); // Refresh the notes list after editing
+    } catch (error) {
+      setError('خطا در ویرایش یادداشت');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      console.error('Error editing note:', error);
+    }
+  };
+
+
   return (
     <>
     <NavList/>
@@ -664,8 +679,8 @@ const handleFileUpload = async (contentId) => {
           <thead>
             <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
               <th className="py-3 px-6 ">عنوان</th>
-              <th className="py-3 px-6 "> ویرایش</th>
-              <th className="py-3 px-6 "> حذف</th>
+              <th className="py-3 px-6 "> </th>
+              <th className="py-3 px-6 "> </th>
             </tr>
           </thead>
           <tbody>
@@ -673,13 +688,8 @@ const handleFileUpload = async (contentId) => {
               <tr key={note._id.$oid} className="border-b border-gray-200 bg-white text-sm">
                  <td>{note.title}</td>
                 
-                  <td>
-                <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleDeleteNote(note._id.$oid)}>
-                  <FaTrash />
-                </button>
-              </td>
 
-              <td className="py-3 px-6">
+                 <td className="py-3 px-6">
                   <button
                     className="btn btn-sm btn-danger me-1 text-[color:var(--color-primary)]"
                     onClick={() => handleEditNote(note)}
@@ -687,6 +697,14 @@ const handleFileUpload = async (contentId) => {
                     <MdModeEdit />
                   </button>
                 </td>
+
+                  <td>
+                <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleDeleteNote(note._id.$oid)}>
+                  <FaTrash />
+                </button>
+              </td>
+
+           
               </tr>
             ))}
           </tbody>
@@ -800,6 +818,15 @@ const handleFileUpload = async (contentId) => {
       />
          <AddNoteModal open={isNoteModalOpen} onClose={handleCloseNoteModal} onSubmit={handleNoteSubmit} />
 
+        {isEditNoteModalOpen && (
+          <EditNoteModal
+            isOpen={isEditNoteModalOpen}
+            onClose={() => setIsEditNoteModalOpen(false)}
+            onSubmit={handleEditNoteSubmit}
+            note={currentNote}
+          />
+        )}
+      
     </>
   );
 };
