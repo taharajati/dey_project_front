@@ -3,6 +3,8 @@ import axios from 'axios';
 import NavList from '../NavList';
 import Modal from './Modal';
 import { FaTrash } from "react-icons/fa";
+import EditModal from './EditModal';
+import { FaEdit } from 'react-icons/fa'; // Assuming you are using react-icons for the edit icon
 import { useReport } from '../ReportContext';
 import { PermissionsContext } from '../../../../App'; // Import the context
 
@@ -24,6 +26,9 @@ const Checklist = () => {
   const [rowToDelete, setRowToDelete] = useState({ tableId: null, detailName: null });
   const permissions = useContext(PermissionsContext); // Use the context
 
+
+  const [editModalOpen, setEditModalOpen] = useState(false); // State to manage edit modal
+  const [editItem, setEditItem] = useState(null); // State to store item being edit
 
   const { fileId } = useReport();
 
@@ -120,7 +125,10 @@ const Checklist = () => {
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch checklist data:', error);
-      setError('Failed to fetch checklist data');
+      setError('    خطا در دریافت اطلاعات چک لیست');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       setLoading(false);
     }
   };
@@ -156,11 +164,14 @@ const Checklist = () => {
     setShowQuestionModal(false);
   };
 
+
+
   const handleDeleteClick = (tableId, detailName) => {
     setRowToDelete({ tableId, detailName });
     setShowConfirmation(true);
   };
 
+  
   const cancelDeleteTableRow = () => {
     setShowConfirmation(false);
     setRowToDelete({ tableId: null, detailName: null });
@@ -237,6 +248,14 @@ const Checklist = () => {
     }
   };
 
+  const openEditModal = (detailName, item) => {
+    console.log("Opening edit modal for:", detailName, item);
+    setFormData(item);  // Set formData with the item details
+    setDetailName(detailName);
+    setEditItem(item);
+    setEditModalOpen(true);
+  };
+
 
   return (
     <>
@@ -305,7 +324,13 @@ const Checklist = () => {
                                 <FaTrash />
                               </button>
                             </td>
+
                             )}
+                            <td className="py-3 px-6 text-center">
+                            <button onClick={() => openEditModal(detailName, item)}>
+  <FaEdit />
+</button>
+                                </td>
                             <td className="py-3 px-6 text-left">{item.insurance_number}</td>
                             <td className="py-3 px-6 text-left">{item.total_cost}</td>
                             {Object.keys(item).filter(key => key.startsWith('q')).map(q => (
@@ -345,6 +370,26 @@ const Checklist = () => {
       </div>
       </div>
       )}
+
+
+{editModalOpen && (
+      <EditModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setEditItem(null);
+        }}
+        formData={formData}
+        detailName={detailName}  // Pass the correct detailName
+        item={editItem}
+        onSuccess={() => {
+          setEditModalOpen(false);
+          setEditItem(null);
+          fetchChecklistData(fileId); // Fetch updated data after edit success
+        }}
+      />
+    )}
+      
          {/* Error Pop-up */}
          {error && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

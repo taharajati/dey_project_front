@@ -12,6 +12,9 @@ const Modal = ({ isOpen, onClose, detailName, formData, handleChange , fileId}) 
   const [fillq, setFillq] = useState('');
 
 
+    console.log('formData:', formData);
+
+
   if (!isOpen) return null;
 
 
@@ -75,7 +78,7 @@ console.log(uncheckedItems)
         });
       
         console.log('با موفقیت ارسال شد:', response.data);
-        setSuccess('با موفقیت بروزرسانی شد. صفحه را رفرش کنید');
+        setSuccess('با موفقیت ارسال شد:');
 
         // Handle success response
         setTimeout(() => {
@@ -83,7 +86,7 @@ console.log(uncheckedItems)
         }, 3000); // Close the modal after successful form submission
     } catch (error) {
         console.error('خطا در ارسال :', error);
-        setError('بروزرسانی موفق نبود');
+        setError('  خطا در ارسال :');
         setTimeout(() => {
             setError('');
         }, 5000);
