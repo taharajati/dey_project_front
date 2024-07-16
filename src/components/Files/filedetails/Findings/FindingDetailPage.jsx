@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useContext} from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ModalFinding from './ModalFinding';
@@ -17,6 +17,9 @@ import { FaFileUpload } from 'react-icons/fa';
 
 import { MdModeEdit } from "react-icons/md";
 import NavList from '../NavList';
+
+import { PermissionsContext } from '../../../../App'; // Import the context
+
 
 
 const FindingDetailPage = () => {
@@ -56,6 +59,7 @@ const FindingDetailPage = () => {
   const [isEditNoteModalOpen, setIsEditNoteModalOpen] = useState(false); // State for edit note modal
   const [currentNote, setCurrentNote] = useState(null); // State for current note to be edited
 
+  const permissions = useContext(PermissionsContext); // Use the context
 
 
 
@@ -519,6 +523,8 @@ const handleFileUpload = async (contentId) => {
                   title.title
                 )}
               </td>
+              {permissions?.finding_detail.delete&& (
+
               <td className="px-4 py-2">
                 {editMode.type === 'titles' && editMode.index === index ? (
                   <button
@@ -528,6 +534,7 @@ const handleFileUpload = async (contentId) => {
                     ذخیره
                   </button>
                 ) : (
+                  
                   <button
                     className="text-[color:var(--color-primary)] py-2 px-4 rounded-md"
                     onClick={() => handleEditEntry('titles', index, title.title)}
@@ -536,19 +543,24 @@ const handleFileUpload = async (contentId) => {
                   </button>
                 )}
               </td>
+              )}
+              {permissions?.finding_detail.delete&& (
               <td className="px-4 py-2">
                 <button onClick={() => handleDeleteEntry('titles', title._id.$oid)} className="text-red-500">
                   <FaTrash />
                 </button>
               </td>
+                )}
             </tr>
           ))}
         </tbody>
       </table>
+      {permissions?.finding_detail.add&& (
+
       <button onClick={() => handleAddEntry('titles')} className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5">
         اضافه کردن
       </button>
-
+)}
       {/* Display Risks */}
       <h2 className="text-2xl font-semibold my-5 text-[color:var(--color-primary-variant)]">ریسک ها</h2>
       <table className="min-w-full leading-normal">
@@ -574,6 +586,8 @@ const handleFileUpload = async (contentId) => {
                   title.title
                 )}
               </td>
+              {permissions?.finding_detail.edit&& (
+
               <td className="px-4 py-2">
                 {editMode.type === 'risks' && editMode.index === index ? (
                   <button
@@ -583,27 +597,36 @@ const handleFileUpload = async (contentId) => {
                     ذخیره
                   </button>
                 ) : (
+            
                   <button
                     className="text-[color:var(--color-primary)] py-2 px-4 rounded-md"
                     onClick={() => handleEditEntry('risks', index, title.title)}
                   >
                     <MdModeEdit />
                   </button>
+                
                 )}
               </td>
+              )}
+                {permissions?.finding_detail.delete&& (
               <td className="px-4 py-2">
+            
                 <button onClick={() => handleDeleteEntry('risks', title._id.$oid)} className="text-red-500">
                   <FaTrash />
                 </button>
+                
               </td>
+              )}
             </tr>
           ))}
         </tbody>
       </table>
+      {permissions?.finding_detail.add&& (
+
       <button onClick={() => handleAddEntry('risks')} className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5">
         اضافه کردن
       </button>
-
+    )}
       {/* Display Suggestions */}
       <h2 className="text-2xl font-semibold my-5 text-[color:var(--color-primary-variant)] ">پیشنهادات</h2>
       <table className="min-w-full leading-normal">
@@ -617,6 +640,8 @@ const handleFileUpload = async (contentId) => {
         <tbody>
           {suggestionsData.map((title, index) => (
             <tr key={index} className="bg-white border-b border-gray-200">
+                         
+
               <td className="py-3 px-6 text-right">
                 {editMode.type === 'suggestions' && editMode.index === index ? (
                   <input
@@ -629,6 +654,7 @@ const handleFileUpload = async (contentId) => {
                   title.title
                 )}
               </td>
+              {permissions?.finding_detail.edit&& (
               <td className="px-4 py-2">
                 {editMode.type === 'suggestions' && editMode.index === index ? (
                   <button
@@ -646,19 +672,23 @@ const handleFileUpload = async (contentId) => {
                   </button>
                 )}
               </td>
+               )}
+                  {permissions?.finding_detail.delete&& (
               <td className="px-4 py-2">
                 <button onClick={() => handleDeleteEntry('suggestions', title._id.$oid)} className="text-red-500">
                   <FaTrash />
                 </button>
               </td>
+               )}
             </tr>
           ))}
         </tbody>
       </table>
+        {permissions?.finding_detail.add&& (
       <button onClick={() => handleAddEntry('suggestions')} className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5">
         اضافه کردن
       </button>
-
+)}
         {/* Add Entry Modals */}
         <ModalFinding open={isTitleModalOpen} onClose={() => setIsTitleModalOpen(false)} entryType="titles" fileId={fileId} findingGroup={findingGroup} fetchData={fetchData} />
         <ModalFinding open={isRiskModalOpen} onClose={() => setIsRiskModalOpen(false)} entryType="risks" fileId={fileId} findingGroup={findingGroup} fetchData={fetchData} />
@@ -688,7 +718,7 @@ const handleFileUpload = async (contentId) => {
               <tr key={note._id.$oid} className="border-b border-gray-200 bg-white text-sm">
                  <td>{note.title}</td>
                 
-
+  {permissions?.finding_detail.edit&& (
                  <td className="py-3 px-6">
                   <button
                     className="btn btn-sm btn-danger me-1 text-[color:var(--color-primary)]"
@@ -697,13 +727,14 @@ const handleFileUpload = async (contentId) => {
                     <MdModeEdit />
                   </button>
                 </td>
-
+)}
+  {permissions?.finding_detail.delete&& (
                   <td>
                 <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleDeleteNote(note._id.$oid)}>
                   <FaTrash />
                 </button>
               </td>
-
+)}
            
               </tr>
             ))}
@@ -711,22 +742,24 @@ const handleFileUpload = async (contentId) => {
         </table>
     
 {/* Button to add content detail */}
+  {permissions?.finding_detail.add&& (
 <button onClick={handleAddNote} className="bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white px-4 py-2 rounded mb-4 focus:outline-none m-5">
   اضافه کردن یادداشت
 </button>
- 
+ )}
        
 </div> 
         <div>
      
         {/* New section displaying content list data */}
-        <h2 className="text-2xl font-semibold my-5 text-[color:var(--color-primary-variant)]">لیست محتوا</h2>
+        <h2 className="text-2xl font-semibold my-5 text-[color:var(--color-primary-variant)]"> شرح یافته</h2>
         <table className="min-w-full leading-normal text-center items-center  ">
           <thead>
             <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
               <th className="py-3 px-6 ">عنوان</th>
               <th className="py-3 px-6 ">خلاصه</th>
               <th className="py-3 px-6 ">عنوان یافته</th>
+              <th className="py-3 px-6 "> نام فایل</th>
               <th className="py-3 px-6 ">بارگزاری فایل جدول</th>
               <th className="py-3 px-6 "> حذف فایل جدول</th>
               <th className="py-3 px-6 "> ویرایش</th>
@@ -739,29 +772,31 @@ const handleFileUpload = async (contentId) => {
                 <td className="py-3 px-6 ">{content.content_title}</td>
                 <td className="py-3 px-6 ">{content.summary}</td>
                 <td className="py-3 px-6 ">{content.finding_title_text}</td>
+                <td className="py-3 px-6 ">{content.file_name}</td>
                 
             {/* Button for selecting file */}
   <td>
-  <div>
-      <label className="btn btn-sm btn-primary me-1 cursor-pointer">
+  <div className="flex ">
+      <label className="btn text-white px-4 py-2 rounded mb-4 focus:outline-none bg-[color:var(--color-bg-variant)]  btn-sm btn-primary me-1 cursor-pointer">
         انتخاب
         <input type="file" style={{ display: 'none' }} accept=".xlsx" onChange={handleFileChange} />
       </label>
       {selectedFile && (
         <span className="me-2">{selectedFile.name}</span>
       )}
-      <button className="btn btn-sm btn-primary me-1 mx-5" onClick={() => handleFileUpload(content._id.$oid)}>
+      <button className="btn text-white px-4 py-2 rounded mb-4 focus:outline-none bg-[color:var(--color-primary)]  btn-sm btn-primary me-1 cursor-pointer" onClick={() => handleFileUpload(content._id.$oid)}>
         {loading ? 'در حال بارگزاری...' : 'بارگزاری'}
       </button>
     </div>
   </td>
-
+  {permissions?.finding_detail.delete&& (
               <td>
                 <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleFileDelete(content._id.$oid)}>
                   <FaTrash />
                 </button>
               </td>
-
+)}
+  {permissions?.finding_detail.edit&& (
               <td className="py-3 px-6">
                   <button
                     className="btn btn-sm btn-danger me-1 text-[color:var(--color-primary)]"
@@ -770,27 +805,29 @@ const handleFileUpload = async (contentId) => {
                     <MdModeEdit />
                   </button>
                 </td>
-
-
+)}
+  {permissions?.finding_detail.delete&& (
               <td>
                 
                 <button className="btn btn-sm btn-danger me-1 text-red-500" onClick={() => handleDeleteEntry('content_detail', content._id.$oid)}>
                   <FaTrash />
                 </button>
               </td>
+              )}
               </tr>
             ))}
           </tbody>
         </table>
     
 {/* Button to add content detail */}
+  {permissions?.finding_detail.add&& (
 <button
           onClick={handleAddContentDetail}
           className="bg-[color:var(--color-primary-variant)] text-white py-2 px-4 rounded-lg mt-4"
         >
           اضافه کردن جزئیات محتوا
         </button>
-       
+       )}
 </div> 
 
       </div>
@@ -815,6 +852,7 @@ const handleFileUpload = async (contentId) => {
         onClose={handleEditModalClose}
         onSubmit={handleEditModalSubmit}
         initialData={editContentData}
+        titles={titlesData}
       />
          <AddNoteModal open={isNoteModalOpen} onClose={handleCloseNoteModal} onSubmit={handleNoteSubmit} />
 

@@ -176,6 +176,7 @@ const FileDetailsPage = () => {
             <tr className="bg-gray-200 text-gray-800 font-semibold text-sm">
               <th className="py-3 px-4">عنوان فایل</th>
               <th className="py-3 px-4">تاریخ بارگزاری</th>
+              <th className="py-3 px-4">نمونه فایل</th>
               <th className="py-3 px-4">عملیات</th>
             </tr>
           </thead>
@@ -184,6 +185,11 @@ const FileDetailsPage = () => {
               <tr key={doc._id.$oid} className="border-b border-gray-200 ">
                 <td className="py-3 px-4">{doc.document_fa}</td>
                 <td className="py-3 px-4 text-center">{doc.upload_date_jalali}</td>
+                <td className="py-3 px-4 text-center">
+                  <button onClick={() => handleDownload(doc.document, fileId)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
+                    <i className="fas fa-file-excel mr-2"></i>دانلود
+                  </button>
+                </td>
                 <td className="py-3 px-4 text-center">
                   <button onClick={() => handleDownload(doc.document, fileId)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
                     <i className="fas fa-file-excel mr-2"></i>دانلود

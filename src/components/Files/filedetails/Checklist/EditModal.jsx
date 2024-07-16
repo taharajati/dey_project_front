@@ -734,7 +734,7 @@ const EditModal = ({ isOpen, onClose, formData: initialFormData, detailName, ite
                   <button onClick={onClose} className="absolute top-0 left-0 m-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700">X</button>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className='mr-8'>
-                      <label htmlFor="insurance_number" className="block">شماره بیمه نامه</label>
+                      <label htmlFor="insurance_number" className="block"> شماره پرونده </label>
                       <input
                         id="insurance_number"
                         name="insurance_number"

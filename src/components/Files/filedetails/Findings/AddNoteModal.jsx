@@ -6,6 +6,8 @@ const AddNoteModal = ({ open, onClose,onSubmit, handleNoteSubmit }) => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
+
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(noteContent);
@@ -14,10 +16,10 @@ const AddNoteModal = ({ open, onClose,onSubmit, handleNoteSubmit }) => {
   return (
     <>
       {open && (
-        <div className="fixed inset-0 flex justify-center items-center z-50" dir='rtl'> 
-          <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg max-w-md w-full">
-            <div className="relative">
+        <div className="fixed inset-0 flex justify-center items-center z-50 " dir='rtl'> 
+          <div className="fixed inset-0 bg-black bg-opacity-50 "></div>
+          <div className="fixed w-[1100px]  top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg ">
+            <div className="relative ">
               <h3 className="text-xl font-semibold mb-4 text-[color:var(--color-primary-variant)]">اضافه کردن یادداشت جدید</h3>
               <textarea
                 value={noteContent}

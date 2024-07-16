@@ -8,6 +8,7 @@ import { MdModeEdit } from "react-icons/md";
 
 
 
+
 const Findings = () => {
   const [findingsData, setFindingsData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,11 +57,11 @@ const Findings = () => {
         </div>
       )}
       <div className="  justify-center">
-      <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
+      <div className="  my-2 p-6 bg-white w-full " dir='rtl'>
       <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'> یافته ها</h1>
 
         <div className="container  px-4 my-2">
-          <table className="min-w-full leading-3">
+          <table className="min-w-full  leading-3">
             <thead>
               <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                 <th className="py-3 px-6 text-right">نوع یافته</th>

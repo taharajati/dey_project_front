@@ -305,8 +305,14 @@ const Checklist = () => {
                         {permissions?.checklist_detail.delete&& (
 
                           <th className="py-3 px-6 text-left"></th>
+                          
                         )}
-                          <th className="py-3 px-6 text-left">شماره بیمه</th>
+                         {permissions?.checklist_detail.edit&& (
+
+                                <th className="py-3 px-6 text-left"></th>
+                                
+                                )}
+                          <th className="py-3 px-6 text-left"> شماره پرونده</th>
                           <th className="py-3 px-6 text-left">هزینه کل</th>
                           {Object.keys(detail.data[0]).filter(key => key.startsWith('q')).map(q => (
                             <th key={q} className="py-3 px-6 text-center">{q.toUpperCase()}</th>
@@ -326,11 +332,16 @@ const Checklist = () => {
                             </td>
 
                             )}
-                            <td className="py-3 px-6 text-center">
-                            <button onClick={() => openEditModal(detailName, item)}>
-  <FaEdit />
-</button>
-                                </td>
+                            {permissions?.checklist_detail.edit&& (
+
+                               <td className="py-3 px-6 text-center text-[color:var(--color-bg-variant)]">
+                               <button onClick={() => openEditModal(detailName, item)}>
+                               <FaEdit />
+                               </button>
+                                   </td>
+                                
+                                )}
+                         
                             <td className="py-3 px-6 text-left">{item.insurance_number}</td>
                             <td className="py-3 px-6 text-left">{item.total_cost}</td>
                             {Object.keys(item).filter(key => key.startsWith('q')).map(q => (
@@ -379,6 +390,7 @@ const Checklist = () => {
           setEditModalOpen(false);
           setEditItem(null);
         }}
+
         formData={formData}
         detailName={detailName}  // Pass the correct detailName
         item={editItem}
