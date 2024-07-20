@@ -120,6 +120,30 @@ const FileDetailsPage = () => {
     }, 3000);
     }
   };
+  const handleDownloadPre = async (documentId, fileId) => {
+    try {
+      const response = await axios.get(`http://188.121.99.245:8080/api/report/documents/downloadpre?report_id=${fileId}&document=${documentId}`, {
+        responseType: 'blob', // Important: Set the response type to blob
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `document_${documentId}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      setError('خطا در دانلود فایل')
+      setTimeout(() => {
+        setError('');
+    }, 3000);
+    }
+  };
 
   
 
@@ -177,7 +201,7 @@ const FileDetailsPage = () => {
               <th className="py-3 px-4">عنوان فایل</th>
               <th className="py-3 px-4">تاریخ بارگزاری</th>
               <th className="py-3 px-4">نمونه فایل</th>
-              <th className="py-3 px-4">عملیات</th>
+              <th className="py-3 px-4"></th>
             </tr>
           </thead>
           <tbody>
@@ -186,7 +210,7 @@ const FileDetailsPage = () => {
                 <td className="py-3 px-4">{doc.document_fa}</td>
                 <td className="py-3 px-4 text-center">{doc.upload_date_jalali}</td>
                 <td className="py-3 px-4 text-center">
-                  <button onClick={() => handleDownload(doc.document, fileId)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
+                  <button onClick={() => handleDownloadPre(doc.document, fileId)} className="text-[color:var(--color-bg-variant)] hover:text-[color:var(--color-primary)] focus:outline-none">
                     <i className="fas fa-file-excel mr-2"></i>دانلود
                   </button>
                 </td>
