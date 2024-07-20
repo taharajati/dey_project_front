@@ -114,7 +114,6 @@ const handleSubmit = async (e) => {
     formData.period === '' ||
     formData.date_title === '' ||
     formData.audit_chief_username === '' ||
-    formData.experts.length === 0 ||
     formData.financial_year === ''
   ) {
     setFormError('لطفا تمامی فیلدهای موردنیاز را پر کنید');

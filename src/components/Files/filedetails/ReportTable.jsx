@@ -25,6 +25,7 @@ const ReportTable = () => {
 
   const fetchReports = async () => {
     try {
+      setLoading(true)
       const token = localStorage.getItem('accessToken');
       const response = await axios.get(`http://188.121.99.245:8080/api/report/reports_files?report_id=${fileId}`, {
         headers: {
@@ -39,6 +40,8 @@ const ReportTable = () => {
       setLoading(false);
       console.error('Error fetching reports:', error);
     }
+    setLoading(false)
+
   };
 
   const handleEditClick = () => {
@@ -46,6 +49,8 @@ const ReportTable = () => {
   };
 
   const handlePdfCreationClick = async (fileId, reportType) => {
+    setLoading(true)
+
     try {
       console.log('Creating PDF for fileId:', fileId, 'reportType:', reportType);
 
@@ -64,9 +69,13 @@ const ReportTable = () => {
       setErrorq('گزارش PDF ایجاد نشد');
       console.error('Error creating PDF report:', error);
     }
+    setLoading(false)
+
   };
 
   const handleReportFinalizationClick = async (fileId, reportType) => {
+    setLoading(true)
+
     try {
       console.log('Finalizing report for fileId:', fileId, 'reportType:', reportType);
 
@@ -85,9 +94,13 @@ const ReportTable = () => {
       setErrorq('گزارش ارسال نشد');
       console.error('Error sending report:', error);
     }
+    setLoading(false)
+
   };
 
   const handlePdfDownloadClick = async (reportId, reportType) => {
+    setLoading(true)
+
     try {
       console.log('Downloading PDF for reportId:', reportId, 'reportType:', reportType);
 
@@ -108,11 +121,13 @@ const ReportTable = () => {
       document.body.appendChild(link);
       link.click();
 
-      setSuccessMessage('گزارش PDF با موفقیت دانلود شد');
+      setSuccessMessage(' گزارش با موفقیت دانلود شد');
     } catch (error) {
-      setErrorq('خطا در دانلود گزارش PDF');
+      setErrorq('PDFخطا در دانلود گزارش ');
       console.error('Error downloading PDF report:', error);
     }
+    setLoading(false)
+
   };
 
   const renderEditOption = (created, finished, reportType) => {
@@ -185,18 +200,18 @@ const ReportTable = () => {
   return (
     <>
       <NavList />
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
       <div className="justify-center">
-        <div className="mx-[-100px] my-2 p-6 bg-white w-full" dir="rtl">
+        <div className=" my-2 p-6 bg-white w-full" dir="rtl">
           <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir="rtl">گزارش</h1>
           <div className="container px-4 my-2">
-            {loading ? (
-              <p>بارگذاری...</p>
-            ) : error ? (
-              <p className="text-[color:var(--color-primary-variant)]">خطا: {error}</p>
-            ) : reports.length === 0 ? (
-              <p>No reports found.</p>
-            ) : (
-              <table className="min-w-full leading-normal">
+          
+    
+              <table className="min-w-full leading-normal ">
                 <thead>
                   <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                     <th className="py-3 px-6">نوع گزارش</th>
@@ -211,7 +226,7 @@ const ReportTable = () => {
                 {reports.map(report => renderRow(report))}
                 </tbody>
               </table>
-            )}
+          
           </div>
         </div>
       </div>
