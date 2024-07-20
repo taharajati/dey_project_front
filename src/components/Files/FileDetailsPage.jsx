@@ -122,7 +122,7 @@ const FileDetailsPage = () => {
   };
   const handleDownloadPre = async (documentId, fileId) => {
     try {
-      const response = await axios.get(`http://188.121.99.245:8080/api/report/documents/downloadpre?report_id=${fileId}&document=${documentId}`, {
+      const response = await axios.get(`http://188.121.99.245:8080/api/report/documents/download_raw?report_id=${fileId}&document=${documentId}`, {
         responseType: 'blob', // Important: Set the response type to blob
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -201,7 +201,7 @@ const FileDetailsPage = () => {
               <th className="py-3 px-4">عنوان فایل</th>
               <th className="py-3 px-4">تاریخ بارگزاری</th>
               <th className="py-3 px-4">نمونه فایل</th>
-              <th className="py-3 px-4"></th>
+              <th className="py-3 px-4">دانلود فایل بارگزاری شده</th>
             </tr>
           </thead>
           <tbody>
