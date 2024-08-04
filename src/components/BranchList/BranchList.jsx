@@ -12,7 +12,9 @@ function BranchList() {
   const [token, setToken] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   const [branchManagers, setBranchManagers] = useState([]);
   const [selectedBranchManager, setSelectedBranchManager] = useState("");
   const [editBranchData, setEditBranchData] = useState(null);
@@ -22,11 +24,7 @@ function BranchList() {
 
 
 
-  console.log("permissions",permissions)
 
-  const localPermissions = { ...permissions };
-  localPermissions.branch_detail = { ...localPermissions.branch_detail,list : false };
-  console.log("localPermissions",localPermissions)
 
 
   useEffect(() => {
@@ -40,6 +38,7 @@ function BranchList() {
 
   const fetchBranches = async (token) => {
     try {
+      setIsLoading(true);
       const response = await fetch("http://188.121.99.245:8080/api/branch/", {
         headers: {
           Authorization: `Bearer ${token}`
@@ -48,15 +47,22 @@ function BranchList() {
       if (response.ok) {
         const data = await response.json();
         setBranches(data.data || []);
+        
       } else {
         console.error('Failed to fetch branches:', response.status, response.statusText);
       }
     } catch (error) {
+      setError('خطا در دریافت اطلاعات')
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       console.error('Error fetching branches:', error.message);
     }
+    setIsLoading(false);
   };
   const fetchBranchManagers = async (token) => {
     try {
+      setIsLoading(true);
       const response = await fetch("http://188.121.99.245:8080/api/user/?title=branch_manager", {
         headers: {
           Authorization: `Bearer ${token}`
@@ -69,8 +75,13 @@ function BranchList() {
         console.error('Failed to fetch branch managers:', response.status, response.statusText);
       }
     } catch (error) {
+      setError('خطا در  دریافت لیست مدیران')
+      setTimeout(() => {
+        setError('');
+    }, 3000);
       console.error('Error fetching branch managers:', error.message);
     }
+    setIsLoading(false);
   };
 
   const handleBranchManagerChange = (e) => {
@@ -98,6 +109,7 @@ function BranchList() {
 
   const handleDeleteBranch = async (branchId) => {
     try {
+      setIsLoading(true);
       console.log(branchId)
       const response = await fetch(`http://188.121.99.245:8080/api/branch/?branch_id=${branchId}`, {
         method: 'DELETE',
@@ -106,20 +118,28 @@ function BranchList() {
           'Authorization': `Bearer ${token}`
         }
       });
-      if (response.ok) {
-        // Update the branch list after successful deletion
-        fetchBranches(token);
-      } else {
-        console.error('Failed to delete branch:', response.status, response.statusText);
-      }
+      fetchBranches(token);
+      setSuccessMessage('با موفقیت حذف شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+    }, 3000);
+      // Optionally, you can handle the response and show a success message
     } catch (error) {
-      console.error('Error deleting branch:', error.message);
+      setError('خطا در  حذف شعبه');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
+      // Optionally, you can handle errors and show an error message
+    }finally {
+      setIsLoading(false);
     }
   };
   const getBranchManagerFullName = (username) => {
     const branchManager = branchManagers.find(manager => manager.username === username);
     return branchManager ? branchManager.full_name : "";
   };
+
+
   const toggleModal = () => {
     setShowModal(!showModal);
   };
@@ -132,6 +152,7 @@ function BranchList() {
   const handleEditModalClose = () => {
     setShowEditModal(false);
   };
+  console.log('branches',branches)
 
   return (
     <div className="flex flex-col items-center w-full  mt-10 mx-auto px-5 max-md:mt-10 max-md:max-w-full">
@@ -172,7 +193,7 @@ function BranchList() {
               <tr key={branch._id} className="text-center">
                 <td className="px-4 py-2">{branch.name}</td>
                 <td className="px-4 py-2">{branch.city}</td>
-                <td className="px-4 py-2">{getBranchManagerFullName(branch.branch_manager)}</td>
+                <td className="px-4 py-2">{branch.branch_manager_name}</td>
                 <td className="px-4 py-2">{branch.establishment_date_jalali}</td>
                 <td className="px-4 py-2">{branch.level}</td>
                 <td className="px-4 py-2">{branch.description}</td>
@@ -197,6 +218,7 @@ function BranchList() {
           </tbody>
         </table>
          )}
+        
       </div>
        {/* Add modal for editing */}
        { showEditModal && <EditBranchForm onClose={handleEditModalClose} branch={editBranchData} token={token} fetchBranches={fetchBranches} branchManagers={branchManagers} />}
@@ -217,28 +239,62 @@ function BranchList() {
           </div>
         </div>
       )}
+         {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
+      
+ {/* Error Pop-up */}
+ {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+      {/* Popup for success message */}
+      {successMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
+      
     </div>
   );
 }
 
-function AddBranchForm({ onClose, token, fetchBranches, handleBranchManagerChange, selectedBranchManager, branchManagers }) {
+function AddBranchForm({ onClose, token, fetchBranches, branchManagers }) {
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   const [establishmentDate, setEstablishmentDate] = useState("");
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState(0);
+  const [selectedBranchManager, setSelectedBranchManager] = useState("");
+
   const [establishmentDateError, setEstablishmentDateError] = useState("");
 
+  // Ensure handleBranchManagerChange handles the event object correctly
+  const handleBranchManagerChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedBranchManager(selectedId);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validation check for establishment date format
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(establishmentDate)) {
       setEstablishmentDateError("تاریخ تاسیس باید به فرمت yyyy-mm-dd باشد");
       return;
     }
     try {
+      setIsLoading(true);
       const response = await fetch("http://188.121.99.245:8080/api/branch/", {
         method: "POST",
         headers: {
@@ -249,28 +305,36 @@ function AddBranchForm({ onClose, token, fetchBranches, handleBranchManagerChang
           name,
           city,
           establishment_date: establishmentDate,
-          branch_manager: selectedBranchManager, // Include selected branch manager
+          branch_manager: selectedBranchManager,
           description,
           level
         })
       });
-  
-      if (response.ok) {
-        // Reload the branch list after successful addition
-        fetchBranches(token);
-        onClose();
-      } else {
-        console.error('Failed to add branch:', response.status, response.statusText);
-      }
+
+      
+      fetchBranches(token);
+      onClose();
+      setSuccessMessage('با موفقیت اضافه شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+    }, 3000);
+      // Optionally, you can handle the response and show a success message
     } catch (error) {
-      console.error('Error adding branch:', error.message);
+      setError('خطا در اضافه کردن شعبه');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
+      // Optionally, you can handle errors and show an error message
+    }finally {
+      setIsLoading(false);
     }
+   
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center " dir="rtl" >
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full ">
-        <IoCloseSharp onClick={onClose} className="float-left  cursor-pointer" />
+        <IoCloseSharp onClick={onClose} className="float-left cursor-pointer" />
         <h2 className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">اضافه کردن شعبه</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -296,19 +360,19 @@ function AddBranchForm({ onClose, token, fetchBranches, handleBranchManagerChang
           />
           {establishmentDateError && <p className="text-red-500">{establishmentDateError}</p>}
           <select
-             id="branchManagerUsername"
-             name="branch_manager_username"
-             onChange={handleBranchManagerChange}
-             value={selectedBranchManager}
-             className="border rounded-md px-2 py-1 flex-auto w-64"
-           >
-             <option value="">مدیر شعبه را انتخاب کنید</option>
-             {branchManagers.map((branchManager) => (
-               <option key={branchManager._id} value={branchManager.username}>
-                 {branchManager.full_name}
-               </option>
-             ))}
-           </select>
+            id="branchManagerId"
+            name="branch_manager_id"
+            onChange={handleBranchManagerChange}
+            value={selectedBranchManager}
+            className="border rounded-md px-2 py-1 flex-auto w-64"
+          >
+            <option value="">مدیر شعبه را انتخاب کنید</option>
+            {branchManagers.map((branchManager) => (
+              <option key={branchManager._id} value={branchManager._id}>
+                {branchManager.full_name}
+              </option>
+            ))}
+          </select>
           <textarea
             placeholder="توضیحات"
             value={description}
@@ -327,14 +391,39 @@ function AddBranchForm({ onClose, token, fetchBranches, handleBranchManagerChang
           </button>
         </form>
       </div>
+
+      {/* Error Pop-up */}
+      {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+      {/* Popup for success message */}
+      {successMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
     </div>
   );
 }
 
-
 function EditBranchForm({ branch, onClose, token, fetchBranches ,branchManagers}) {
   const [name, setName] = useState(branch.name);
   const [city, setCity] = useState(branch.city);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   const [establishmentDate, setEstablishmentDate] = useState(branch.establishment_date_jalali);
   const [description, setDescription] = useState(branch.description);
   const [level, setLevel] = useState(branch.level);
@@ -343,6 +432,7 @@ function EditBranchForm({ branch, onClose, token, fetchBranches ,branchManagers}
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const response = await fetch(`http://188.121.99.245:8080/api/branch/?branch_id=${branch._id.$oid}`, {
         method: "PUT",
         headers: {
@@ -359,14 +449,22 @@ function EditBranchForm({ branch, onClose, token, fetchBranches ,branchManagers}
         })
       });
 
-      if (response.ok) {
-        fetchBranches(token);
-        onClose();
-      } else {
-        console.error('Failed to update branch:', response.status, response.statusText);
-      }
+      fetchBranches(token);
+      onClose();
+
+      setSuccessMessage('با موفقیت ویرایش شد');
+      setTimeout(() => {
+        setSuccessMessage('');
+    }, 3000);
+      // Optionally, you can handle the response and show a success message
     } catch (error) {
-      console.error('Error updating branch:', error.message);
+      setError('خطا در ویرایش شعبه');
+      setTimeout(() => {
+        setError('');
+    }, 3000);
+      // Optionally, you can handle errors and show an error message
+    }finally {
+      setIsLoading(false);
     }
   };
 
@@ -413,13 +511,7 @@ function EditBranchForm({ branch, onClose, token, fetchBranches ,branchManagers}
                </option>
              ))}
            </select>
-      <input
-        type="text"
-        placeholder="تاریخ تاسیس"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="border border-gray-300 rounded-md px-4 py-2 w-full"
-      />
+      
       <input
         type="text"
         placeholder="تاریخ تاسیس"
@@ -433,6 +525,29 @@ function EditBranchForm({ branch, onClose, token, fetchBranches ,branchManagers}
     </form>
     </div>
     </div>
+  
+    {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
+        </div>
+      )}
+       {/* Error Pop-up */}
+       {error && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-red-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary-variant)]">{error}</p>
+          </div>
+        </div>
+      )}
+      {/* Popup for success message */}
+      {successMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 max-w-md w-full mx-auto shadow-lg border-e-green-50">
+            <p className="text-2xl font-semibold mb-4 text-center text-[color:var(--color-primary)]">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

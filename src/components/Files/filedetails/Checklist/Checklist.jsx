@@ -2,9 +2,8 @@ import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import NavList from '../NavList';
 import Modal from './Modal';
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaEdit, FaEye } from 'react-icons/fa'; // Import the eye icon from react-icons
 import EditModal from './EditModal';
-import { FaEdit } from 'react-icons/fa'; // Assuming you are using react-icons for the edit icon
 import { useReport } from '../ReportContext';
 import { PermissionsContext } from '../../../../App'; // Import the context
 
@@ -24,7 +23,11 @@ const Checklist = () => {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [rowToDelete, setRowToDelete] = useState({ tableId: null, detailName: null });
+
+  const [visibleSections, setVisibleSections] = useState({}); // State to manage the visibility of each section
+
   const permissions = useContext(PermissionsContext); // Use the context
+
 
 
   const [editModalOpen, setEditModalOpen] = useState(false); // State to manage edit modal
@@ -122,7 +125,6 @@ const Checklist = () => {
         }
       }
 
-      setLoading(false);
     } catch (error) {
       console.error('Failed to fetch checklist data:', error);
       setError('    خطا در دریافت اطلاعات چک لیست');
@@ -257,6 +259,13 @@ const Checklist = () => {
   };
 
 
+  const toggleSectionVisibility = (sectionName) => {
+    setVisibleSections(prevState => ({
+      ...prevState,
+      [sectionName]: !prevState[sectionName]
+    }));
+  };
+  
   return (
     <>
       <NavList />
@@ -273,33 +282,25 @@ const Checklist = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-700"></div>
         </div>
       )}
-            {permissions?.checklist_detail.list&& (
-
-      <div className="  justify-center">
-      <div className=" mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
-      <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>چک لیست</h1>
-
-      
-      <button onClick={handleCompleteChecklist} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md mb-4">
-          تکمیل چک لیست
-        </button>
-
-
-        {Object.entries(checklistData).length > 0 ? Object.entries(checklistData).map(([sectionName, sectionDetails]) => (
-          <div key={sectionName} className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800">{translations[sectionName] || sectionName}</h2>
-            {Object.entries(sectionDetails).map(([detailName, detail]) => (
-              <div key={detailName} className="mt-4">
-                <h3 className="text-md font-semibold text-gray-700">{translations[detailName] || detailName}</h3>
-                {permissions?.checklist_detail.add&& (
-
-                <button onClick={() => handleAddRowClick(sectionName, detailName)} className="text-[11px] m-5 bg-[color:var(--color-bg-variant)] hover:bg-[color:var(--color-primary)] text-white font-bold py-2 px-4 rounded">
-                  افزودن ردیف جدید
-                </button>
-                )}
-                {detail.data && detail.data.length > 0 ? (
-                  <div className="overflow-x-auto shadow-md w-[80%]">
-                    <table className="min-w-full leading-normal">
+           {permissions?.checklist_detail.list && (
+        <div className="justify-center">
+          <div className="mx-[-100px] my-2 p-6 bg-white w-full" dir='rtl'>
+            <h1 className="text-2xl font-semibold mb-10 text-[color:var(--color-primary-variant)]" dir='rtl'>چک لیست</h1>
+            <button onClick={handleCompleteChecklist} className="text-white bg-[color:var(--color-primary)] py-2 px-4 rounded-md mb-4">تکمیل چک لیست</button>
+            {Object.keys(checklistData).length > 0 ? Object.entries(checklistData).map(([sectionName, sectionDetails]) => (
+              <div key={sectionName} className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800">{translations[sectionName] || sectionName}</h2>
+                {Object.keys(sectionDetails).length > 0 && Object.entries(sectionDetails).map(([detailName, detail]) => (
+                  <div key={detailName} className="mt-4">
+                    <h3 className="text-md font-semibold text-gray-700 mb-8">
+                      <span>{translations[detailName] || detailName}</span>
+                      <button onClick={() => toggleSectionVisibility(detailName)} className="ml-2 float-right">
+                        {visibleSections[detailName] ? '-' : '+'}
+                      </button>
+                    </h3>
+                    {visibleSections[detailName] && (
+                      <div className="overflow-x-auto shadow-md w-[80%]">
+                     <table className=" leading-normal">
                       <thead>
                         <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                         {permissions?.checklist_detail.delete&& (
@@ -314,8 +315,8 @@ const Checklist = () => {
                                 )}
                           <th className="py-3 px-6 text-left"> شماره پرونده</th>
                           <th className="py-3 px-6 text-left">هزینه کل</th>
-                          {Object.keys(detail.data[0]).filter(key => key.startsWith('q')).map(q => (
-                            <th key={q} className="py-3 px-6 text-center">{q.toUpperCase()}</th>
+                           {Array.isArray(detail.data) && detail.data.length > 0 && Object.keys(detail.data[0]).filter(key => key.startsWith('q')).map(q => (
+                                <th key={q} className="py-3 px-6 text-center">{translations[q] || q}</th>
                           ))}
                         </tr>
                       </thead>
@@ -353,14 +354,18 @@ const Checklist = () => {
                         ))}
                       </tbody>
                     </table>
+                      </div>
+                    )}
                   </div>
-                ) : <p className='text-[color:var(--color-primary-variant)]'>هیچ داده ای برای این دسته در دسترس نیست</p>}
+                ))}
               </div>
-            ))}
-            
+            )) : (
+              <div className="mt-4 text-gray-600">هیچ داده ای یافت نشد.</div>
+            )}
           </div>
-          
-        )) : <p className="text-center text-lg"> </p>}
+        </div>
+      )}
+      
          
         
         {showConfirmation && (
@@ -378,9 +383,8 @@ const Checklist = () => {
             </div>
           </div>
         )}
-      </div>
-      </div>
-      )}
+
+   
 
 
 {editModalOpen && (
